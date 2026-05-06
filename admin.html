@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Smart-Aleck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Skranji:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:       #d4af37;
+            --gold-dim:   rgba(212,175,55,0.45);
+            --gold-faint: rgba(212,175,55,0.1);
+            --purple-dark:#0a0010;
+            --text-muted: rgba(212,175,55,0.5);
+            --border:     rgba(79,0,136,0.45);
+            --row-hover:  rgba(79,0,136,0.15);
+            --input-bg:   rgba(13,0,24,0.98);
+            --mono:       'Share Tech Mono', monospace;
+            --display:    'Skranji', sans-serif;
+        }
+
+        body { font-family: var(--mono); background: var(--purple-dark); color: var(--gold); min-height: 100vh; font-size: 0.72rem; }
+
+        .hidden { display: none !important; }
+
+        /* ── HEADER ── */
+        header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 1.5rem; gap: 12px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10,0,20,0.98);
+        }
+        header .logo { font-family: var(--display); font-size: 1rem; color: var(--gold); letter-spacing: 0.06em; white-space: nowrap; }
+        header .logo span { color: rgba(150,80,220,0.9); font-family: var(--mono); font-size: 0.58rem; margin-right: 6px; }
+        .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        header a.site-link {
+            font-size: 0.58rem; letter-spacing: 0.18em; color: var(--text-muted);
+            text-decoration: none; border: 0.5px solid var(--border); padding: 5px 12px;
+            border-radius: 4px; transition: all 0.2s; white-space: nowrap;
+        }
+        header a.site-link:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+        /* ── TABS ── */
+        .tab-nav {
+            display: flex; padding: 0.85rem 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em;
+            padding: 6px 18px; border: 0.5px solid var(--border); border-bottom: none;
+            background: transparent; color: var(--text-muted); cursor: pointer;
+            transition: all 0.15s; border-radius: 4px 4px 0 0;
+        }
+        .tab-btn:hover { color: var(--gold); }
+        .tab-btn.active { background: rgba(79,0,136,0.25); color: var(--gold); border-color: var(--gold-dim); }
+
+        /* ── CONTENT ── */
+        .tab-panel { padding: 1.25rem 1.5rem; }
+
+        /* ── EMPTY STATE ── */
+        #empty-state {
+            text-align: center; padding: 4rem 1rem;
+            color: var(--text-muted); font-size: 0.62rem; letter-spacing: 0.15em; line-height: 2.5;
+        }
+        #empty-state .big { font-family: var(--display); font-size: 1.1rem; color: rgba(79,0,136,0.6); display: block; margin-bottom: 0.5rem; }
+
+        /* ── TOOLBAR ── */
+        .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+        .toolbar select {
+            font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+            background: var(--input-bg); border: 0.5px solid var(--border);
+            color: var(--gold); padding: 5px 10px; border-radius: 4px; cursor: pointer;
+        }
+        .toolbar select:focus { outline: none; border-color: var(--gold-dim); }
+
+        /* ── TABLE ── */
+        table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+        thead th {
+            font-size: 0.55rem; letter-spacing: 0.22em; color: var(--text-muted);
+            border-bottom: 1px solid var(--border); padding: 6px 10px;
+            text-align: left; white-space: nowrap;
+        }
+        tbody tr { border-bottom: 1px solid rgba(79,0,136,0.15); transition: background 0.15s; }
+        tbody tr:hover { background: var(--row-hover); }
+        tbody td { padding: 8px 10px; vertical-align: middle; }
+
+        .img-thumb {
+            width: 32px; height: 32px; border-radius: 4px;
+            background-color: rgba(30,0,55,0.9);
+            background-size: cover; background-position: center;
+        }
+        .name-cell { color: var(--gold); }
+        .name-cell small { color: var(--text-muted); font-size: 0.55rem; letter-spacing: 0.1em; display: block; margin-top: 2px; }
+        .sec-cell    { color: rgba(150,80,220,0.85); font-size: 0.6rem; }
+        .domain-cell { color: var(--text-muted); font-size: 0.6rem; }
+
+        /* ── BADGES ── */
+        .badge { display: inline-block; font-size: 0.52rem; letter-spacing: 0.18em; padding: 2px 8px; border-radius: 10px; border: 0.5px solid; }
+        .badge-live     { color: rgba(57,255,132,0.85); border-color: rgba(57,255,132,0.3); background: rgba(57,255,132,0.06); }
+        .badge-building { color: rgba(212,175,55,0.85); border-color: rgba(212,175,55,0.3); background: rgba(212,175,55,0.06); }
+        .badge-sale     { color: rgba(255,107,53,0.85); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.06); }
+        .badge-roadmap  { color: rgba(120,60,200,0.85); border-color: rgba(79,0,136,0.4);   background: rgba(79,0,136,0.1); }
+
+        /* ── BUTTONS ── */
+        .btn {
+            font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.15em;
+            padding: 5px 14px; border-radius: 4px; border: 0.5px solid var(--gold-dim);
+            background: var(--gold-faint); color: var(--gold); cursor: pointer;
+            transition: all 0.15s; white-space: nowrap;
+        }
+        .btn:hover { background: rgba(212,175,55,0.18); border-color: var(--gold); }
+
+        .btn-add    { border-color: rgba(57,255,132,0.4);  background: rgba(57,255,132,0.06); color: rgba(57,255,132,0.85); }
+        .btn-add:hover { background: rgba(57,255,132,0.14); border-color: rgba(57,255,132,0.7); }
+
+        .btn-import { border-color: rgba(100,160,255,0.4); background: rgba(100,160,255,0.06); color: rgba(140,190,255,0.85); }
+        .btn-import:hover { background: rgba(100,160,255,0.14); }
+
+        .btn-export { border-color: rgba(212,175,55,0.4);  background: rgba(212,175,55,0.06);  color: rgba(212,175,55,0.85); }
+        .btn-export:hover { background: rgba(212,175,55,0.14); }
+
+        .btn-del    { border-color: rgba(255,80,80,0.35);  background: rgba(255,80,80,0.05);  color: rgba(255,100,100,0.8); }
+        .btn-del:hover { background: rgba(255,80,80,0.12); border-color: rgba(255,80,80,0.6); }
+
+        .btn-sm     { padding: 3px 10px; font-size: 0.54rem; }
+
+        .btn-save   { border-color: rgba(57,255,132,0.5); color: rgba(57,255,132,0.9); background: rgba(57,255,132,0.07); }
+        .btn-save:hover { background: rgba(57,255,132,0.15); }
+        .btn-cancel { border-color: var(--border); color: var(--text-muted); background: transparent; }
+        .btn-cancel:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+        /* ── SECTIONS LIST ── */
+        .section-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid rgba(79,0,136,0.15);
+        }
+        .sec-title { flex: 1; font-size: 0.7rem; color: rgba(150,80,220,0.9); letter-spacing: 0.1em; }
+        .sec-count { font-size: 0.58rem; color: var(--text-muted); white-space: nowrap; }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; padding: 1rem;
+        }
+        .modal-box {
+            background: rgba(13,0,24,0.99); border: 0.5px solid var(--gold-dim);
+            border-radius: 10px; width: min(520px, 100%);
+            max-height: 90vh; overflow-y: auto; padding: 1.5rem;
+        }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+        }
+        .modal-header span { font-family: var(--display); font-size: 0.95rem; color: var(--gold); letter-spacing: 0.06em; }
+        .modal-header button { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 0 4px; }
+        .modal-header button:hover { color: var(--gold); }
+
+        /* ── FORM ── */
+        .form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 0.85rem; }
+        .form-row label { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--text-muted); }
+        .form-row input, .form-row select, .form-row textarea {
+            font-family: var(--mono); font-size: 0.7rem;
+            background: var(--input-bg); border: 0.5px solid var(--border);
+            color: var(--gold); padding: 7px 10px; border-radius: 5px; width: 100%;
+            transition: border-color 0.15s;
+        }
+        .form-row input::placeholder, .form-row textarea::placeholder { color: rgba(212,175,55,0.2); }
+        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { outline: none; border-color: var(--gold-dim); }
+        .form-row select option { background: #0d0018; }
+        .form-row textarea { resize: vertical; }
+        .form-row .hint { font-size: 0.54rem; color: rgba(150,80,220,0.55); letter-spacing: 0.05em; }
+        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-actions { display: flex; gap: 10px; padding-top: 0.5rem; border-top: 1px solid var(--border); margin-top: 0.5rem; }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            background: rgba(13,0,24,0.98); border: 0.5px solid var(--gold-dim);
+            color: var(--gold); font-size: 0.62rem; letter-spacing: 0.1em;
+            padding: 8px 18px; border-radius: 5px;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 200;
+        }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo"><span>//</span>SMART-ALECK ADMIN</div>
+    <div class="header-right">
+        <button class="btn btn-import" onclick="importJSON()">IMPORT JSON</button>
+        <button class="btn btn-export" onclick="exportJSON()">EXPORT JSON</button>
+        <a class="site-link" href="index.html">← SITE</a>
+    </div>
+</header>
+
+<div class="tab-nav">
+    <button id="tab-tiles-btn"    class="tab-btn active" onclick="showTab('tiles')">TILES</button>
+    <button id="tab-sections-btn" class="tab-btn"        onclick="showTab('sections')">SECTIONS</button>
+</div>
+
+<!-- ── TILES PANEL ── -->
+<div id="tab-tiles" class="tab-panel">
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="openTileModal(null)">+ ADD TILE</button>
+        <select id="filter-section" onchange="renderTiles()">
+            <option value="">ALL SECTIONS</option>
+        </select>
+    </div>
+    <div id="empty-state" class="hidden">
+        <span class="big">NO DATA</span>
+        Use IMPORT JSON to load your tiles.json,<br>
+        or add sections &amp; tiles manually.
+    </div>
+    <table id="tiles-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>NAME</th>
+                <th>SECTION</th>
+                <th>STATUS</th>
+                <th>DOMAIN</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody id="tiles-tbody"></tbody>
+    </table>
+</div>
+
+<!-- ── SECTIONS PANEL ── -->
+<div id="tab-sections" class="tab-panel hidden">
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="openSectionModal(null)">+ ADD SECTION</button>
+    </div>
+    <div id="sections-list"></div>
+</div>
+
+<!-- ── TILE MODAL ── -->
+<div id="tile-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="tile-modal-title">ADD TILE</span>
+            <button onclick="closeModal('tile-modal')">✕</button>
+        </div>
+        <form id="tile-form" onsubmit="saveTile(event)">
+            <input type="hidden" id="f-id">
+            <div class="form-row">
+                <label>SECTION</label>
+                <select id="f-section" required></select>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>CATEGORY</label>
+                    <input id="f-cat" type="text" required placeholder="DEV / SECURITY / 2025">
+                </div>
+                <div class="form-row">
+                    <label>STATUS</label>
+                    <select id="f-status" required>
+                        <option value="live">LIVE</option>
+                        <option value="building">BUILDING</option>
+                        <option value="sale">FOR SALE</option>
+                        <option value="roadmap">ROADMAP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>NAME</label>
+                <input id="f-name" type="text" required oninput="suggestImage()" placeholder="FORTRESS FLASH LABS">
+            </div>
+            <div class="form-row">
+                <label>DESCRIPTION</label>
+                <textarea id="f-desc" required rows="3" placeholder="Short description..."></textarea>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>DOMAIN</label>
+                    <input id="f-domain" type="text" placeholder="fortressflash.com">
+                </div>
+                <div class="form-row">
+                    <label>LINK URL</label>
+                    <input id="f-href" type="text" placeholder="https://...">
+                </div>
+            </div>
+            <div class="form-row">
+                <label>IMAGE FILE</label>
+                <input id="f-image" type="text" placeholder="fortressflashlabs.png">
+                <span class="hint">Drop PNG into images/tiles/ — auto-suggested from name</span>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE TILE</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('tile-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── SECTION MODAL ── -->
+<div id="section-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="sec-modal-title">ADD SECTION</span>
+            <button onclick="closeModal('section-modal')">✕</button>
+        </div>
+        <form id="section-form" onsubmit="saveSection(event)">
+            <input type="hidden" id="sf-id">
+            <div class="form-row">
+                <label>SECTION TITLE</label>
+                <input id="sf-title" type="text" required placeholder="SECTION NAME — SUBTITLE">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE SECTION</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('section-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- hidden file input for import -->
+<input type="file" id="file-input" accept=".json" class="hidden" onchange="handleImport(event)">
+
+<div id="toast"></div>
+
+<script>
+    let state = { sections: [], tiles: [] };
+
+    // ── Load / Migrate ───────────────────────────────────────────────────────
+    try {
+        const saved = localStorage.getItem('smartaleck_admin');
+        if (saved) {
+            const loaded = JSON.parse(saved);
+            if (loaded.sections) {
+                loaded.sections.forEach(s => {
+                    if (!s.id)    s.id    = s.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    if (!s.title) s.title = '';
+                });
+            }
+            if (loaded.tiles) {
+                loaded.tiles.forEach(t => {
+                    if (!t.id)     t.id     = Date.now().toString();
+                    if (!t.href)   t.href   = '';
+                    if (!t.image)  t.image  = '';
+                    if (!t.domain) t.domain = '';
+                    if (!t.cat)    t.cat    = '';
+                    if (!t.desc)   t.desc   = '';
+                    if (!t.status) t.status = 'roadmap';
+                });
+            }
+            state = loaded;
+        }
+    } catch(e) { console.warn('State load failed', e); }
+
+    function save() {
+        localStorage.setItem('smartaleck_admin', JSON.stringify(state));
+    }
+
+    // ── Import / Export ──────────────────────────────────────────────────────
+
+    function importJSON() {
+        document.getElementById('file-input').value = '';
+        document.getElementById('file-input').click();
+    }
+
+    function handleImport(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const loaded = JSON.parse(ev.target.result);
+                if (!loaded.sections || !loaded.tiles) throw new Error('Missing sections or tiles array.');
+                state = loaded;
+                save();
+                populateSectionSelects();
+                renderTiles();
+                renderSections();
+                toast('Imported ' + file.name);
+            } catch (err) {
+                alert('Import failed: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function exportJSON() {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'tiles.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('Exported tiles.json');
+    }
+
+    // ── Render ───────────────────────────────────────────────────────────────
+
+    function populateSectionSelects() {
+        const opts = state.sections.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+        document.getElementById('f-section').innerHTML      = opts;
+        document.getElementById('filter-section').innerHTML = '<option value="">ALL SECTIONS</option>' + opts;
+    }
+
+    function renderTiles() {
+        const filter = document.getElementById('filter-section').value;
+        const tiles  = filter ? state.tiles.filter(t => t.section === filter) : state.tiles;
+        const secMap = Object.fromEntries(state.sections.map(s => [s.id, s.title]));
+        const empty  = document.getElementById('empty-state');
+        const table  = document.getElementById('tiles-table');
+
+        if (!tiles.length) {
+            empty.classList.remove('hidden');
+            table.classList.add('hidden');
+            return;
+        }
+        empty.classList.add('hidden');
+        table.classList.remove('hidden');
+
+        document.getElementById('tiles-tbody').innerHTML = tiles.map(t => `
+            <tr>
+                <td><div class="img-thumb" style="background-image:url('images/tiles/${t.image}')"></div></td>
+                <td class="name-cell">${t.name}<small>${t.cat}</small></td>
+                <td class="sec-cell">${secMap[t.section] || t.section}</td>
+                <td><span class="badge badge-${t.status}">${t.status === 'sale' ? 'FOR SALE' : t.status.toUpperCase()}</span></td>
+                <td class="domain-cell">${t.domain}</td>
+                <td style="white-space:nowrap">
+                    <button class="btn btn-sm" onclick="openTileModal('${t.id}')">EDIT</button>
+                    <button class="btn btn-sm btn-del" onclick="deleteTile('${t.id}')">DEL</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderSections() {
+        document.getElementById('sections-list').innerHTML = state.sections.map(s => {
+            const count = state.tiles.filter(t => t.section === s.id).length;
+            return `
+                <div class="section-row">
+                    <span class="sec-title">${s.title}</span>
+                    <span class="sec-count">${count} tile${count !== 1 ? 's' : ''}</span>
+                    <button class="btn btn-sm" onclick="openSectionModal('${s.id}')">EDIT</button>
+                    <button class="btn btn-sm btn-del" onclick="deleteSection('${s.id}')">DEL</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ── Tile CRUD ────────────────────────────────────────────────────────────
+
+    function openTileModal(id) {
+        document.getElementById('tile-form').reset();
+        if (id) {
+            const t = state.tiles.find(t => t.id === id);
+            document.getElementById('tile-modal-title').textContent = 'EDIT TILE';
+            document.getElementById('f-id').value      = t.id;
+            document.getElementById('f-section').value = t.section;
+            document.getElementById('f-cat').value     = t.cat;
+            document.getElementById('f-name').value    = t.name;
+            document.getElementById('f-desc').value    = t.desc;
+            document.getElementById('f-status').value  = t.status;
+            document.getElementById('f-domain').value  = t.domain;
+            document.getElementById('f-href').value    = t.href  || '';
+            document.getElementById('f-image').value   = t.image || '';
+        } else {
+            document.getElementById('tile-modal-title').textContent = 'ADD TILE';
+            document.getElementById('f-id').value = '';
+        }
+        document.getElementById('tile-modal').classList.remove('hidden');
+    }
+
+    function saveTile(e) {
+        e.preventDefault();
+        const id   = document.getElementById('f-id').value;
+        const tile = {
+            id:      id || Date.now().toString(),
+            section: document.getElementById('f-section').value,
+            cat:     document.getElementById('f-cat').value,
+            name:    document.getElementById('f-name').value,
+            desc:    document.getElementById('f-desc').value,
+            status:  document.getElementById('f-status').value,
+            domain:  document.getElementById('f-domain').value,
+            href:    document.getElementById('f-href').value,
+            image:   document.getElementById('f-image').value,
+        };
+        if (id) {
+            state.tiles[state.tiles.findIndex(t => t.id === id)] = tile;
+        } else {
+            state.tiles.push(tile);
+        }
+        closeModal('tile-modal');
+        save();
+        renderTiles();
+        toast(id ? 'Tile updated.' : 'Tile added.');
+    }
+
+    function deleteTile(id) {
+        if (!confirm('Delete this tile?')) return;
+        state.tiles = state.tiles.filter(t => t.id !== id);
+        save();
+        renderTiles();
+        toast('Tile deleted.');
+    }
+
+    function suggestImage() {
+        const slug = document.getElementById('f-name').value.toLowerCase().replace(/[^a-z0-9]/g, '') + '.png';
+        document.getElementById('f-image').value = slug;
+    }
+
+    // ── Section CRUD ─────────────────────────────────────────────────────────
+
+    function openSectionModal(id) {
+        document.getElementById('section-form').reset();
+        if (id) {
+            const s = state.sections.find(s => s.id === id);
+            document.getElementById('sec-modal-title').textContent = 'EDIT SECTION';
+            document.getElementById('sf-id').value    = s.id;
+            document.getElementById('sf-title').value = s.title;
+        } else {
+            document.getElementById('sec-modal-title').textContent = 'ADD SECTION';
+            document.getElementById('sf-id').value = '';
+        }
+        document.getElementById('section-modal').classList.remove('hidden');
+    }
+
+    function saveSection(e) {
+        e.preventDefault();
+        const id    = document.getElementById('sf-id').value;
+        const title = document.getElementById('sf-title').value;
+        if (id) {
+            state.sections[state.sections.findIndex(s => s.id === id)].title = title;
+        } else {
+            state.sections.push({
+                id:    title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+                title,
+            });
+        }
+        closeModal('section-modal');
+        save();
+        populateSectionSelects();
+        renderSections();
+        toast(id ? 'Section updated.' : 'Section added.');
+    }
+
+    function deleteSection(id) {
+        if (state.tiles.some(t => t.section === id)) {
+            alert('Move or delete the tiles in this section first.');
+            return;
+        }
+        if (!confirm('Delete this section?')) return;
+        state.sections = state.sections.filter(s => s.id !== id);
+        save();
+        populateSectionSelects();
+        renderSections();
+        toast('Section deleted.');
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function showTab(name) {
+        ['tiles', 'sections'].forEach(t => {
+            document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
+            document.getElementById(`tab-${t}-btn`).classList.toggle('active', t === name);
+        });
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    populateSectionSelects();
+    renderTiles();
+    renderSections();
+</script>
+</body>
+</html>
