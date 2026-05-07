@@ -1,0 +1,151 @@
+{
+  "sections": [
+    { "id": "fortress-flash-labs", "title": "FORTRESS FLASH LABS — DEV ARM" },
+    { "id": "recordings",          "title": "SMART-ALECK RECORDINGS — MUSIC ARM" },
+    { "id": "current-projects",    "title": "CURRENT PROJECTS" },
+    { "id": "for-sale",            "title": "ASSETS FOR SALE — market.smart-aleck.com" },
+    { "id": "personal",            "title": "KARELS — PERSONAL" }
+  ],
+  "tiles": [
+    {
+      "id": "1", "section": "fortress-flash-labs",
+      "cat": "DEV / SECURITY / 2025", "name": "FORTRESS FLASH LABS",
+      "desc": "Research, dev & EU ops. Elementa Builder. The engine room of Smart-Aleck.",
+      "status": "live", "domain": "fortressflash.com",
+      "href": "https://fortressflash.com", "image": "fortressflashlabs.png"
+    },
+    {
+      "id": "2", "section": "fortress-flash-labs",
+      "cat": "CYBERSECURITY / EU", "name": "CYBERUS",
+      "desc": "Boutique Luxembourgish cyber firm. Erasmus/Cyberus masters. Security consulting, EU & US.",
+      "status": "live", "domain": "cyberus.lu",
+      "href": "https://cyberus.lu", "image": "cyberus.png"
+    },
+    {
+      "id": "3", "section": "fortress-flash-labs",
+      "cat": "LEGAL / EDUCATION", "name": "AUTHORITY LEGAL",
+      "desc": "Elementa-powered legal education. Jurisdictionary affiliate. FF Labs showcase.",
+      "status": "building", "domain": "authoritylegal.com",
+      "href": "", "image": "authoritylegal.png"
+    },
+    {
+      "id": "4", "section": "fortress-flash-labs",
+      "cat": "SERVICE / LOCAL", "name": "HACKER HOBO",
+      "desc": "Mobile tech, security checkups, local dev. Cyberus standard for small business.",
+      "status": "building", "domain": "hackerhobo.com",
+      "href": "", "image": "hackerhobo.png"
+    },
+    {
+      "id": "5", "section": "recordings",
+      "cat": "MUSIC / ARCHIVE", "name": "DJ TYPHOON",
+      "desc": "30 years. Impulse Tracker to synthwave. Minneapolis rave scene, Smart-Aleck Recordings, the full catalog.",
+      "status": "live", "domain": "djtyphoon.com",
+      "href": "https://djtyphoon.com", "image": "djtyphoon.png"
+    },
+    {
+      "id": "6", "section": "recordings",
+      "cat": "MUSIC / STREAMING", "name": "AtK SoundCloud",
+      "desc": "Tracks, mixes, and releases on SoundCloud. The live catalog.",
+      "status": "live", "domain": "soundcloud.com/anthonyk",
+      "href": "https://soundcloud.com/anthonyk", "image": "atksoundcloud.png"
+    },
+    {
+      "id": "7", "section": "recordings",
+      "cat": "SCENE / ARCHIVE", "name": "MN RAVE",
+      "desc": "Minneapolis electronic music scene archive. Flyers, photos, lineups. Pre-MNVibe era.",
+      "status": "roadmap", "domain": "mnrave.smart-aleck.com",
+      "href": "", "image": "mnrave.png"
+    },
+    {
+      "id": "8", "section": "current-projects",
+      "cat": "CURRENT / 2026", "name": "JUBILEE 2026",
+      "desc": "America 250 is a jubilee year. The economic system, what it means, what comes next.",
+      "status": "live", "domain": "jubilee2026.com",
+      "href": "https://jubilee2026.com", "image": "jubilee2026.png"
+    },
+    {
+      "id": "9", "section": "current-projects",
+      "cat": "FINANCE / METALS", "name": "SILVER.LAND",
+      "desc": "Precious metals blog, purity calculator, Kinesis affiliate. Real money.",
+      "status": "live", "domain": "silver.land",
+      "href": "https://silver.land", "image": "silverland.png"
+    },
+    {
+      "id": "10", "section": "current-projects",
+      "cat": "LAND / VENTURE", "name": "DEEDBUY",
+      "desc": "Direct mail land acquisition. Short, catchy, real business.",
+      "status": "building", "domain": "deedbuy.com",
+      "href": "", "image": "deedbuy.png"
+    },
+    {
+      "id": "11", "section": "current-projects",
+      "cat": "DREAM / LONG GAME", "name": "RETIRE FIJI",
+      "desc": "Koro Island. Land. Homestead. The plan that never went away.",
+      "status": "roadmap", "domain": "retirefiji.com",
+      "href": "", "image": "retirefiji.png"
+    },
+    {
+      "id": "12", "section": "for-sale",
+      "cat": "GEO / .LAND", "name": "DAKOTA.LAND",
+      "desc": "Strong geo .land domain. North or South, wide open.",
+      "status": "sale", "domain": "dakota.land",
+      "href": "https://market.smart-aleck.com", "image": "dakotaland.png"
+    },
+    {
+      "id": "13", "section": "for-sale",
+      "cat": "HUMOR / NICHE", "name": "FLU WORLD ORDER",
+      "desc": "Funny, niche demand, currently pointing at the WHO.",
+      "status": "sale", "domain": "fluworldorder.com",
+      "href": "https://market.smart-aleck.com", "image": "fluworldorder.png"
+    },
+    {
+      "id": "14", "section": "for-sale",
+      "cat": "FOOD / WELLNESS", "name": "BROTHFAST",
+      "desc": "Bone broth + fasting trend. Ready-made brand with a story.",
+      "status": "sale", "domain": "brothfast.com",
+      "href": "https://market.smart-aleck.com", "image": "brothfast.png"
+    },
+    {
+      "id": "15", "section": "for-sale",
+      "cat": "TRAVEL / VISA", "name": "VISABID",
+      "desc": "Short, clean .com. Immigration and visa services angle.",
+      "status": "sale", "domain": "visabid.com",
+      "href": "https://market.smart-aleck.com", "image": "visabid.png"
+    },
+    {
+      "id": "16", "section": "for-sale",
+      "cat": "CANNABIS / NICHE", "name": "SATIVA SCORE",
+      "desc": "Local dispensary scorecard concept. Cannabis niche.",
+      "status": "sale", "domain": "sativascore.com",
+      "href": "https://market.smart-aleck.com", "image": "sativascore.png"
+    },
+    {
+      "id": "17", "section": "for-sale",
+      "cat": "DEV / TECH", "name": "SANDBOX SERVERS",
+      "desc": "Clean dev/tech brand name. Good for hosting or lab services.",
+      "status": "sale", "domain": "sandboxservers.com",
+      "href": "https://market.smart-aleck.com", "image": "sandboxservers.png"
+    },
+    {
+      "id": "18", "section": "for-sale",
+      "cat": "TECH / SHORT", "name": "VMZ.ONE",
+      "desc": "VM Zone — clean short domain, demo site in progress.",
+      "status": "sale", "domain": "vmz.one",
+      "href": "https://market.smart-aleck.com", "image": "vmzone.png"
+    },
+    {
+      "id": "19", "section": "for-sale",
+      "cat": "SHORT / .IM", "name": "KAZ.IM",
+      "desc": "5 letter .im domain. Hiking/climbing brand angle or pure short domain play.",
+      "status": "sale", "domain": "kaz.im",
+      "href": "https://market.smart-aleck.com", "image": "kazim.png"
+    },
+    {
+      "id": "20", "section": "personal",
+      "cat": "GENEALOGY / PORTFOLIO", "name": "KARELS.ORG",
+      "desc": "Family name. Genealogy, personal history, portfolio.",
+      "status": "building", "domain": "karels.org · karels.lu",
+      "href": "", "image": "karelsorg.png"
+    }
+  ]
+}
