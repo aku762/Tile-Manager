@@ -8,28 +8,28 @@
     {
       "id": "2",
       "order": 2,
-      "title": "FORTRESS FLASH LABS"
+      "title": "SMART-ALECK RECORDINGS"
     },
     {
       "id": "3",
       "order": 3,
-      "title": "CURRENT PROJECTS"
+      "title": "FORTRESS FLASH LABS"
     },
     {
       "id": "4",
       "order": 4,
-      "title": "ASSETS FOR SALE"
+      "title": "CURRENT PROJECTS"
     },
     {
       "id": "5",
       "order": 5,
-      "title": "SMART-ALECK RECORDINGS"
+      "title": "ASSETS FOR SALE"
     }
   ],
   "tiles": [
     {
       "id": "1",
-      "section": "2",
+      "section": "3",
       "cat": "DEV / SECURITY / 2025",
       "name": "FORTRESSFLASH LABS",
       "desc": "Research, dev & EU ops. Elementa Builder. The engine room of Smart-Aleck.",
@@ -41,7 +41,7 @@
     },
     {
       "id": "2",
-      "section": "2",
+      "section": "3",
       "cat": "MCU / DEV / SECURITY",
       "name": "FORTRESSFLASH DEVICE",
       "desc": "Mock product website demonstrating the FortressFlash device.",
@@ -53,7 +53,7 @@
     },
     {
       "id": "3",
-      "section": "2",
+      "section": "3",
       "cat": "MCU / DEV / SECURITY",
       "name": "FORTRESSFLASH THESIS",
       "desc": "The FortressFlash thesis page.",
@@ -65,7 +65,7 @@
     },
     {
       "id": "4",
-      "section": "2",
+      "section": "3",
       "cat": "SERVICE / LOCAL",
       "name": "HACKER HOBO",
       "desc": "Mobile tech, security checkups, local dev. Cyberus standard for small business.",
@@ -77,7 +77,7 @@
     },
     {
       "id": "5",
-      "section": "2",
+      "section": "3",
       "cat": "CYBERSECURITY / EU",
       "name": "CYBERUS",
       "desc": "Boutique Luxembourgish cyber firm. Erasmus/Cyberus masters. Security consulting, EU & US.",
@@ -89,7 +89,7 @@
     },
     {
       "id": "6",
-      "section": "5",
+      "section": "2",
       "cat": "MUSIC / STREAMING",
       "name": "AtK SOUNDCLOUD",
       "desc": "Tracks, mixes, and releases on SoundCloud. The live catalog.",
@@ -101,7 +101,7 @@
     },
     {
       "id": "7",
-      "section": "5",
+      "section": "2",
       "cat": "MUSIC / VINYL",
       "name": "DISCOGS",
       "desc": "Smart-Aleck Discogs profile and vinyl collection.",
@@ -113,7 +113,7 @@
     },
     {
       "id": "8",
-      "section": "5",
+      "section": "2",
       "cat": "MUSIC / ARCHIVE",
       "name": "DJ TYPHOON",
       "desc": "30 years. Impulse Tracker to synthwave. Minneapolis rave scene, Smart-Aleck Recordings, the full catalog.",
@@ -125,7 +125,7 @@
     },
     {
       "id": "9",
-      "section": "5",
+      "section": "2",
       "cat": "MUSIC / STREAMING",
       "name": "DJ BANANA BILL",
       "desc": "Promotional website created for French DJ 'Banana Bill' (former name).",
@@ -137,7 +137,7 @@
     },
     {
       "id": "10",
-      "section": "5",
+      "section": "2",
       "cat": "SCENE / ARCHIVE",
       "name": "MN RAVE",
       "desc": "Minneapolis electronic music scene archive. Flyers, photos, lineups. Pre-MNVibe era.",
@@ -149,7 +149,7 @@
     },
     {
       "id": "11",
-      "section": "3",
+      "section": "4",
       "cat": "FINANCE / METALS",
       "name": "SILVER LAND",
       "desc": "Precious metals blog, purity calculator, Kinesis affiliate. Real money.",
@@ -161,7 +161,7 @@
     },
     {
       "id": "12",
-      "section": "3",
+      "section": "4",
       "cat": "LEGAL / EDUCATION",
       "name": "AUTHORITY LEGAL",
       "desc": "Elementa-powered legal education. Jurisdictionary affiliate. FF Labs showcase.",
@@ -173,7 +173,7 @@
     },
     {
       "id": "13",
-      "section": "3",
+      "section": "4",
       "cat": "LAND / VENTURE",
       "name": "DEEDBUY",
       "desc": "Direct mail land acquisition. Short, catchy, real business.",
@@ -185,7 +185,7 @@
     },
     {
       "id": "14",
-      "section": "3",
+      "section": "4",
       "cat": "DREAM / LONG GAME",
       "name": "RETIRE FIJI",
       "desc": "Koro Island. Land. Homestead. The plan that never went away.",
@@ -197,7 +197,7 @@
     },
     {
       "id": "15",
-      "section": "4",
+      "section": "5",
       "cat": "ADS / PRINTING",
       "name": "DOOR HANGERS PLUS",
       "desc": "High-quality, custom-printed door hangers perfect for local marketing campaigns, political canvassing, and service notifications. Make a lasting impression before they even enter their home.",
@@ -209,7 +209,7 @@
     },
     {
       "id": "16",
-      "section": "4",
+      "section": "5",
       "cat": "TECH / SHORT",
       "name": "VMZ.ONE",
       "desc": "VM Zone — clean short domain, demo site in progress.",
@@ -221,7 +221,7 @@
     },
     {
       "id": "17",
-      "section": "4",
+      "section": "5",
       "cat": "SHORT / .IM",
       "name": "KAZ.IM",
       "desc": "5 letter .im domain. Hiking/climbing brand angle or pure short domain play.",
@@ -233,7 +233,7 @@
     },
     {
       "id": "18",
-      "section": "4",
+      "section": "5",
       "cat": "TRAVEL / VISA",
       "name": "VISABID.COM",
       "desc": "Short, clean .com. Immigration and visa services angle.",
@@ -245,7 +245,7 @@
     },
     {
       "id": "19",
-      "section": "4",
+      "section": "5",
       "cat": "DEV / TECH",
       "name": "SANDBOXSERVERS.COM",
       "desc": "Clean dev/tech brand name. Good for hosting or lab services.",
@@ -257,7 +257,7 @@
     },
     {
       "id": "20",
-      "section": "4",
+      "section": "5",
       "cat": "CANNABIS / NICHE",
       "name": "SATIVASCORE.COM",
       "desc": "Local dispensary scorecard concept. Cannabis niche.",
@@ -269,7 +269,7 @@
     },
     {
       "id": "21",
-      "section": "4",
+      "section": "5",
       "cat": "FOOD / WELLNESS",
       "name": "BROTHFAST.COM",
       "desc": "Bone broth + fasting trend. Ready-made brand with a story.",
@@ -281,7 +281,7 @@
     },
     {
       "id": "22",
-      "section": "4",
+      "section": "5",
       "cat": "GEO / .LAND",
       "name": "DAKOTA.LAND",
       "desc": "Strong geo .land domain. North or South, wide open.",
@@ -293,7 +293,7 @@
     },
     {
       "id": "23",
-      "section": "4",
+      "section": "5",
       "cat": "SHORT / .IM",
       "name": "WID.IM",
       "desc": "5 letter .im domain. Existing companies/technologies angle or pure short domain play.",
