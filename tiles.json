@@ -313,6 +313,18 @@
     {
       "id": "25",
       "section": "4",
+      "cat": "DRONES / SHORT",
+      "name": "DJIDR.ONE",
+      "desc": "Everyone knows DJI, this 8 letter domain is perfect for shortening drone-related links.",
+      "status": "sale",
+      "domain": "djidr.one",
+      "href": "https://djidr.one",
+      "image": "djidrone.png",
+      "order": 25
+    },
+    {
+      "id": "26",
+      "section": "4",
       "cat": "SHORT / .IM",
       "name": "WID.IM",
       "desc": "5 letter .im domain. Existing companies/technologies angle or pure short domain play.",
@@ -320,7 +332,7 @@
       "domain": "wid.im",
       "href": "https://wid.im",
       "image": "widim.png",
-      "order": 25
+      "order": 26
     }
   ]
 }
