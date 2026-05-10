@@ -31,6 +31,21 @@ function toggleMusic() {
     }
 }
 
+// ── Tile image breakpoints ───────────────────────────────────────────────
+// These values mirror the .tile-grid media queries defined in style.css.
+// The browser uses TILE_SIZES to decide which WebP file to download, so if
+// you ever change the grid column breakpoints in style.css you MUST update
+// TILE_BP_SINGLE and TILE_BP_DOUBLE here to match, otherwise the browser
+// will fetch the wrong image size for the actual rendered layout.
+//
+//   style.css reference:
+//     @media (max-width: 1120px) → 2 columns → each tile ≈ 50vw
+//     @media (max-width: 560px)  → 1 column  → each tile ≈ 100vw
+//     default                    → 3 columns  → each tile ≈ 33vw
+const TILE_BP_SINGLE = 560;
+const TILE_BP_DOUBLE = 1120;
+const TILE_SIZES = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
+
 const STATUS_MAP = {
     live:     { dot: 'dot-live',     cls: 'status-live',     label: 'LIVE' },
     building: { dot: 'dot-building', cls: 'status-building', label: 'BUILDING' },
@@ -45,8 +60,19 @@ function renderTile(tile) {
     el.dataset.status = tile.status;
     if (tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
+    const base = (tile.image || '').replace(/\.[^.]+$/, '');
+    const picture = base ? `
+        <picture>
+            <source type="image/webp"
+                srcset="images/tiles/webp600/${base}.webp 600w,
+                        images/tiles/webp900/${base}.webp 900w"
+                sizes="${TILE_SIZES}">
+            <img src="images/tiles/${tile.image}"
+                alt="${tile.name}" loading="lazy" decoding="async"
+                onerror="this.closest('.tile-img-wrap').style.display='none'">
+        </picture>` : '';
     el.insertAdjacentHTML('beforeend',
-        `<div class="tile-img-wrap"><img src="images/tiles/${tile.image || ''}" alt="" loading="lazy" onerror="this.style.display='none'"></div>` +
+        `<div class="tile-img-wrap">${picture}</div>` +
         `<div class="tile-cat">${tile.cat}</div>`
     );
 
