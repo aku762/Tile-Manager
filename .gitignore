@@ -1,3 +1,6 @@
+# image source files (large)
+source/
+
 # wrangler files
 .wrangler
 .dev.vars*
