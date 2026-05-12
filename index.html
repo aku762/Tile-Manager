@@ -67,6 +67,35 @@
 
 </div><!-- /page -->
 
+<script>
+    VANTA.WAVES({
+        el: "#vanta-bg",
+        mouseControls: true, touchControls: true, gyroControls: false,
+        minHeight: 200.00, minWidth: 200.00, scale: 1.00, scaleMobile: 1.00,
+        color: 0x4f0088, shininess: 138.00, waveHeight: 40.00, waveSpeed: 0.70, zoom: 0.65
+    });
+
+    function toggleMusic() {
+        const audio = document.getElementById('bg-music');
+        const icon  = document.getElementById('play-icon');
+        const label = document.getElementById('play-label');
+        const pause = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        const play  = '<path d="M8 5v14l11-7z"/>';
+        if (audio.paused) { audio.play();  icon.innerHTML = pause; label.textContent = 'PAUSE'; }
+        else              { audio.pause(); icon.innerHTML = play;  label.textContent = 'PLAY';  }
+    }
+
+    function filter(status, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tile').forEach(tile => {
+            if (status === 'all' || tile.dataset.status === status) tile.removeAttribute('data-hidden');
+            else tile.setAttribute('data-hidden', 'true');
+        });
+    }
+</script>
+
+<!-- tile fallback: loads tiles dynamically when index.html has not been pre-built -->
 <script src="app.js"></script>
 
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"a2ef3b10cd3d4d1c86e7c55fd3605a54","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
