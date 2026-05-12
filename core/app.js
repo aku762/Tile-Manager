@@ -1,15 +1,15 @@
-// app.js — dynamic tile fallback
-// Loaded only by index.html (the local/uncommitted version).
-// index.template.html does NOT load this file — after build.js runs,
-// tiles are pre-rendered in index.html and this file is never fetched.
+// app.js — local preview hydration
+// Loaded only by site/index.html for local live preview.
+// build.js strips this script tag from the output; in dist/ all tokens
+// are substituted and tiles are pre-rendered statically.
 //
-// Tile image breakpoints — mirror .tile-grid media queries in style.css.
+// Tile image breakpoints — mirror .tile-grid media queries in site/style.css.
 // If breakpoints change there, update TILE_BP_SINGLE / TILE_BP_DOUBLE here
 // AND in build.js, then re-run `npm run build`.
 //
 //   style.css reference:
 //     @media (max-width: 1120px) → 2 columns → each tile ≈ 50vw
-//     @media (max-width: 560px)  → 1 column  → each tile ≈ 100vw
+//     @media (max-width:  560px) → 1 column  → each tile ≈ 100vw
 //     default                    → 3 columns  → each tile ≈ 33vw
 const TILE_BP_SINGLE = 560;
 const TILE_BP_DOUBLE = 1120;
@@ -83,6 +83,52 @@ async function loadTiles() {
     });
 }
 
+async function loadSite() {
+    const site = await fetch('site.json').then(r => r.json()).catch(() => null);
+    if (!site) return;
+
+    const TOKENS = {
+        '{{SITE_TITLE}}':       site.title       ?? '',
+        '{{SITE_DESCRIPTION}}': site.description ?? '',
+        '{{SITE_TAGLINE}}':     site.tagline     ?? '',
+        '{{SITE_URL}}':         site.url         ?? '',
+        '{{SITE_LOGO}}':        site.logo        ?? '',
+        '{{SITE_OG}}':          site.og          ?? '',
+        '{{SITE_FOOTER}}':      site.footer      ?? '',
+    };
+    function sub(str) {
+        for (const [k, v] of Object.entries(TOKENS)) str = str.split(k).join(v);
+        return str;
+    }
+
+    // <title>
+    document.title = sub(document.title);
+
+    // <meta content="...">
+    document.querySelectorAll('meta[content]').forEach(m => { m.content = sub(m.content); });
+
+    // Logo img — set src directly and reset display so the onerror/load cycle fires fresh
+    const logoImg  = document.querySelector('#logo-wrap img');
+    const logoText = document.getElementById('logo-text');
+    if (logoImg && site.logo) {
+        logoImg.style.display = '';
+        logoImg.alt = site.title ?? '';
+        if (logoText) logoText.style.display = 'none';
+        logoImg.src = site.logo;
+    }
+
+    // Footer innerHTML allows HTML markup from site.json
+    const footer = document.getElementById('footer');
+    if (footer) footer.innerHTML = sub(footer.innerHTML);
+
+    // All remaining text nodes (hero-sub, logo-text, any other visible tokens)
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => { if (n.nodeValue.includes('{{')) n.nodeValue = sub(n.nodeValue); });
+}
+
+loadSite();
 if (!document.querySelector('#sections-container .section')) {
     loadTiles();
 }
