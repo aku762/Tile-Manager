@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart-Aleck Enterprises</title>
-    <meta name="description" content="Smart-Aleck Enterprises — We build weird useful things and have since 2003. Fortress Flash Labs. Cyberus. DJ Typhoon. And more.">
+    <title>{{SITE_TITLE}}</title>
+    <meta name="description" content="{{SITE_DESCRIPTION}}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Smart-Aleck Enterprises">
-    <meta property="og:description" content="Smart-Aleck Enterprises — We build weird useful things and have since 2003. Fortress Flash Labs. Cyberus. DJ Typhoon. And more.">
-    <meta property="og:image" content="https://smart-aleck.com/og.png">
-    <meta property="og:url" content="https://smart-aleck.com/">
+    <meta property="og:title" content="{{SITE_TITLE}}">
+    <meta property="og:description" content="{{SITE_DESCRIPTION}}">
+    <meta property="og:image" content="{{SITE_OG}}">
+    <meta property="og:url" content="{{SITE_URL}}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Smart-Aleck Enterprises">
-    <meta name="twitter:description" content="Smart-Aleck Enterprises — We build weird useful things and have since 2003. Fortress Flash Labs. Cyberus. DJ Typhoon. And more.">
-    <meta name="twitter:image" content="https://smart-aleck.com/og.png">
+    <meta name="twitter:title" content="{{SITE_TITLE}}">
+    <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
+    <meta name="twitter:image" content="{{SITE_OG}}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Skranji:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -29,21 +29,11 @@
 
     <div id="hero">
         <div id="logo-wrap">
-            <img src="logo.png" alt="SMART-ALECK"
+            <img src="{{SITE_LOGO}}" alt="{{SITE_TITLE}}"
                  onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'">
         </div>
-        <div id="logo-text">SMART-ALECK</div>
-        <div class="hero-sub">ENTERPRISES — EST. 2003</div>
-        <!--div id="player-bar">
-            <button id="play-btn" onclick="toggleMusic()">
-                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <span id="play-label">PLAY</span>
-            </button>
-            <span class="track-label">Smart-Aleck_Solace.mp3</span>
-        </div>
-        <audio id="bg-music" loop>
-            <source src="Smart-Aleck_Solace.mp3" type="audio/mpeg">
-        </audio-->
+        <div id="logo-text">{{SITE_TITLE}}</div>
+        <div class="hero-sub">{{SITE_TAGLINE}}</div>
     </div>
 
     <div id="main">
@@ -62,7 +52,7 @@
     </div><!-- /main -->
 
     <div id="footer">
-        SMART-ALECK ENTERPRISES LLC — EST. 2003 — ALL OPERATIONS BY <a href="https://fortressflash.com">FORTRESS FLASH LABS</a>
+        {{SITE_FOOTER}}
     </div>
 
 </div><!-- /page -->

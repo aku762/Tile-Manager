@@ -1,5 +1,5 @@
 {
-  "name": "smartaleck-site",
+  "name": "Tile-Manager",
   "private": true,
   "scripts": {
     "build": "node build.js"

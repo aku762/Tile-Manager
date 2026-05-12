@@ -1,0 +1,9 @@
+{
+  "title": "Tile Manager Demo",
+  "description": "A simple static homepage generated from JSON tiles.",
+  "tagline": "Edit tiles. Export JSON. Build a static site.",
+  "url": "",
+  "logo": "images/logo.png",
+  "og": "images/og.png",
+  "footer": "COPYRIGHT 2026 <a href='https://fortressflash.com'>FORTRESS FLASH LABS</a>"
+}
