@@ -5,10 +5,8 @@
 <br>
 
 <p align="center">
-  <img src="site/images/logo.png" alt="Tile Manager" height="80">
+  <img src="site/images/logo.png" alt="Tile Manager" height="160">
 </p>
-
-# Tile Manager
 
 A JSON-driven static homepage generator. Edit tiles in a drag-and-drop admin panel, export `tiles.json`, and deploy a pre-rendered site to Cloudflare Pages in one build step.
 
