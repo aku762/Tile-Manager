@@ -107,12 +107,18 @@ function copyDir(src, dest) {
 // ── Read inputs ──────────────────────────────────────────────────────────
 const site = JSON.parse(fs.readFileSync(path.join(SITE, 'site.json'), 'utf8'));
 const data = JSON.parse(fs.readFileSync(path.join(SITE, 'tiles.json'), 'utf8'));
-let template = fs.readFileSync(path.join(SITE, 'index.template.html'), 'utf8');
+let template = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
 
 if (!template.includes('<!--SECTIONS-->')) {
-    console.error('Error: <!--SECTIONS--> placeholder not found in site/index.template.html');
+    console.error('Error: <!--SECTIONS--> placeholder not found in site/index.html');
     process.exit(1);
 }
+
+// ── Strip local-preview lines (marker comment + app.js script tag) ────────
+template = template
+    .split('\n')
+    .filter(l => !l.includes('local-preview:') && !l.includes('../core/app.js'))
+    .join('\n');
 
 // ── Substitute {{SITE_*}} tokens from site.json ──────────────────────────
 const tokens = {
