@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="site/images/logo.png" alt="Tile Manager" height="80">
-</p>
-
-<p align="center">
   <img src="site/images/og.png" alt="Tile Manager preview" width="100%">
 </p>
 
 <br>
+
+<p align="center">
+  <img src="site/images/logo.png" alt="Tile Manager" height="80">
+</p>
 
 # Tile Manager
 
