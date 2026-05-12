@@ -1,0 +1,130 @@
+{
+  "sections": [
+    { "id": "1", "order": 1, "title": "FEATURED" },
+    { "id": "2", "order": 2, "title": "TOOLS" },
+    { "id": "3", "order": 3, "title": "PROJECTS" },
+    { "id": "4", "order": 4, "title": "LINKS" }
+  ],
+  "tiles": [
+    {
+      "id": "1", "order": 1, "section": "1",
+      "cat": "STATIC SITE / BUILD",
+      "name": "TILE MANAGER",
+      "desc": "JSON-driven static homepage generator. Edit tiles in the admin panel, export, and deploy to Cloudflare Pages in one build step.",
+      "status": "live",
+      "domain": "github.com",
+      "href": "https://github.com",
+      "image": "tilemanager.png"
+    },
+    {
+      "id": "2", "order": 2, "section": "1",
+      "cat": "ADMIN / EDITOR",
+      "name": "TILE ADMIN",
+      "desc": "Drag-and-drop tile editor with import/export. Manage sections, reorder tiles, and push updates without touching JSON directly.",
+      "status": "live",
+      "domain": "",
+      "href": "admin.html",
+      "image": "tileadmin.png"
+    },
+    {
+      "id": "3", "order": 3, "section": "1",
+      "cat": "TEMPLATE / DEMO",
+      "name": "BLANK SLATE",
+      "desc": "Fork this repo, drop your tiles.json and site.json into site/, connect Cloudflare Pages, and you have a live homepage in under five minutes.",
+      "status": "building",
+      "domain": "",
+      "href": "",
+      "image": "blankslate.png"
+    },
+    {
+      "id": "4", "order": 4, "section": "2",
+      "cat": "CLI / PRODUCTIVITY",
+      "name": "SNIPPET VAULT",
+      "desc": "A local-first command-line snippet manager. Tag, search, and pipe code snippets with full syntax highlighting in the terminal.",
+      "status": "building",
+      "domain": "",
+      "href": "",
+      "image": "snippetvault.png"
+    },
+    {
+      "id": "5", "order": 5, "section": "2",
+      "cat": "DEVOPS / MONITORING",
+      "name": "UPTIME BEACON",
+      "desc": "Lightweight uptime monitor with public status pages, email alerts, and a 90-day response time graph. Self-host or deploy to Workers.",
+      "status": "roadmap",
+      "domain": "",
+      "href": "",
+      "image": "uptimebeacon.png"
+    },
+    {
+      "id": "6", "order": 6, "section": "3",
+      "cat": "WEB / OPEN SOURCE",
+      "name": "FORM RELAY",
+      "desc": "A zero-dependency HTML form backend. Point your form action at the endpoint and get submissions delivered to email or webhook — no server required.",
+      "status": "live",
+      "domain": "",
+      "href": "",
+      "image": "formrelay.png"
+    },
+    {
+      "id": "7", "order": 7, "section": "3",
+      "cat": "API / BACKEND",
+      "name": "RATE GATE",
+      "desc": "Cloudflare Worker middleware that adds per-IP rate limiting, JWT verification, and structured request logging to any existing API.",
+      "status": "building",
+      "domain": "",
+      "href": "",
+      "image": "rategate.png"
+    },
+    {
+      "id": "8", "order": 8, "section": "3",
+      "cat": "DATA / SEARCH",
+      "name": "NOTED",
+      "desc": "Semantic search across a folder of markdown notes using local embeddings. No cloud, no account, no data leaving your machine.",
+      "status": "roadmap",
+      "domain": "",
+      "href": "",
+      "image": "noted.png"
+    },
+    {
+      "id": "9", "order": 9, "section": "3",
+      "cat": "SECURITY / AUDIT",
+      "name": "HEADER AUDIT",
+      "desc": "Paste a URL and get a full security header report with grades, recommended fixes, and a copy-pasteable Cloudflare Worker to patch gaps.",
+      "status": "roadmap",
+      "domain": "",
+      "href": "",
+      "image": "headeraudit.png"
+    },
+    {
+      "id": "10", "order": 10, "section": "4",
+      "cat": "DEV / PLATFORM",
+      "name": "GITHUB",
+      "desc": "The home of open source. Host repositories, review pull requests, run Actions CI, and ship software with the world's largest developer community.",
+      "status": "live",
+      "domain": "github.com",
+      "href": "https://github.com",
+      "image": "github.png"
+    },
+    {
+      "id": "11", "order": 11, "section": "4",
+      "cat": "AI / ASSISTANT",
+      "name": "CLAUDE",
+      "desc": "Anthropic's AI assistant. Write code, analyze documents, think through hard problems, and build AI-powered applications via the API.",
+      "status": "live",
+      "domain": "claude.ai",
+      "href": "https://claude.ai",
+      "image": "claude.png"
+    },
+    {
+      "id": "12", "order": 12, "section": "4",
+      "cat": "INFRA / EDGE",
+      "name": "CLOUDFLARE",
+      "desc": "Faster, safer internet. DNS, CDN, Pages, Workers, R2 storage, and a global edge network. Where this site is probably deployed.",
+      "status": "live",
+      "domain": "cloudflare.com",
+      "href": "https://cloudflare.com",
+      "image": "cloudflare.png"
+    }
+  ]
+}
