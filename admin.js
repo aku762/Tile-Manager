@@ -3,7 +3,7 @@ let dragSrcId = null;
 
 // ── Load / Migrate ───────────────────────────────────────────────────────
 try {
-    const saved = localStorage.getItem('smartaleck_admin');
+    const saved = localStorage.getItem('tile_manager_admin');
     if (saved) {
         const loaded = JSON.parse(saved);
         if (loaded.sections) {
@@ -31,7 +31,7 @@ try {
 } catch(e) { console.warn('State load failed', e); }
 
 function save() {
-    localStorage.setItem('smartaleck_admin', JSON.stringify(state));
+    localStorage.setItem('tile_manager_admin', JSON.stringify(state));
 }
 
 // ── Drag and Drop ────────────────────────────────────────────────────────
