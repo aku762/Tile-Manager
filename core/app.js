@@ -78,7 +78,7 @@ async function loadTiles() {
     const statusMap = Object.fromEntries(statuses.map(s => [s.id, s]));
     renderFilters(statuses);
     const container = document.getElementById('sections-container');
-    sections.forEach(sec => {
+    sections.filter(sec => sec.visible !== false).forEach(sec => {
         const secTiles = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
         if (!secTiles.length) return;
         const secEl = document.createElement('div');

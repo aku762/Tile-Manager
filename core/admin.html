@@ -30,6 +30,7 @@
         <select id="filter-section" onchange="renderTiles()">
             <option value="">ALL SECTIONS</option>
         </select>
+        <button id="btn-show-hidden" class="btn btn-sm btn-show-hidden" onclick="toggleShowHidden()">SHOW HIDDEN</button>
     </div>
     <div id="empty-state" class="hidden">
         <span class="big">NO DATA</span>
@@ -79,7 +80,8 @@
             <input type="hidden" id="f-id">
             <div class="form-row">
                 <label>SECTION</label>
-                <select id="f-section" required></select>
+                <select id="f-section" required onchange="checkSectionVisibility()"></select>
+                <span id="f-section-hidden-hint" class="hint hint-warn" style="display:none">This section is hidden — tile won't appear on the site until the section is made visible.</span>
             </div>
             <div class="form-row-2">
                 <div class="form-row">

@@ -80,6 +80,7 @@ function buildTile(tile, statusMap) {
 
 function buildSections(sections, tiles, statusMap) {
     return sections
+        .filter(sec => sec.visible !== false)
         .map(sec => {
             const secTiles = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
             if (!secTiles.length) return '';
