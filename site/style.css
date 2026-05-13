@@ -246,15 +246,7 @@ body {
     flex-shrink: 0;
 }
 
-.dot-live     { background: #39ff84; box-shadow: 0 0 5px #39ff84; }
-.dot-building { background: var(--blue); box-shadow: 0 0 4px rgba(12,157,222,0.6); }
-.dot-sale     { background: #ff6b35; box-shadow: 0 0 4px rgba(255,107,53,0.6); }
-.dot-roadmap  { background: rgba(12,157,222,0.3); }
-
-.status-live     { color: rgba(57,255,132,0.7); }
-.status-building { color: rgba(12,157,222,0.7); }
-.status-sale     { color: rgba(255,107,53,0.7); }
-.status-roadmap  { color: var(--muted); }
+/* dot and status label colors are set via inline styles from tiles.json statuses */
 
 .tile-domain {
     font-size: 0.6rem;

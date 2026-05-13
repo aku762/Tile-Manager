@@ -15,15 +15,19 @@ const TILE_BP_SINGLE = 560;
 const TILE_BP_DOUBLE = 1120;
 const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
-const STATUS_MAP = {
-    live:     { dot: 'dot-live',     cls: 'status-live',     label: 'LIVE'     },
-    building: { dot: 'dot-building', cls: 'status-building', label: 'BUILDING' },
-    sale:     { dot: 'dot-sale',     cls: 'status-sale',     label: 'FOR SALE' },
-    roadmap:  { dot: 'dot-roadmap',  cls: 'status-roadmap',  label: 'ROADMAP'  },
-};
+function renderFilters(statuses) {
+    const container = document.getElementById('filters');
+    statuses.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className   = 'filter-btn';
+        btn.textContent = s.label;
+        btn.onclick     = function() { filter(s.id, this); };
+        container.appendChild(btn);
+    });
+}
 
-function renderTile(tile) {
-    const s  = STATUS_MAP[tile.status] || STATUS_MAP.roadmap;
+function renderTile(tile, statusMap) {
+    const s  = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
     const el = document.createElement(tile.href ? 'a' : 'div');
     el.className      = 'tile';
     el.dataset.status = tile.status;
@@ -62,7 +66,7 @@ function renderTile(tile) {
     el.insertAdjacentHTML('beforeend',
         `<div class="tile-desc">${tile.desc}</div>` +
         `<div class="tile-footer">` +
-          `<div class="status"><div class="dot ${s.dot}"></div><span class="${s.cls}">${s.label}</span></div>` +
+          `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
           `<div class="tile-domain">${tile.domain}</div>` +
         `</div>`
     );
@@ -70,7 +74,9 @@ function renderTile(tile) {
 }
 
 async function loadTiles() {
-    const { sections, tiles } = await fetch('tiles.json').then(r => r.json());
+    const { sections, tiles, statuses = [] } = await fetch('tiles.json').then(r => r.json());
+    const statusMap = Object.fromEntries(statuses.map(s => [s.id, s]));
+    renderFilters(statuses);
     const container = document.getElementById('sections-container');
     sections.forEach(sec => {
         const secTiles = tiles.filter(t => String(t.section) === String(sec.id));
@@ -78,7 +84,7 @@ async function loadTiles() {
         const secEl = document.createElement('div');
         secEl.className = 'section';
         secEl.innerHTML = `<div class="section-header">${sec.title}</div><div class="tile-grid"></div>`;
-        secEl.querySelector('.tile-grid').append(...secTiles.map(renderTile));
+        secEl.querySelector('.tile-grid').append(...secTiles.map(t => renderTile(t, statusMap)));
         container.appendChild(secEl);
     });
 }
