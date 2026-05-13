@@ -134,6 +134,13 @@ tbody td { padding: 8px 10px; vertical-align: middle; }
 .btn-vis     { border-color: rgba(154,168,179,0.3); background: transparent; color: rgba(154,168,179,0.6); }
 .btn-vis:hover { background: rgba(154,168,179,0.08); border-color: rgba(154,168,179,0.5); }
 
+.star-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: rgba(154,168,179,0.3); padding: 0 2px; line-height: 1; transition: color 0.15s; }
+.star-btn:hover { color: rgba(245,166,35,0.7); }
+.star-btn.star-on { color: rgba(245,166,35,0.95); }
+
+.sec-type-tag { font-size: 0.5rem; letter-spacing: 0.12em; color: rgba(12,157,222,0.5); border: 0.5px solid rgba(12,157,222,0.2); padding: 1px 6px; border-radius: 3px; }
+.btn[disabled] { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
 .btn-show-hidden { border-color: rgba(154,168,179,0.3); background: transparent; color: rgba(154,168,179,0.6); }
 .btn-show-hidden:hover { background: rgba(154,168,179,0.08); border-color: rgba(154,168,179,0.5); }
 .btn-show-hidden.active { background: rgba(245,166,35,0.12); border-color: rgba(245,166,35,0.6); color: rgba(245,166,35,0.95); }

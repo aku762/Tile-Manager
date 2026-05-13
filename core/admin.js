@@ -1,6 +1,7 @@
 let state = { statuses: [], sections: [], tiles: [] };
 let dragSrcId = null;
 let showHiddenSections = false;
+let currentFilter = '';
 
 // ── Load / Migrate ───────────────────────────────────────────────────────
 try {
@@ -72,6 +73,23 @@ function onTileDrop(e, targetId) {
     e.currentTarget.classList.remove('drag-over');
     targetId = String(targetId);
     if (!dragSrcId || dragSrcId === targetId) { dragSrcId = null; return; }
+
+    const featuredSec = state.sections.find(s => s.featured === true);
+    if (featuredSec && currentFilter === featuredSec.id) {
+        const list = state.tiles.filter(t => t.featured > 0).sort((a, b) => a.featured - b.featured);
+        const srcIdx = list.findIndex(t => t.id === dragSrcId);
+        let   tgtIdx = list.findIndex(t => t.id === targetId);
+        if (srcIdx < 0 || tgtIdx < 0) { dragSrcId = null; return; }
+        const [moved] = list.splice(srcIdx, 1);
+        if (srcIdx < tgtIdx) tgtIdx--;
+        list.splice(tgtIdx, 0, moved);
+        list.forEach((t, i) => { t.featured = i + 1; });
+        dragSrcId = null;
+        save();
+        renderTiles();
+        return;
+    }
+
     const srcIdx = state.tiles.findIndex(t => t.id === dragSrcId);
     let   tgtIdx = state.tiles.findIndex(t => t.id === targetId);
     if (srcIdx < 0 || tgtIdx < 0) { dragSrcId = null; return; }
@@ -104,6 +122,21 @@ function onTileDropEnd(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
     if (!dragSrcId) return;
+
+    const featuredSec = state.sections.find(s => s.featured === true);
+    if (featuredSec && currentFilter === featuredSec.id) {
+        const list = state.tiles.filter(t => t.featured > 0).sort((a, b) => a.featured - b.featured);
+        const srcIdx = list.findIndex(t => t.id === dragSrcId);
+        if (srcIdx < 0) { dragSrcId = null; return; }
+        const [moved] = list.splice(srcIdx, 1);
+        list.push(moved);
+        list.forEach((t, i) => { t.featured = i + 1; });
+        dragSrcId = null;
+        save();
+        renderTiles();
+        return;
+    }
+
     const srcIdx = state.tiles.findIndex(t => t.id === dragSrcId);
     if (srcIdx < 0) { dragSrcId = null; return; }
     const [moved] = state.tiles.splice(srcIdx, 1);
@@ -165,7 +198,7 @@ function exportJSON() {
     const sections = state.sections.map((s, i) => {
         const newId = String(i + 1);
         sectionIdMap.set(s.id, newId);
-        return { id: newId, title: s.title, ...(s.visible === false ? { visible: false } : {}) };
+        return { id: newId, title: s.title, ...(s.visible === false ? { visible: false } : {}), ...(s.featured ? { featured: true } : {}) };
     });
     const tiles = state.tiles.map((t, i) => ({
         id:      String(i + 1),
@@ -178,6 +211,7 @@ function exportJSON() {
         href:    t.href,
         image:   t.image,
         ...(t.visible === false ? { visible: false } : {}),
+        ...(t.featured > 0 ? { featured: t.featured } : {}),
     }));
     const out  = { statuses: state.statuses, sections, tiles };
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
@@ -193,8 +227,14 @@ function exportJSON() {
 // ── Render ───────────────────────────────────────────────────────────────
 
 function populateSectionSelects() {
-    const allOpts = state.sections.map(s => `<option value="${s.id}">${s.title}${s.visible === false ? ' [HIDDEN]' : ''}</option>`).join('');
-    document.getElementById('f-section').innerHTML      = allOpts;
+    const featuredSec = state.sections.find(s => s.featured === true);
+    const allOpts = state.sections.map(s =>
+        `<option value="${s.id}">${s.title}${s.visible === false ? ' [HIDDEN]' : ''}${s.featured ? ' ★' : ''}</option>`
+    ).join('');
+    const modalOpts = state.sections.filter(s => !s.featured).map(s =>
+        `<option value="${s.id}">${s.title}${s.visible === false ? ' [HIDDEN]' : ''}</option>`
+    ).join('');
+    document.getElementById('f-section').innerHTML      = modalOpts;
     document.getElementById('filter-section').innerHTML = '<option value="">ALL SECTIONS</option>' + allOpts;
 }
 
@@ -219,14 +259,19 @@ function populateStatusSelect() {
 }
 
 function renderTiles() {
-    const filter      = document.getElementById('filter-section').value;
-    const sortable    = filter !== '';
-    const secOrderMap = Object.fromEntries(state.sections.map((s, i) => [s.id, i]));
-    const statusMap   = Object.fromEntries(state.statuses.map(s => [s.id, s]));
+    const filter        = document.getElementById('filter-section').value;
+    const featuredSec   = state.sections.find(s => s.featured === true);
+    const isFeaturedView = !!(featuredSec && filter === featuredSec.id);
+    const sortable      = filter !== '';
+    currentFilter       = filter;
+    const secOrderMap   = Object.fromEntries(state.sections.map((s, i) => [s.id, i]));
+    const statusMap     = Object.fromEntries(state.statuses.map(s => [s.id, s]));
     const visibleSectionIds = new Set(
         state.sections.filter(s => showHiddenSections || s.visible !== false).map(s => s.id)
     );
-    const tiles       = filter
+    const tiles = isFeaturedView
+        ? state.tiles.filter(t => t.featured > 0).sort((a, b) => a.featured - b.featured)
+        : filter
         ? state.tiles.filter(t => t.section === filter)
         : [...state.tiles].filter(t => visibleSectionIds.has(t.section)).sort((a, b) => (secOrderMap[a.section] ?? 999) - (secOrderMap[b.section] ?? 999));
     const secMap = Object.fromEntries(state.sections.map(s => [s.id, s.title]));
@@ -249,16 +294,18 @@ function renderTiles() {
         : '';
 
     const sentinelRow = sortable
-        ? `<tr class="drop-sentinel" ondragover="onDragOver(event)" ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)" ondrop="onTileDropEnd(event)"><td colspan="7"></td></tr>`
+        ? `<tr class="drop-sentinel" ondragover="onDragOver(event)" ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)" ondrop="onTileDropEnd(event)"><td colspan="8"></td></tr>`
         : '';
 
     document.getElementById('tiles-tbody').innerHTML = tiles.map(t => {
-        const st = statusMap[t.status] || { label: t.status.toUpperCase(), color: '#9aa8b3' };
+        const st     = statusMap[t.status] || { label: t.status.toUpperCase(), color: '#9aa8b3' };
         const hidden = t.visible === false;
+        const isFeat = t.featured > 0;
         return `
         <tr class="${hidden ? 'tile-hidden' : ''}" ${dragAttrs(t.id)}>
             <td class="${sortable ? 'drag-handle' : ''}">${sortable ? '⠿' : ''}</td>
             <td><div class="img-thumb" style="background-image:url('images/tiles/${t.image}')"></div></td>
+            <td><button class="star-btn ${isFeat ? 'star-on' : ''}" onclick="toggleFeatured('${t.id}')">${isFeat ? '★' : '☆'}</button></td>
             <td class="name-cell">${t.name}<small>${t.cat}</small></td>
             <td class="sec-cell">${secMap[t.section] || t.section}</td>
             <td><span class="badge" style="color:${st.color};border-color:${st.color}40">${st.label}</span></td>
@@ -277,7 +324,12 @@ function renderSections() {
 
     document.getElementById('sections-list').innerHTML = state.sections.map(s => {
         const count  = state.tiles.filter(t => t.section === s.id).length;
-        const hidden = s.visible === false;
+        const hidden     = s.visible === false;
+        const isFeatured = s.featured === true;
+        const typeTag    = isFeatured ? `<span class="sec-type-tag">FEATURED</span>` : '';
+        const delBtn     = isFeatured
+            ? `<button class="btn btn-sm btn-del" disabled title="Cannot delete the featured section">DEL</button>`
+            : `<button class="btn btn-sm btn-del" onclick="deleteSection('${s.id}')">DEL</button>`;
         return `
             <div class="section-row${hidden ? ' section-hidden' : ''}" draggable="true"
                  ondragstart="onDragStart(event,'${s.id}')"
@@ -288,10 +340,11 @@ function renderSections() {
                  ondrop="onSectionDrop(event,'${s.id}')">
                 <span class="drag-handle">⠿</span>
                 <span class="sec-title">${s.title}</span>
+                ${typeTag}
                 <span class="sec-count">${count} tile${count !== 1 ? 's' : ''}</span>
                 <button class="btn btn-sm" onclick="openSectionModal('${s.id}')">EDIT</button>
                 <button class="btn btn-sm ${hidden ? 'btn-vis-off' : 'btn-vis'}" onclick="toggleSectionVisible('${s.id}')">${hidden ? 'SHOW' : 'HIDE'}</button>
-                <button class="btn btn-sm btn-del" onclick="deleteSection('${s.id}')">DEL</button>
+                ${delBtn}
             </div>
         `;
     }).join('') + sentinel;
@@ -364,6 +417,22 @@ function saveTile(e) {
     toast(id ? 'Tile updated.' : 'Tile added.');
 }
 
+function toggleFeatured(id) {
+    const t = state.tiles.find(t => t.id === id);
+    if (!t) return;
+    if (t.featured > 0) {
+        const removed = t.featured;
+        t.featured = 0;
+        state.tiles.filter(x => x.featured > removed).forEach(x => { x.featured--; });
+        toast('Removed from featured.');
+    } else {
+        t.featured = Math.max(0, ...state.tiles.map(x => x.featured || 0)) + 1;
+        toast(`Featured at position ${t.featured}.`);
+    }
+    save();
+    renderTiles();
+}
+
 function toggleVisible(id) {
     const t = state.tiles.find(t => t.id === id);
     if (!t) return;
@@ -432,6 +501,11 @@ function toggleSectionVisible(id) {
 }
 
 function deleteSection(id) {
+    const sec = state.sections.find(s => s.id === id);
+    if (sec && sec.featured) {
+        alert('The featured section cannot be deleted. You can hide it instead.');
+        return;
+    }
     if (state.tiles.some(t => t.section === id)) {
         alert('Move or delete the tiles in this section first.');
         return;

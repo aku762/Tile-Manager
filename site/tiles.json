@@ -24,36 +24,43 @@
   "sections": [
     {
       "id": "1",
-      "title": "FEATURED"
+      "title": "PICKS",
+      "featured": true
     },
     {
       "id": "2",
-      "title": "TOOLS"
+      "title": "TILE MANAGER"
     },
     {
       "id": "3",
-      "title": "PROJECTS"
+      "title": "TOOLS"
     },
     {
       "id": "4",
+      "title": "PROJECTS",
+      "visible": false
+    },
+    {
+      "id": "5",
       "title": "LINKS"
     }
   ],
   "tiles": [
     {
       "id": "1",
-      "section": "1",
+      "section": "2",
       "cat": "STATIC SITE / BUILD",
       "name": "TILE MANAGER",
       "desc": "JSON-driven static homepage generator. Edit tiles in the admin panel, export, and deploy to Cloudflare Pages in one build step.",
       "status": "active",
       "domain": "github.com",
       "href": "https://github.com",
-      "image": "tilemanager.png"
+      "image": "tilemanager.png",
+      "featured": 1
     },
     {
       "id": "2",
-      "section": "1",
+      "section": "2",
       "cat": "ADMIN / EDITOR",
       "name": "TILE ADMIN",
       "desc": "Drag-and-drop tile editor with import/export. Manage sections, reorder tiles, and push updates without touching JSON directly.",
@@ -64,7 +71,7 @@
     },
     {
       "id": "3",
-      "section": "1",
+      "section": "2",
       "cat": "TEMPLATE / DEMO",
       "name": "BLANK SLATE",
       "desc": "Fork this repo, drop your tiles.json and site.json into site/, connect Cloudflare Pages, and you have a live homepage in under five minutes.",
@@ -75,7 +82,7 @@
     },
     {
       "id": "4",
-      "section": "2",
+      "section": "3",
       "cat": "CLI / PRODUCTIVITY",
       "name": "SNIPPET VAULT",
       "desc": "A local-first command-line snippet manager. Tag, search, and pipe code snippets with full syntax highlighting in the terminal.",
@@ -86,7 +93,7 @@
     },
     {
       "id": "5",
-      "section": "2",
+      "section": "3",
       "cat": "DEVOPS / MONITORING",
       "name": "UPTIME BEACON",
       "desc": "Lightweight uptime monitor with public status pages, email alerts, and a 90-day response time graph. Self-host or deploy to Workers.",
@@ -98,7 +105,7 @@
     },
     {
       "id": "6",
-      "section": "3",
+      "section": "4",
       "cat": "WEB / OPEN SOURCE",
       "name": "FORM RELAY",
       "desc": "A zero-dependency HTML form backend. Point your form action at the endpoint and get submissions delivered to email or webhook — no server required.",
@@ -109,7 +116,7 @@
     },
     {
       "id": "7",
-      "section": "3",
+      "section": "4",
       "cat": "API / BACKEND",
       "name": "RATE GATE",
       "desc": "Cloudflare Worker middleware that adds per-IP rate limiting, JWT verification, and structured request logging to any existing API.",
@@ -120,19 +127,7 @@
     },
     {
       "id": "8",
-      "section": "3",
-      "cat": "DATA / SEARCH",
-      "name": "NOTED",
-      "desc": "Semantic search across a folder of markdown notes using local embeddings. No cloud, no account, no data leaving your machine.",
-      "status": "archived",
-      "domain": "",
-      "href": "",
-      "image": "noted.png",
-      "visible": false
-    },
-    {
-      "id": "9",
-      "section": "3",
+      "section": "4",
       "cat": "SECURITY / AUDIT",
       "name": "HEADER AUDIT",
       "desc": "Paste a URL and get a full security header report with grades, recommended fixes, and a copy-pasteable Cloudflare Worker to patch gaps.",
@@ -143,8 +138,20 @@
       "visible": false
     },
     {
-      "id": "10",
+      "id": "9",
       "section": "4",
+      "cat": "DATA / SEARCH",
+      "name": "NOTED",
+      "desc": "Semantic search across a folder of markdown notes using local embeddings. No cloud, no account, no data leaving your machine.",
+      "status": "archived",
+      "domain": "",
+      "href": "",
+      "image": "noted.png",
+      "visible": false
+    },
+    {
+      "id": "10",
+      "section": "5",
       "cat": "DEV / PLATFORM",
       "name": "GITHUB",
       "desc": "The home of open source. Host repositories, review pull requests, run Actions CI, and ship software with the world's largest developer community.",
@@ -155,18 +162,19 @@
     },
     {
       "id": "11",
-      "section": "4",
+      "section": "5",
       "cat": "AI / ASSISTANT",
       "name": "CLAUDE",
       "desc": "Anthropic's AI assistant. Write code, analyze documents, think through hard problems, and build AI-powered applications via the API.",
       "status": "active",
       "domain": "claude.ai",
       "href": "https://claude.ai",
-      "image": "claude.png"
+      "image": "claude.png",
+      "featured": 2
     },
     {
       "id": "12",
-      "section": "4",
+      "section": "5",
       "cat": "INFRA / EDGE",
       "name": "CLOUDFLARE",
       "desc": "Faster, safer internet. DNS, CDN, Pages, Workers, R2 storage, and a global edge network. Where this site is probably deployed.",

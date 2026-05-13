@@ -82,7 +82,9 @@ function buildSections(sections, tiles, statusMap) {
     return sections
         .filter(sec => sec.visible !== false)
         .map(sec => {
-            const secTiles = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
+            const secTiles = sec.featured
+                ? tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured)
+                : tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
             if (!secTiles.length) return '';
             return `
     <div class="section">
