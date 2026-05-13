@@ -16,13 +16,14 @@ try {
         }
         if (loaded.tiles) {
             loaded.tiles.forEach(t => {
-                if (!t.id)     t.id     = Date.now().toString();
-                if (!t.href)   t.href   = '';
-                if (!t.image)  t.image  = '';
-                if (!t.domain) t.domain = '';
-                if (!t.cat)    t.cat    = '';
-                if (!t.desc)   t.desc   = '';
-                if (!t.status) t.status = 'roadmap';
+                if (!t.id)               t.id      = Date.now().toString();
+                if (!t.href)             t.href    = '';
+                if (!t.image)            t.image   = '';
+                if (!t.domain)           t.domain  = '';
+                if (!t.cat)              t.cat     = '';
+                if (!t.desc)             t.desc    = '';
+                if (!t.status)           t.status  = 'roadmap';
+                if (t.visible === undefined) t.visible = true;
                 t.id      = String(t.id);
                 t.section = String(t.section);
             });
@@ -174,6 +175,7 @@ function exportJSON() {
         domain:  t.domain,
         href:    t.href,
         image:   t.image,
+        ...(t.visible === false ? { visible: false } : {}),
     }));
     const out  = { statuses: state.statuses, sections, tiles };
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
@@ -229,8 +231,9 @@ function renderTiles() {
 
     document.getElementById('tiles-tbody').innerHTML = tiles.map(t => {
         const st = statusMap[t.status] || { label: t.status.toUpperCase(), color: '#9aa8b3' };
+        const hidden = t.visible === false;
         return `
-        <tr ${dragAttrs(t.id)}>
+        <tr class="${hidden ? 'tile-hidden' : ''}" ${dragAttrs(t.id)}>
             <td class="${sortable ? 'drag-handle' : ''}">${sortable ? '⠿' : ''}</td>
             <td><div class="img-thumb" style="background-image:url('images/tiles/${t.image}')"></div></td>
             <td class="name-cell">${t.name}<small>${t.cat}</small></td>
@@ -239,6 +242,7 @@ function renderTiles() {
             <td class="domain-cell">${t.domain}</td>
             <td style="white-space:nowrap">
                 <button class="btn btn-sm" onclick="openTileModal('${t.id}')">EDIT</button>
+                <button class="btn btn-sm ${hidden ? 'btn-vis-off' : 'btn-vis'}" onclick="toggleVisible('${t.id}')">${hidden ? 'SHOW' : 'HIDE'}</button>
                 <button class="btn btn-sm btn-del" onclick="deleteTile('${t.id}')">DEL</button>
             </td>
         </tr>`;
@@ -309,7 +313,8 @@ function openTileModal(id) {
 
 function saveTile(e) {
     e.preventDefault();
-    const id   = document.getElementById('f-id').value;
+    const id       = document.getElementById('f-id').value;
+    const existing = id ? state.tiles.find(t => t.id === id) : null;
     const tile = {
         id:      id || String(Date.now()),
         section: document.getElementById('f-section').value,
@@ -320,6 +325,7 @@ function saveTile(e) {
         domain:  document.getElementById('f-domain').value,
         href:    document.getElementById('f-href').value,
         image:   document.getElementById('f-image').value,
+        visible: existing ? existing.visible : true,
     };
     if (id) {
         state.tiles[state.tiles.findIndex(t => t.id === id)] = tile;
@@ -330,6 +336,15 @@ function saveTile(e) {
     save();
     renderTiles();
     toast(id ? 'Tile updated.' : 'Tile added.');
+}
+
+function toggleVisible(id) {
+    const t = state.tiles.find(t => t.id === id);
+    if (!t) return;
+    t.visible = t.visible === false;
+    save();
+    renderTiles();
+    toast(t.visible ? 'Tile visible.' : 'Tile hidden.');
 }
 
 function deleteTile(id) {

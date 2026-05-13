@@ -131,6 +131,16 @@ tbody td { padding: 8px 10px; vertical-align: middle; }
 .btn-cancel { border-color: var(--border); color: var(--muted); background: transparent; }
 .btn-cancel:hover { color: var(--blue); border-color: var(--blue-dim); }
 
+.btn-vis     { border-color: rgba(154,168,179,0.3); background: transparent; color: rgba(154,168,179,0.6); }
+.btn-vis:hover { background: rgba(154,168,179,0.08); border-color: rgba(154,168,179,0.5); }
+
+.btn-vis-off { border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.06); color: rgba(245,166,35,0.85); }
+.btn-vis-off:hover { background: rgba(245,166,35,0.14); border-color: rgba(245,166,35,0.7); }
+
+tr.tile-hidden td { opacity: 0.5; }
+tr.tile-hidden { background: rgba(245,166,35,0.06); box-shadow: inset 3px 0 0 rgba(245,166,35,0.5); }
+tr.tile-hidden .name-cell { text-decoration: line-through; text-decoration-color: rgba(245,166,35,0.5); }
+
 /* ── SECTIONS LIST ── */
 .section-row {
     display: flex; align-items: center; gap: 12px;

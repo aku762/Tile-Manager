@@ -79,7 +79,7 @@ async function loadTiles() {
     renderFilters(statuses);
     const container = document.getElementById('sections-container');
     sections.forEach(sec => {
-        const secTiles = tiles.filter(t => String(t.section) === String(sec.id));
+        const secTiles = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
         if (!secTiles.length) return;
         const secEl = document.createElement('div');
         secEl.className = 'section';
