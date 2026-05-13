@@ -274,7 +274,7 @@ function renderTiles() {
         : filter
         ? state.tiles.filter(t => t.section === filter)
         : [...state.tiles].filter(t => visibleSectionIds.has(t.section)).sort((a, b) => (secOrderMap[a.section] ?? 999) - (secOrderMap[b.section] ?? 999));
-    const secMap = Object.fromEntries(state.sections.map(s => [s.id, s.title]));
+    const secMap = Object.fromEntries(state.sections.map(s => [s.id, s.visible === false ? `${s.title} [HIDDEN]` : s.title]));
     const empty  = document.getElementById('empty-state');
     const table  = document.getElementById('tiles-table');
 
