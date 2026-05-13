@@ -21,13 +21,6 @@ const TILE_BP_SINGLE = 560;
 const TILE_BP_DOUBLE = 1120;
 const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
-const STATUS_MAP = {
-    live:     { dot: 'dot-live',     cls: 'status-live',     label: 'LIVE'     },
-    building: { dot: 'dot-building', cls: 'status-building', label: 'BUILDING' },
-    sale:     { dot: 'dot-sale',     cls: 'status-sale',     label: 'FOR SALE' },
-    roadmap:  { dot: 'dot-roadmap',  cls: 'status-roadmap',  label: 'ROADMAP'  },
-};
-
 // Escape a value for use inside an HTML attribute (href, src, alt, etc.)
 function attr(val) {
     return String(val ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -41,8 +34,14 @@ function text(val) {
         .replace(/>/g, '&gt;');
 }
 
-function buildTile(tile) {
-    const s    = STATUS_MAP[tile.status] || STATUS_MAP.roadmap;
+function buildFilters(statuses) {
+    return statuses.map(s =>
+        `<button class="filter-btn" onclick="filter('${attr(s.id)}', this)">${text(s.label)}</button>`
+    ).join('\n            ');
+}
+
+function buildTile(tile, statusMap) {
+    const s    = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
     const tag  = tile.href ? 'a' : 'div';
     const link = tile.href
         ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
@@ -71,15 +70,15 @@ function buildTile(tile) {
             <div class="tile-desc">${tile.desc}</div>
             <div class="tile-footer">
                 <div class="status">
-                    <div class="dot ${s.dot}"></div>
-                    <span class="${s.cls}">${s.label}</span>
+                    <div class="dot" style="background:${s.color}"></div>
+                    <span style="color:${s.color};opacity:0.85">${s.label}</span>
                 </div>
                 <div class="tile-domain">${tile.domain || ''}</div>
             </div>
         </${tag}>`;
 }
 
-function buildSections(sections, tiles) {
+function buildSections(sections, tiles, statusMap) {
     return sections
         .map(sec => {
             const secTiles = tiles.filter(t => String(t.section) === String(sec.id));
@@ -87,7 +86,7 @@ function buildSections(sections, tiles) {
             return `
     <div class="section">
         <div class="section-header">${sec.title}</div>
-        <div class="tile-grid">${secTiles.map(buildTile).join('')}
+        <div class="tile-grid">${secTiles.map(t => buildTile(t, statusMap)).join('')}
         </div>
     </div>`;
         })
@@ -113,6 +112,10 @@ if (!template.includes('<!--SECTIONS-->')) {
     console.error('Error: <!--SECTIONS--> placeholder not found in site/index.html');
     process.exit(1);
 }
+if (!template.includes('<!--FILTERS-->')) {
+    console.error('Error: <!--FILTERS--> placeholder not found in site/index.html');
+    process.exit(1);
+}
 
 // ── Strip local-preview lines (marker comment + app.js script tag) ────────
 template = template
@@ -134,8 +137,12 @@ for (const [token, value] of Object.entries(tokens)) {
     template = template.split(token).join(value);
 }
 
-// ── Inject pre-rendered sections ─────────────────────────────────────────
-const html = template.replace('<!--SECTIONS-->', buildSections(data.sections, data.tiles));
+// ── Inject pre-rendered filters and sections ─────────────────────────────
+const statuses  = data.statuses || [];
+const statusMap = Object.fromEntries(statuses.map(s => [s.id, s]));
+const html = template
+    .replace('<!--FILTERS-->',  buildFilters(statuses))
+    .replace('<!--SECTIONS-->', buildSections(data.sections, data.tiles, statusMap));
 
 // ── Write dist/ ──────────────────────────────────────────────────────────
 fs.mkdirSync(DIST, { recursive: true });

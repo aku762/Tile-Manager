@@ -1,4 +1,4 @@
-let state = { sections: [], tiles: [] };
+let state = { statuses: [], sections: [], tiles: [] };
 let dragSrcId = null;
 
 // ── Load / Migrate ───────────────────────────────────────────────────────
@@ -6,6 +6,7 @@ try {
     const saved = localStorage.getItem('tile_manager_admin');
     if (saved) {
         const loaded = JSON.parse(saved);
+        if (!loaded.statuses) loaded.statuses = [];
         if (loaded.sections) {
             loaded.sections.forEach(s => {
                 if (!s.id)    s.id    = s.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -138,13 +139,16 @@ function handleImport(e) {
         try {
             const loaded = JSON.parse(ev.target.result);
             if (!loaded.sections || !loaded.tiles) throw new Error('Missing sections or tiles array.');
+            if (!loaded.statuses) loaded.statuses = [];
             loaded.sections.forEach(s => { s.id = String(s.id); });
             loaded.tiles.forEach(t => { t.id = String(t.id); t.section = String(t.section); });
             state = loaded;
             save();
             populateSectionSelects();
+            populateStatusSelect();
             renderTiles();
             renderSections();
+            renderStatuses();
             toast('Imported ' + file.name);
         } catch (err) {
             alert('Import failed: ' + err.message);
@@ -158,15 +162,21 @@ function exportJSON() {
     const sections = state.sections.map((s, i) => {
         const newId = String(i + 1);
         sectionIdMap.set(s.id, newId);
-        return { id: newId, order: i + 1, title: s.title };
+        return { id: newId, title: s.title };
     });
     const tiles = state.tiles.map((t, i) => ({
-        ...t,
-        id: String(i + 1),
-        order: i + 1,
+        id:      String(i + 1),
         section: sectionIdMap.get(t.section) ?? t.section,
+        cat:     t.cat,
+        name:    t.name,
+        desc:    t.desc,
+        status:  t.status,
+        domain:  t.domain,
+        href:    t.href,
+        image:   t.image,
     }));
-    const blob = new Blob([JSON.stringify({ sections, tiles }, null, 2)], { type: 'application/json' });
+    const out  = { statuses: state.statuses, sections, tiles };
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
@@ -184,16 +194,22 @@ function populateSectionSelects() {
     document.getElementById('filter-section').innerHTML = '<option value="">ALL SECTIONS</option>' + opts;
 }
 
+function populateStatusSelect() {
+    document.getElementById('f-status').innerHTML =
+        state.statuses.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+}
+
 function renderTiles() {
-    const filter   = document.getElementById('filter-section').value;
+    const filter      = document.getElementById('filter-section').value;
     const sortable    = filter !== '';
     const secOrderMap = Object.fromEntries(state.sections.map((s, i) => [s.id, i]));
+    const statusMap   = Object.fromEntries(state.statuses.map(s => [s.id, s]));
     const tiles       = filter
         ? state.tiles.filter(t => t.section === filter)
         : [...state.tiles].sort((a, b) => (secOrderMap[a.section] ?? 999) - (secOrderMap[b.section] ?? 999));
-    const secMap   = Object.fromEntries(state.sections.map(s => [s.id, s.title]));
-    const empty    = document.getElementById('empty-state');
-    const table    = document.getElementById('tiles-table');
+    const secMap = Object.fromEntries(state.sections.map(s => [s.id, s.title]));
+    const empty  = document.getElementById('empty-state');
+    const table  = document.getElementById('tiles-table');
 
     if (!tiles.length) {
         empty.classList.remove('hidden');
@@ -211,20 +227,22 @@ function renderTiles() {
         ? `<tr class="drop-sentinel" ondragover="onDragOver(event)" ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)" ondrop="onTileDropEnd(event)"><td colspan="7"></td></tr>`
         : '';
 
-    document.getElementById('tiles-tbody').innerHTML = tiles.map(t => `
+    document.getElementById('tiles-tbody').innerHTML = tiles.map(t => {
+        const st = statusMap[t.status] || { label: t.status.toUpperCase(), color: '#9aa8b3' };
+        return `
         <tr ${dragAttrs(t.id)}>
             <td class="${sortable ? 'drag-handle' : ''}">${sortable ? '⠿' : ''}</td>
             <td><div class="img-thumb" style="background-image:url('images/tiles/${t.image}')"></div></td>
             <td class="name-cell">${t.name}<small>${t.cat}</small></td>
             <td class="sec-cell">${secMap[t.section] || t.section}</td>
-            <td><span class="badge badge-${t.status}">${t.status === 'sale' ? 'FOR SALE' : t.status.toUpperCase()}</span></td>
+            <td><span class="badge" style="color:${st.color};border-color:${st.color}40">${st.label}</span></td>
             <td class="domain-cell">${t.domain}</td>
             <td style="white-space:nowrap">
                 <button class="btn btn-sm" onclick="openTileModal('${t.id}')">EDIT</button>
                 <button class="btn btn-sm btn-del" onclick="deleteTile('${t.id}')">DEL</button>
             </td>
-        </tr>
-    `).join('') + sentinelRow;
+        </tr>`;
+    }).join('') + sentinelRow;
 }
 
 function renderSections() {
@@ -248,6 +266,22 @@ function renderSections() {
             </div>
         `;
     }).join('') + sentinel;
+}
+
+function renderStatuses() {
+    document.getElementById('statuses-list').innerHTML = state.statuses.map(s => {
+        const count = state.tiles.filter(t => t.status === s.id).length;
+        return `
+            <div class="section-row">
+                <span class="status-swatch" style="background:${s.color}"></span>
+                <span class="sec-title">${s.label}</span>
+                <span class="status-slug">${s.id}</span>
+                <span class="sec-count">${count} tile${count !== 1 ? 's' : ''}</span>
+                <button class="btn btn-sm" onclick="openStatusModal('${s.id}')">EDIT</button>
+                <button class="btn btn-sm btn-del" onclick="deleteStatus('${s.id}')">DEL</button>
+            </div>
+        `;
+    }).join('');
 }
 
 // ── Tile CRUD ────────────────────────────────────────────────────────────
@@ -359,14 +393,75 @@ function deleteSection(id) {
     toast('Section deleted.');
 }
 
+// ── Status CRUD ──────────────────────────────────────────────────────────
+
+function openStatusModal(id) {
+    document.getElementById('status-form').reset();
+    const idRow = document.getElementById('stf-id-row');
+    if (id) {
+        const s = state.statuses.find(s => s.id === id);
+        document.getElementById('stf-modal-title').textContent  = 'EDIT STATUS';
+        document.getElementById('stf-id').value                 = s.id;
+        document.getElementById('stf-id-display').value         = s.id;
+        document.getElementById('stf-label').value              = s.label;
+        document.getElementById('stf-color').value              = s.color;
+        idRow.classList.remove('hidden');
+    } else {
+        document.getElementById('stf-modal-title').textContent = 'ADD STATUS';
+        document.getElementById('stf-id').value                = '';
+        document.getElementById('stf-color').value             = '#0C9DDE';
+        idRow.classList.add('hidden');
+    }
+    document.getElementById('status-modal').classList.remove('hidden');
+}
+
+function saveStatus(e) {
+    e.preventDefault();
+    const id    = document.getElementById('stf-id').value;
+    const label = document.getElementById('stf-label').value.trim().toUpperCase();
+    const color = document.getElementById('stf-color').value;
+    if (id) {
+        const idx = state.statuses.findIndex(s => s.id === id);
+        if (idx >= 0) state.statuses[idx] = { id, label, color };
+    } else {
+        const newId = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        if (state.statuses.some(s => s.id === newId)) {
+            alert('A status with that ID already exists.');
+            return;
+        }
+        state.statuses.push({ id: newId, label, color });
+    }
+    closeModal('status-modal');
+    save();
+    populateStatusSelect();
+    renderStatuses();
+    renderTiles();
+    toast(id ? 'Status updated.' : 'Status added.');
+}
+
+function deleteStatus(id) {
+    const count = state.tiles.filter(t => t.status === id).length;
+    if (count > 0) {
+        alert(`Cannot delete: ${count} tile${count !== 1 ? 's' : ''} use this status. Update those tiles first.`);
+        return;
+    }
+    if (!confirm('Delete this status?')) return;
+    state.statuses = state.statuses.filter(s => s.id !== id);
+    save();
+    populateStatusSelect();
+    renderStatuses();
+    toast('Status deleted.');
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 function showTab(name) {
-    ['tiles', 'sections'].forEach(t => {
+    ['tiles', 'sections', 'statuses'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
         document.getElementById(`tab-${t}-btn`).classList.toggle('active', t === name);
     });
-    if (name === 'tiles') renderTiles();
+    if (name === 'tiles')    renderTiles();
+    if (name === 'statuses') renderStatuses();
 }
 
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -381,5 +476,6 @@ function toast(msg) {
 
 // ── Init ─────────────────────────────────────────────────────────────────
 populateSectionSelects();
+populateStatusSelect();
 renderTiles();
 renderSections();
