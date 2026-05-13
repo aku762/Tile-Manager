@@ -75,5 +75,3 @@ Open `dist/admin.html` (after a build) or `core/admin.html` directly via Live Se
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Node.js version | 18+ |
-
-Web Analytics: enable in **Pages → Settings → Web Analytics** rather than hardcoding a beacon token in the template.
