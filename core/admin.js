@@ -323,7 +323,9 @@ function renderSections() {
     const sentinel = `<div class="drop-sentinel" ondragover="onDragOver(event)" ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)" ondrop="onSectionDropEnd(event)"></div>`;
 
     document.getElementById('sections-list').innerHTML = state.sections.map(s => {
-        const count  = state.tiles.filter(t => t.section === s.id).length;
+        const count  = s.featured
+            ? state.tiles.filter(t => t.featured > 0).length
+            : state.tiles.filter(t => t.section === s.id).length;
         const hidden     = s.visible === false;
         const isFeatured = s.featured === true;
         const typeTag    = isFeatured ? `<span class="sec-type-tag">FEATURED</span>` : '';
