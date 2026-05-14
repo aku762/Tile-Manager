@@ -102,6 +102,7 @@ async function loadSite() {
         '{{SITE_URL}}':         site.url         ?? '',
         '{{SITE_LOGO}}':        site.logo        ?? '',
         '{{SITE_OG}}':          site.og          ?? '',
+        '{{SITE_ICON}}':        site.icon        ?? '',
         '{{SITE_FOOTER}}':      site.footer      ?? '',
     };
     function sub(str) {
@@ -124,6 +125,10 @@ async function loadSite() {
         if (logoText) logoText.style.display = 'none';
         logoImg.src = site.logo;
     }
+
+    // Favicon — sub() walker doesn't cover <link href> attributes
+    const iconLink = document.querySelector('link[rel="icon"]');
+    if (iconLink && site.icon) iconLink.href = site.icon;
 
     // Footer innerHTML allows HTML markup from site.json
     const footer = document.getElementById('footer');

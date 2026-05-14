@@ -134,6 +134,7 @@ const tokens = {
     '{{SITE_URL}}':         site.url         ?? '',
     '{{SITE_LOGO}}':        site.logo        ?? '',
     '{{SITE_OG}}':          site.og          ?? '',
+    '{{SITE_ICON}}':        site.icon        ?? '',
     '{{SITE_FOOTER}}':      site.footer      ?? '',
 };
 for (const [token, value] of Object.entries(tokens)) {

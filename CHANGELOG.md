@@ -2,6 +2,15 @@
 
 ## 2026-05-13
 
+### SITE_ICON token
+- Added `{{SITE_ICON}}` token to the site config system, following the same pattern as `{{SITE_LOGO}}` and `{{SITE_OG}}`.
+- `site/index.html` now includes `<link rel="icon" href="{{SITE_ICON}}">` — replaced at build time by `build.js`.
+- `app.js` substitutes the token in the TOKENS map and also sets `iconLink.href` directly for the local preview, since the generic text-node walker doesn't cover `<link href>` attributes.
+- `site/site.json` gains an `icon` field; default value is `images/icon.png`.
+- README token table updated.
+
+---
+
 ### Tile visibility
 - Added `visible` field to tiles. Set `false` to hide a tile from the built site and local preview without deleting it.
 - Admin tile rows get a **HIDE / SHOW** toggle button. Hidden rows display with an orange left border, background tint, and strikethrough on the tile name.
