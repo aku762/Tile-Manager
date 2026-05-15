@@ -26,27 +26,19 @@ Then any page can use `<!--GROUP:projects-->` instead of listing sections indivi
 
 ## Pages
 
-Opt-in page generation via a `pages` array in `tiles.json`. If a page definition exists, `build.js` auto-generates that HTML file. If a hand-authored HTML file exists in `site/`, it gets processed as-is with its comment tags. Both outputs land in `dist/` from the same build step — no conflict.
+A `pages` array in `tiles.json` and a `site/pages/` folder. Each file in `site/pages/` is a named page — some have comment tags and tokens that get processed, some are finished pages that pass through untouched. The build doesn't care which is which; it just walks the tags and copies the result to `dist/`.
 
 ```json
 "pages": [
-  { "id": "projects", "file": "projects.html", "sections": ["3", "4"] }
+  { "id": "index",    "file": "index.html",    "sections": ["1", "2"] },
+  { "id": "projects", "file": "projects.html", "sections": ["3", "4"] },
+  { "id": "calendar", "file": "calendar.html" }
 ]
 ```
 
-**Hybrid model:** your homepage and a projects page could be auto-generated while other pages are hand-authored — maybe one uses `<!--FEATURED-->` and a custom hero block, another just gets its sections injected via `<!--SECTION:ID-->`. You opt in per page.
+`calendar.html` has no tags and no section assignments — it's just a finished page that needs to exist in the output. `projects.html` has `<!--SECTIONS-->` and gets tiles injected. Same mechanism, the file decides what processing happens.
 
-**The actual answer — templates:** every page is a template. The distinction between hand-authored and auto-generated disappears — you write a template once (e.g. `site/templates/default.html`, `site/templates/projects.html`) and the page definition in `tiles.json` points to it with a section assignment. Bespoke layouts get their own template, generic pages share one. Same tag-walking mechanism handles both.
-
-```json
-"pages": [
-  { "id": "index",    "template": "default.html",  "sections": ["1", "2"] },
-  { "id": "projects", "template": "projects.html", "sections": ["3", "4"] },
-  { "id": "links",    "template": "default.html",  "sections": ["5"] }
-]
-```
-
-Admin could eventually show a template picker per page — whatever `.html` files exist in `site/templates/` appear as options. Data and presentation fully separated.
+**Admin — Pages tab:** lists all pages, lets you add/remove files from the pool, and for pages with section assignments lets you manage which sections appear. Importing a page is just copying an HTML file into `site/pages/` and registering it. No template concept — they're just pages.
 
 **Note:** the current comment-tag walker in `build.js` and `app.js` is already the right primitive for this — not a detour, just an earlier layer of the same system.
 
