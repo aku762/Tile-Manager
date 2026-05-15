@@ -95,3 +95,15 @@ Select multiple tiles via checkboxes and apply an action to all of them at once 
 ## Search / filter in admin
 
 A text input in the admin toolbar that filters the tile list by name, description, or domain in real time. Useful once tile count gets large.
+
+---
+
+## Known issues / things to address
+
+### Mixed image/no-image tile height in multi-column grid
+
+Tiles without images are compact and look great in single-column (mobile) — but in a multi-column layout they sit next to image tiles and stretch to match their height, leaving a large empty space where the image would be. A previous version filled that space with a CSS gradient which just looked like wasted real estate.
+
+**Ideal fix:** imageless tiles stack in a sub-column next to image tiles rather than stretching — so one tall image tile sits beside two or three compact imageless tiles. CSS grid can do this with `grid-row: span` but it requires knowing at build time which tiles have images, which makes it a `build.js` concern (adding a class or span attribute) rather than a pure CSS fix.
+
+**Constraint:** the mobile single-column view should stay as-is — compact imageless tiles look fine there and no fix is needed. The stacking behavior only matters at 2+ columns.
