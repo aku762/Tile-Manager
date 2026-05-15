@@ -44,6 +44,30 @@ A `pages` array in `tiles.json` and a `site/pages/` folder. Each file in `site/p
 
 ---
 
+## Tile types and detail pages
+
+Currently all tiles are links (`href`). A `type` field on the tile would unlock richer behaviors — the tile card stays the same but the action on click changes.
+
+**Proposed types:**
+- `link` — current default, opens `href` in a new tab
+- `modal` — opens a detail overlay in-page (image gallery, description, metadata)
+- `video` — modal with an embedded video player
+- `audio` — modal with an audio player
+- `page` — auto-generates a full HTML detail page for this tile at build time
+
+**Auto-generated detail pages (`type: "page"`):** `build.js` looks for a `<tilename>.md` file alongside the tile image in `site/source/tiles/`. If found, it renders a detail page (e.g. `dist/tiles/my-project.html`) from the tile's data and the markdown content. The tile card links to that generated page instead of an external URL. This feeds directly into the Pages system — detail pages are just another output of the build.
+
+**Asset convention:**
+```
+site/source/tiles/
+  my-project.webp     ← tile image
+  my-project.md       ← detail page content (optional)
+```
+
+**Why this matters:** it turns tile-manager into a lightweight content system — portfolio pieces, project writeups, audio/video showcases — all sourced from JSON + markdown + assets, no CMS needed.
+
+---
+
 ## Slot Machine
 
 A `<!--SLOT_MACHINE-->` tag that drops in a special widget: 3 tiles spin and lock on random picks from your library. A "feeling lucky" discovery feature for when you have a large tile collection and don't know what to open next.
