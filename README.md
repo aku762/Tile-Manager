@@ -124,6 +124,8 @@ This lets you build multi-page sites — place different section tags on differe
 | `domain` | string | Domain shown at the bottom of the tile; also used for the favicon |
 | `href` | string | Link URL — omit to render the tile as a non-clickable div |
 | `image` | string | Full filename including extension in `site/images/tiles/` (e.g. `mytile.webp`) |
+| `showImage` | boolean | `true` renders the image area — real image if `image` is set, gradient placeholder if not. Default `false` (compact tile). Toggled via the thumbnail in the admin. |
+| `expand` | boolean | `true` makes the tile standalone — never stacks, gradient suppressed, fills available row height. Use for text-heavy tiles. Ignored on tiles with a real image. Default `false`. |
 | `visible` | boolean | `false` hides the tile from the built site and local preview |
 | `featured` | number | Position in the featured section (1 = first). Omit or `0` to exclude from featured. |
 
@@ -131,16 +133,32 @@ Statuses are user-defined colored classifiers — add, edit, and delete them fro
 
 ## Tile images
 
-Drop images into `site/images/tiles/` and reference them by full filename including extension in the tile's `image` field. Any format works — `.webp`, `.jpg`, `.gif`, `.png`. Missing images are hidden gracefully via an `onerror` handler.
+Drop images into `site/images/tiles/` and reference them by full filename including extension in the tile's `image` field. Any format works — `.webp`, `.jpg`, `.gif`, `.png`.
+
+Set `showImage: true` on the tile (or click the thumbnail in the admin) to display the image. If the file is missing, a gradient placeholder shows instead so you can see the slot is reserved. If the file loads, it covers the gradient automatically.
 
 **Converting source images:** drop your original files into `site/source/tiles/` and run `convert-tiles.bat`. It uses [ImageMagick](https://imagemagick.org/) to convert and resize them to 900px wide WebP, outputting directly into `site/images/tiles/`.
+
+## Tile layout
+
+By default tiles are compact (no image area) and eligible for stacking. Two consecutive compact tiles in a section are automatically grouped into a single grid cell, splitting the height equally. This keeps the grid balanced when mixing image and non-image tiles.
+
+Three layout modes per tile:
+
+| Mode | How | Result |
+|---|---|---|
+| Compact (default) | `showImage` off, `expand` off | Small tile, stacks with the next compact tile |
+| Image / gradient | `showImage` on | Full-height tile with image or gradient placeholder |
+| Expand | `expand` on | Full-height tile, no image area, no stacking — description fills the space |
+
+On mobile (single column) stacking is disabled and all tiles flow normally.
 
 ## Admin panel
 
 Open `core/admin.html` directly via Live Server (or `dist/admin.html` after a build). The admin panel saves state to `localStorage` under the key `tile_manager_admin`. Use **Export JSON** to write `tiles.json` back to `site/`.
 
 The admin has three tabs:
-- **Tiles** — add, edit, delete, and drag-to-reorder tiles within a section. Each row has a star (☆/★) to feature/unfeature and a hide/show toggle. The **SHOW HIDDEN** toolbar button reveals tiles from hidden sections in the all-sections view.
+- **Tiles** — add, edit, delete, and drag-to-reorder tiles within a section. Each row has a favicon thumbnail (click to toggle `showImage`), a star (☆/★) to feature/unfeature, and a hide/show toggle. The tile edit modal includes an **Expand** checkbox. The **SHOW HIDDEN** toolbar button reveals tiles from hidden sections in the all-sections view.
 - **Sections** — add, edit, delete, and drag-to-reorder sections. Each section has a hide/show toggle. The featured section shows a badge and cannot be deleted — it can only be renamed or hidden.
 - **Statuses** — add, edit, and delete status labels with custom colors; deleting a status that is still in use shows an error.
 
