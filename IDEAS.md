@@ -26,11 +26,17 @@ Then any page can use `<!--GROUP:projects-->` instead of listing sections indivi
 
 ## Pages
 
-A fully data-driven page layer — `build.js` generates HTML files from page definitions in `tiles.json`, no hand-authored HTML needed.
+Opt-in page generation via a `pages` array in `tiles.json`. If a page definition exists, `build.js` auto-generates that HTML file. If a hand-authored HTML file exists in `site/`, it gets processed as-is with its comment tags. Both outputs land in `dist/` from the same build step — no conflict.
 
-**Problem it solves:** Multi-page sites currently require manually creating and maintaining HTML files.
+```json
+"pages": [
+  { "id": "projects", "file": "projects.html", "sections": ["3", "4"] }
+]
+```
 
-**Tradeoff:** Loses freeform HTML authoring flexibility (custom hero blocks, per-page layouts). Would need a hybrid model or template system to compensate. Groups is probably the better first step.
+**Hybrid model:** your homepage and a projects page could be auto-generated while other pages are hand-authored — maybe one uses `<!--FEATURED-->` and a custom hero block, another just gets its sections injected via `<!--SECTION:ID-->`. You opt in per page.
+
+**Open question:** auto-gen pages need a base template — either a default built into `build.js` or a `site/page-template.html` the user can customize. The template approach is more flexible and keeps the authoring pattern consistent with hand-written pages.
 
 ---
 
