@@ -109,3 +109,5 @@ Tiles without images are compact and look great in single-column (mobile) — bu
 `build.js` detects runs of consecutive imageless tiles, caps the group at 3, wraps them in a `.tile-stack` container, and the grid treats the container as one cell. Runs longer than 3 start a new group.
 
 **Constraint:** mobile single-column stays untouched — stacking only applies at 2+ columns via CSS media query on `.tile-stack`.
+
+**Companion feature — image toggle:** add a `showImage` boolean field to tiles. When `false`, the tile renders as imageless even if an `image` filename is set — the asset stays in the JSON so it can be re-enabled anytime. Lets you tune layout without deleting image references: if one large image tile is hanging alone at the end of a row, flip `showImage: false` and it compacts into a stack with the preceding imageless tile. Admin gets a toggle button alongside the existing hide/show.
