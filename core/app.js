@@ -3,17 +3,6 @@
 // build.js strips this script tag from the output; in dist/ all tokens
 // are substituted and tiles are pre-rendered statically.
 //
-// Tile image breakpoints — mirror .tile-grid media queries in site/style.css.
-// If breakpoints change there, update TILE_BP_SINGLE / TILE_BP_DOUBLE here
-// AND in build.js, then re-run `npm run build`.
-//
-//   style.css reference:
-//     @media (max-width: 1120px) → 2 columns → each tile ≈ 50vw
-//     @media (max-width:  560px) → 1 column  → each tile ≈ 100vw
-//     default                    → 3 columns  → each tile ≈ 33vw
-const TILE_BP_SINGLE = 560;
-const TILE_BP_DOUBLE = 1120;
-const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
 function getCommentNodes(root) {
     const nodes = [];
@@ -29,17 +18,9 @@ function renderTile(tile, statusMap) {
     el.dataset.status = tile.status;
     if (tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
-    const base    = (tile.image || '').replace(/\.[^.]+$/, '');
-    const picture = base ? `
-        <picture>
-            <source type="image/webp"
-                srcset="images/tiles/webp600/${base}.webp 600w,
-                        images/tiles/webp900/${base}.webp 900w"
-                sizes="${TILE_SIZES}">
-            <img src="images/tiles/${tile.image}"
-                alt="${tile.name}" loading="lazy" decoding="async"
-                onerror="this.closest('.tile-img-wrap').style.display='none'">
-        </picture>` : '';
+    const picture = tile.image
+        ? `<img src="images/tiles/${tile.image}" alt="${tile.name}" loading="lazy" decoding="async" onerror="this.closest('.tile-img-wrap').style.display='none'">`
+        : '';
 
     el.insertAdjacentHTML('beforeend',
         `<div class="tile-img-wrap">${picture}</div>` +

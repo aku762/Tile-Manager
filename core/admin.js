@@ -453,7 +453,7 @@ function deleteTile(id) {
 }
 
 function suggestImage() {
-    const slug = document.getElementById('f-name').value.toLowerCase().replace(/[^a-z0-9]/g, '') + '.png';
+    const slug = document.getElementById('f-name').value.toLowerCase().replace(/[^a-z0-9]/g, '') + '.webp';
     document.getElementById('f-image').value = slug;
 }
 

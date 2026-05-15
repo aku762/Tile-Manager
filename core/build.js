@@ -8,18 +8,6 @@ const SITE = path.join(ROOT, 'site');
 const CORE = path.join(ROOT, 'core');
 const DIST = path.join(ROOT, 'dist');
 
-// ── Tile image breakpoints ───────────────────────────────────────────────
-// These MUST match the .tile-grid media queries in site/style.css.
-// If you update the grid breakpoints, change these constants too,
-// then re-run `npm run build` so the correct sizes land in dist/index.html.
-//
-//   style.css reference:
-//     @media (max-width: 1120px) → 2 columns → each tile ≈ 50vw
-//     @media (max-width:  560px) → 1 column  → each tile ≈ 100vw
-//     default                    → 3 columns  → each tile ≈ 33vw
-const TILE_BP_SINGLE = 560;
-const TILE_BP_DOUBLE = 1120;
-const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
 function attr(val) {
     return String(val ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -45,16 +33,9 @@ function buildTile(tile, statusMap) {
         ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
         : '';
 
-    const base    = (tile.image || '').replace(/\.[^.]+$/, '');
-    const picture = base ? `<picture>
-                <source type="image/webp"
-                    srcset="images/tiles/webp600/${attr(base)}.webp 600w,
-                            images/tiles/webp900/${attr(base)}.webp 900w"
-                    sizes="${TILE_SIZES}">
-                <img src="images/tiles/${attr(tile.image)}"
-                    alt="${attr(tile.name)}" loading="lazy" decoding="async"
-                    onerror="this.closest('.tile-img-wrap').style.display='none'">
-            </picture>` : '';
+    const picture = tile.image
+        ? `<img src="images/tiles/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.closest('.tile-img-wrap').style.display='none'">`
+        : '';
 
     const favicon = tile.domain
         ? `<img class="tile-favicon" src="https://www.google.com/s2/favicons?domain=${attr(tile.domain.split('·')[0].trim())}&amp;sz=64" alt="" loading="lazy"> `
