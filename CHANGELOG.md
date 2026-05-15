@@ -2,6 +2,16 @@
 
 ## 2026-05-14
 
+### Simplified tile images
+- Dropped the `webp600/` and `webp900/` subdirectory approach. Tile images are now served directly from `images/tiles/` with the full filename including extension stored in `tiles.json`.
+- Any format works — `.webp`, `.jpg`, `.gif`, `.png` — just drop the file and reference it by full name.
+- `<picture>` / `<source>` / `srcset` complexity removed from both `build.js` and `app.js`.
+- `convert-tiles.bat` updated to output a single 900px webp directly into `images/tiles/` instead of `webp600/` and `webp900/` subdirectories.
+- Admin image suggest function now defaults to `.webp`.
+- `site/source/` folder is now tracked in the repo — the bat file and example source image are useful reference for anyone setting up their own site.
+
+---
+
 ### Section tags
 - `build.js` now processes all `*.html` files in `site/` (not just `index.html`), substituting `{{SITE_*}}` tokens and section comment tags in every page.
 - Four comment placeholders supported:
