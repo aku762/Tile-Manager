@@ -36,7 +36,19 @@ Opt-in page generation via a `pages` array in `tiles.json`. If a page definition
 
 **Hybrid model:** your homepage and a projects page could be auto-generated while other pages are hand-authored — maybe one uses `<!--FEATURED-->` and a custom hero block, another just gets its sections injected via `<!--SECTION:ID-->`. You opt in per page.
 
-**Open question:** auto-gen pages need a base template — either a default built into `build.js` or a `site/page-template.html` the user can customize. The template approach is more flexible and keeps the authoring pattern consistent with hand-written pages.
+**The actual answer — templates:** every page is a template. The distinction between hand-authored and auto-generated disappears — you write a template once (e.g. `site/templates/default.html`, `site/templates/projects.html`) and the page definition in `tiles.json` points to it with a section assignment. Bespoke layouts get their own template, generic pages share one. Same tag-walking mechanism handles both.
+
+```json
+"pages": [
+  { "id": "index",    "template": "default.html",  "sections": ["1", "2"] },
+  { "id": "projects", "template": "projects.html", "sections": ["3", "4"] },
+  { "id": "links",    "template": "default.html",  "sections": ["5"] }
+]
+```
+
+Admin could eventually show a template picker per page — whatever `.html` files exist in `site/templates/` appear as options. Data and presentation fully separated.
+
+**Note:** the current comment-tag walker in `build.js` and `app.js` is already the right primitive for this — not a detour, just an earlier layer of the same system.
 
 ---
 
