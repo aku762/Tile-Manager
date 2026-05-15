@@ -142,6 +142,25 @@ body {
     #hero { padding: 2rem 1rem 1.5rem; }
 }
 
+/* ── TILE STACK ── */
+.tile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tile-stack .tile {
+    flex: 1;
+}
+
+.tile-grid > .tile-compact {
+    align-self: start;
+}
+
+@media (max-width: 560px) {
+    .tile-stack { display: contents; }
+}
+
 /* ── TILE ── */
 .tile {
     background: var(--tile-bg);

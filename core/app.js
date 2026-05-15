@@ -14,18 +14,25 @@ function getCommentNodes(root) {
 function renderTile(tile, statusMap) {
     const s  = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
     const el = document.createElement(tile.href ? 'a' : 'div');
-    el.className      = 'tile';
+    el.className      = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
     el.dataset.status = tile.status;
     if (tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
-    const picture = tile.image
-        ? `<img src="images/tiles/${tile.image}" alt="${tile.name}" loading="lazy" decoding="async" onerror="this.closest('.tile-img-wrap').style.display='none'">`
-        : '';
-
-    el.insertAdjacentHTML('beforeend',
-        `<div class="tile-img-wrap">${picture}</div>` +
-        `<div class="tile-cat">${tile.cat}</div>`
-    );
+    if (tile.showImage && !(tile.expand && !tile.image)) {
+        const wrap = document.createElement('div');
+        wrap.className = 'tile-img-wrap';
+        if (tile.image) {
+            const img = document.createElement('img');
+            img.src     = `images/tiles/${tile.image}`;
+            img.alt     = tile.name;
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.onerror = function() { this.style.display = 'none'; };
+            wrap.appendChild(img);
+        }
+        el.appendChild(wrap);
+    }
+    el.insertAdjacentHTML('beforeend', `<div class="tile-cat">${tile.cat}</div>`);
 
     const nameDiv = document.createElement('div');
     nameDiv.className = 'tile-name';
@@ -50,12 +57,37 @@ function renderTile(tile, statusMap) {
     return el;
 }
 
+function stackTileEls(tileData, els) {
+    const result = [];
+    let i = 0;
+    while (i < tileData.length) {
+        if (!tileData[i].showImage && !tileData[i].expand) {
+            const group = [];
+            while (i < tileData.length && !tileData[i].showImage && !tileData[i].expand && group.length < 2) {
+                group.push(els[i++]);
+            }
+            if (group.length > 1) {
+                const stack = document.createElement('div');
+                stack.className = 'tile-stack';
+                group.forEach(el => stack.appendChild(el));
+                result.push(stack);
+            } else {
+                result.push(group[0]);
+            }
+        } else {
+            result.push(els[i++]);
+        }
+    }
+    return result;
+}
+
 function buildSectionEl(sec, secTiles, statusMap) {
     if (!secTiles.length) return null;
     const secEl = document.createElement('div');
     secEl.className = 'section';
     secEl.innerHTML = `<div class="section-header">${sec.title}</div><div class="tile-grid"></div>`;
-    secEl.querySelector('.tile-grid').append(...secTiles.map(t => renderTile(t, statusMap)));
+    const els = stackTileEls(secTiles, secTiles.map(t => renderTile(t, statusMap)));
+    secEl.querySelector('.tile-grid').append(...els);
     return secEl;
 }
 

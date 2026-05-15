@@ -33,17 +33,19 @@ function buildTile(tile, statusMap) {
         ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
         : '';
 
-    const picture = tile.image
-        ? `<img src="images/tiles/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.closest('.tile-img-wrap').style.display='none'">`
+    const showImg = tile.showImage && !(tile.expand && !tile.image);
+    const imgWrap = showImg
+        ? `\n            <div class="tile-img-wrap">${tile.image ? `<img src="images/tiles/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}</div>`
         : '';
 
     const favicon = tile.domain
         ? `<img class="tile-favicon" src="https://www.google.com/s2/favicons?domain=${attr(tile.domain.split('·')[0].trim())}&amp;sz=64" alt="" loading="lazy"> `
         : '';
 
+    const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
+
     return `
-        <${tag} class="tile" data-status="${attr(tile.status)}"${link}>
-            <div class="tile-img-wrap">${picture}</div>
+        <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}
             <div class="tile-cat">${tile.cat}</div>
             <div class="tile-name">${favicon}${text(tile.name)}</div>
             <div class="tile-desc">${tile.desc}</div>
@@ -55,6 +57,23 @@ function buildTile(tile, statusMap) {
                 <div class="tile-domain">${tile.domain || ''}</div>
             </div>
         </${tag}>`;
+}
+
+function stackTiles(tileData, htmls) {
+    const result = [];
+    let i = 0;
+    while (i < tileData.length) {
+        if (!tileData[i].showImage && !tileData[i].expand) {
+            const group = [];
+            while (i < tileData.length && !tileData[i].showImage && !tileData[i].expand && group.length < 2) {
+                group.push(htmls[i++]);
+            }
+            result.push(group.length > 1 ? `<div class="tile-stack">${group.join('')}</div>` : group[0]);
+        } else {
+            result.push(htmls[i++]);
+        }
+    }
+    return result;
 }
 
 function buildSectionHtml(sec, secTiles) {
@@ -72,9 +91,8 @@ function buildSections(sections, tiles, statusMap) {
     return sections
         .filter(sec => sec.visible !== false && !sec.featured)
         .map(sec => {
-            const secTiles = tiles
-                .filter(t => String(t.section) === String(sec.id) && t.visible !== false)
-                .map(t => buildTile(t, statusMap));
+            const secTileData = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
+            const secTiles = stackTiles(secTileData, secTileData.map(t => buildTile(t, statusMap)));
             return buildSectionHtml(sec, secTiles);
         })
         .join('\n');
@@ -84,10 +102,8 @@ function buildSections(sections, tiles, statusMap) {
 function buildFeatured(sections, tiles, statusMap) {
     const sec = sections.find(s => s.featured && s.visible !== false);
     if (!sec) return '';
-    const secTiles = tiles
-        .filter(t => t.visible !== false && t.featured > 0)
-        .sort((a, b) => a.featured - b.featured)
-        .map(t => buildTile(t, statusMap));
+    const secTileData = tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured);
+    const secTiles = stackTiles(secTileData, secTileData.map(t => buildTile(t, statusMap)));
     return buildSectionHtml(sec, secTiles);
 }
 
@@ -96,9 +112,8 @@ function buildSingleSection(id, sections, tiles, statusMap) {
     const sec = sections.find(s => String(s.id) === String(id) && s.visible !== false);
     if (!sec) return '';
     if (sec.featured) return buildFeatured(sections, tiles, statusMap);
-    const secTiles = tiles
-        .filter(t => String(t.section) === String(id) && t.visible !== false)
-        .map(t => buildTile(t, statusMap));
+    const secTileData = tiles.filter(t => String(t.section) === String(id) && t.visible !== false);
+    const secTiles = stackTiles(secTileData, secTileData.map(t => buildTile(t, statusMap)));
     return buildSectionHtml(sec, secTiles);
 }
 
