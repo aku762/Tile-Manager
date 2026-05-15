@@ -4,8 +4,6 @@ dist/
 # editor
 .vscode/
 
-# image source files (large)
-source/
 
 # wrangler files
 .wrangler
