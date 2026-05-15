@@ -18,7 +18,19 @@ Push `tiles.json` straight from the admin to the GitHub repo via the GitHub Cont
 - "Push to Repo" button lives next to the existing Export JSON button
 - Toast shows success or API error
 
-**Security note:** PAT lives in localStorage — fine for a personal self-hosted admin tool. Scope it to `contents: write` on the specific repo only.
+**Auth — Cloudflare Worker + GitHub OAuth:**
+
+localStorage PATs are per-device and a security risk on shared machines. The right solution is a tiny Cloudflare Worker that handles the OAuth flow:
+
+1. Admin redirects to GitHub login
+2. GitHub redirects back to the Worker with an auth code
+3. Worker exchanges the code for an access token using the OAuth client secret (stored as a Worker environment variable — never exposed to the browser)
+4. Worker sets a secure httpOnly session cookie
+5. All GitHub API calls go through the Worker, which forwards them with the token
+
+Result: any device — home PC, mobile, hotel lobby — just clicks "Login with GitHub", authorizes once, and is in. No keys to manage, session expires automatically, works everywhere.
+
+The Worker is trivially light — a handful of OAuth redirect/callback/proxy routes. Usage would never come close to Cloudflare's free tier limits.
 
 ---
 
