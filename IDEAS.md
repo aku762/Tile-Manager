@@ -64,6 +64,10 @@ site/source/tiles/
   my-project.md       ← detail page content (optional)
 ```
 
+**Recursive tiles:** a detail page can itself contain `<!--SECTIONS-->` tags, rendering its own set of tiles. click a tile, land on a page, that page has more tiles. navigate a tree of content just by clicking, the whole way down. the data model already supports it — detail pages are just pages, and pages can have any tags. infinite depth, same build primitive.
+
+*Tiles all the way down.*
+
 **Why this matters:** it turns tile-manager into a lightweight content system — portfolio pieces, project writeups, audio/video showcases — all sourced from JSON + markdown + assets, no CMS needed.
 
 ---
