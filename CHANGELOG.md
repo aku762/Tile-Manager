@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-05-15
+
+### Tile stacking and image control
+- Consecutive imageless tiles (up to 2) are automatically grouped into a `.tile-stack` wrapper, occupying one grid cell with tiles splitting the height equally via `flex: 1`.
+- Lone compact tiles outside a stack snap to their natural height (`align-self: start`) instead of stretching to match a tall neighbor.
+- Mobile single-column: `.tile-stack` becomes `display: contents` so tiles flow normally.
+- Added `showImage` field — default `false`. Toggle via the thumbnail in the admin tile list. When on, renders the image area (real image or gradient placeholder if no file set). When off, tile is compact and eligible for stacking.
+- Added `expand` field — default `false`. Checkbox in the tile edit modal. Marks a tile as intentionally tall: always gets its own grid cell, never stacks, gradient placeholder suppressed even if `showImage` is on. Ignored on tiles with a real image.
+- `showImage` and `expand` are mutually exclusive — turning on the thumbnail clears expand; checking expand clears showImage on save.
+- Admin thumbnail column now shows the site favicon for tiles with a domain, or a styled initial for tiles without. Thumbnails are dimmed and greyscale when `showImage` is off. Clicking the thumbnail toggles `showImage`.
+- Export only writes `showImage: true` and `expand: true` to JSON — omitted when false.
+
+---
+
+### showImage toggle
+- Added `showImage` boolean field to tiles. Default is `false` — tiles render compact with no image area unless explicitly enabled.
+- When `showImage: true`, the `.tile-img-wrap` is rendered. If the image file is missing, the gradient placeholder shows instead of hiding the space.
+- Admin: tile thumbnail in the row list is now clickable — click to toggle `showImage` on/off. Thumbnail dims with greyscale when off. Tooltip shows current state.
+- Export only writes `showImage: true` to JSON — omitted when false, keeping the file clean.
+
+---
+
 ## 2026-05-14
 
 ### Simplified tile images

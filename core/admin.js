@@ -26,7 +26,9 @@ try {
                 if (!t.cat)              t.cat     = '';
                 if (!t.desc)             t.desc    = '';
                 if (!t.status)           t.status  = 'roadmap';
-                if (t.visible === undefined) t.visible = true;
+                if (t.visible === undefined)   t.visible   = true;
+                if (t.showImage === undefined) t.showImage = false;
+                if (t.expand === undefined)    t.expand    = false;
                 t.id      = String(t.id);
                 t.section = String(t.section);
             });
@@ -211,6 +213,8 @@ function exportJSON() {
         href:    t.href,
         image:   t.image,
         ...(t.visible === false ? { visible: false } : {}),
+        ...(t.showImage === true ? { showImage: true } : {}),
+        ...(t.expand === true ? { expand: true } : {}),
         ...(t.featured > 0 ? { featured: t.featured } : {}),
     }));
     const out  = { statuses: state.statuses, sections, tiles };
@@ -304,7 +308,7 @@ function renderTiles() {
         return `
         <tr class="${hidden ? 'tile-hidden' : ''}" ${dragAttrs(t.id)}>
             <td class="${sortable ? 'drag-handle' : ''}">${sortable ? '⠿' : ''}</td>
-            <td><div class="img-thumb" style="background-image:url('images/tiles/${t.image}')"></div></td>
+            <td><div class="img-thumb ${t.showImage ? '' : 'img-thumb-off'} ${t.domain ? '' : 'img-thumb-initial'}" style="${t.domain ? `background-image:url('https://www.google.com/s2/favicons?domain=${t.domain.split('·')[0].trim()}&sz=64')` : ''}" onclick="toggleShowImage('${t.id}')" title="${t.showImage ? 'Image on — click to hide' : 'Image off — click to show'}">${t.domain ? '' : (t.name || '?')[0].toUpperCase()}</div></td>
             <td><button class="star-btn ${isFeat ? 'star-on' : ''}" onclick="toggleFeatured('${t.id}')">${isFeat ? '★' : '☆'}</button></td>
             <td class="name-cell">${t.name}<small>${t.cat}</small></td>
             <td class="sec-cell">${secMap[t.section] || t.section}</td>
@@ -384,7 +388,9 @@ function openTileModal(id) {
         document.getElementById('f-domain').value  = t.domain;
         document.getElementById('f-href').value    = t.href  || '';
         document.getElementById('f-image').value   = t.image || '';
+        document.getElementById('f-expand').checked = !!t.expand;
     } else {
+        document.getElementById('f-expand').checked = false;
         document.getElementById('tile-modal-title').textContent = 'ADD TILE';
         document.getElementById('f-id').value = '';
     }
@@ -405,8 +411,10 @@ function saveTile(e) {
         status:  document.getElementById('f-status').value,
         domain:  document.getElementById('f-domain').value,
         href:    document.getElementById('f-href').value,
-        image:   document.getElementById('f-image').value,
-        visible: existing ? existing.visible : true,
+        image:     document.getElementById('f-image').value,
+        visible:   existing ? existing.visible : true,
+        expand:    document.getElementById('f-expand').checked,
+        showImage: document.getElementById('f-expand').checked ? false : (existing ? !!existing.showImage : false),
     };
     if (id) {
         state.tiles[state.tiles.findIndex(t => t.id === id)] = tile;
@@ -442,6 +450,16 @@ function toggleVisible(id) {
     save();
     renderTiles();
     toast(t.visible ? 'Tile visible.' : 'Tile hidden.');
+}
+
+function toggleShowImage(id) {
+    const t = state.tiles.find(t => t.id === id);
+    if (!t) return;
+    t.showImage = !t.showImage;
+    if (t.showImage) t.expand = false;
+    save();
+    renderTiles();
+    toast(t.showImage ? 'Image on.' : 'Image off.');
 }
 
 function deleteTile(id) {

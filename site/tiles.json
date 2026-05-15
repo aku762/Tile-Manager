@@ -55,8 +55,8 @@
       "status": "active",
       "domain": "github.com",
       "href": "https://github.com",
-      "image": "tilemanager.png",
-      "featured": 1
+      "image": "tilemanager.webp",
+      "featured": 3
     },
     {
       "id": "2",
@@ -67,7 +67,7 @@
       "status": "new",
       "domain": "",
       "href": "admin.html",
-      "image": "tileadmin.png"
+      "image": "tileadmin.webp"
     },
     {
       "id": "3",
@@ -78,7 +78,8 @@
       "status": "beta",
       "domain": "",
       "href": "",
-      "image": "blankslate.png"
+      "image": "blankslate.webp",
+      "expand": true
     },
     {
       "id": "4",
@@ -89,7 +90,7 @@
       "status": "beta",
       "domain": "",
       "href": "",
-      "image": "snippetvault.png"
+      "image": "snippetvault.webp"
     },
     {
       "id": "5",
@@ -100,7 +101,7 @@
       "status": "archived",
       "domain": "",
       "href": "",
-      "image": "uptimebeacon.png",
+      "image": "uptimebeacon.webp",
       "visible": false
     },
     {
@@ -112,7 +113,7 @@
       "status": "active",
       "domain": "",
       "href": "",
-      "image": "formrelay.png"
+      "image": "formrelay.webp"
     },
     {
       "id": "7",
@@ -123,7 +124,7 @@
       "status": "beta",
       "domain": "",
       "href": "",
-      "image": "rategate.png"
+      "image": "rategate.webp"
     },
     {
       "id": "8",
@@ -134,7 +135,7 @@
       "status": "archived",
       "domain": "",
       "href": "",
-      "image": "headeraudit.png",
+      "image": "headeraudit.webp",
       "visible": false
     },
     {
@@ -146,7 +147,7 @@
       "status": "archived",
       "domain": "",
       "href": "",
-      "image": "noted.png",
+      "image": "noted.webp",
       "visible": false
     },
     {
@@ -158,7 +159,7 @@
       "status": "new",
       "domain": "github.com",
       "href": "https://github.com",
-      "image": "github.png"
+      "image": "github.webp"
     },
     {
       "id": "11",
@@ -169,7 +170,7 @@
       "status": "active",
       "domain": "claude.ai",
       "href": "https://claude.ai",
-      "image": "claude.png",
+      "image": "claude.webp",
       "featured": 2
     },
     {
@@ -181,7 +182,7 @@
       "status": "new",
       "domain": "cloudflare.com",
       "href": "https://cloudflare.com",
-      "image": "cloudflare.png"
+      "image": "cloudflare.webp"
     }
   ]
 }
