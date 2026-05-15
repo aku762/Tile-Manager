@@ -100,14 +100,4 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 
 ## Known issues / things to address
 
-### Mixed image/no-image tile height in multi-column grid
-
-Tiles without images are compact and look great in single-column (mobile) — but in a multi-column layout they sit next to image tiles and stretch to match their height, leaving a large empty space where the image would be. A previous version filled that space with a CSS gradient which just looked like wasted real estate.
-
-**Fix:** keep the algorithm dead simple — consecutive imageless tiles (up to 3) get wrapped in a single grid cell and stack vertically inside it. No reordering, no bin-packing. The user controls the visual outcome by arranging tiles in the admin and adding images where they want them. If the order produces gaps, they fix it by reordering or adding an image.
-
-`build.js` detects runs of consecutive imageless tiles, caps the group at 3, wraps them in a `.tile-stack` container, and the grid treats the container as one cell. Runs longer than 3 start a new group.
-
-**Constraint:** mobile single-column stays untouched — stacking only applies at 2+ columns via CSS media query on `.tile-stack`.
-
-**Companion feature — image toggle:** add a `showImage` boolean field to tiles. When `false`, the tile renders as imageless even if an `image` filename is set — the asset stays in the JSON so it can be re-enabled anytime. Lets you tune layout without deleting image references: if one large image tile is hanging alone at the end of a row, flip `showImage: false` and it compacts into a stack with the preceding imageless tile. Admin gets a toggle button alongside the existing hide/show.
+*(none currently)*
