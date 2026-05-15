@@ -129,6 +129,9 @@ tbody td { padding: 8px 10px; vertical-align: middle; }
 .btn-export { border-color: var(--blue-dim); background: var(--blue-faint); color: rgba(12,157,222,0.85); }
 .btn-export:hover { background: rgba(12,157,222,0.14); }
 
+.btn-copy { border-color: rgba(12,157,222,0.2); color: rgba(12,157,222,0.55); }
+.btn-copy:hover { background: rgba(12,157,222,0.07); }
+
 .btn-del    { border-color: rgba(255,80,80,0.35);  background: rgba(255,80,80,0.05);  color: rgba(255,100,100,0.8); }
 .btn-del:hover { background: rgba(255,80,80,0.12); border-color: rgba(255,80,80,0.6); }
 

@@ -195,7 +195,7 @@ function handleImport(e) {
     reader.readAsText(file);
 }
 
-function exportJSON() {
+function buildExportJSON() {
     const sectionIdMap = new Map();
     const sections = state.sections.map((s, i) => {
         const newId = String(i + 1);
@@ -217,7 +217,11 @@ function exportJSON() {
         ...(t.expand === true ? { expand: true } : {}),
         ...(t.featured > 0 ? { featured: t.featured } : {}),
     }));
-    const out  = { statuses: state.statuses, sections, tiles };
+    return { statuses: state.statuses, sections, tiles };
+}
+
+function exportJSON() {
+    const out  = buildExportJSON();
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -226,6 +230,12 @@ function exportJSON() {
     a.click();
     URL.revokeObjectURL(url);
     toast('Exported tiles.json');
+}
+
+function copyJSON() {
+    navigator.clipboard.writeText(JSON.stringify(buildExportJSON(), null, 2))
+        .then(() => toast('JSON copied to clipboard.'))
+        .catch(() => toast('Copy failed — try Export JSON instead.'));
 }
 
 // ── Render ───────────────────────────────────────────────────────────────
