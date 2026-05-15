@@ -155,7 +155,7 @@ On mobile (single column) stacking is disabled and all tiles flow normally.
 
 ## Admin panel
 
-Open `core/admin.html` directly via Live Server (or `dist/admin.html` after a build). The admin panel saves state to `localStorage` under the key `tile_manager_admin`. Use **Export JSON** to write `tiles.json` back to `site/`.
+Open `core/admin.html` directly via Live Server (or `dist/admin.html` after a build). The admin panel saves state to `localStorage` under the key `tile_manager_admin`. Use **Export JSON** to download `tiles.json` or **Copy JSON** to copy it to the clipboard — useful on mobile for pasting directly into the GitHub app.
 
 The admin has three tabs:
 - **Tiles** — add, edit, delete, and drag-to-reorder tiles within a section. Each row has a favicon thumbnail (click to toggle `showImage`), a star (☆/★) to feature/unfeature, and a hide/show toggle. The tile edit modal includes an **Expand** checkbox. The **SHOW HIDDEN** toolbar button reveals tiles from hidden sections in the all-sections view.

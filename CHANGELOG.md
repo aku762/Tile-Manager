@@ -2,6 +2,13 @@
 
 ## 2026-05-15
 
+### Copy JSON to clipboard
+- Added **COPY JSON** button to the admin toolbar alongside EXPORT JSON.
+- Copies the full `tiles.json` content to the clipboard in one click — useful on mobile where file downloads are awkward.
+- Falls back with a toast if the Clipboard API is unavailable.
+
+---
+
 ### Tile stacking and image control
 - Consecutive imageless tiles (up to 2) are automatically grouped into a `.tile-stack` wrapper, occupying one grid cell with tiles splitting the height equally via `flex: 1`.
 - Lone compact tiles outside a stack snap to their natural height (`align-self: start`) instead of stretching to match a tall neighbor.

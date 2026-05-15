@@ -34,14 +34,6 @@ The Worker is trivially light — a handful of OAuth redirect/callback/proxy rou
 
 ---
 
-## Copy JSON to clipboard
-
-A **Copy JSON** button in the admin toolbar alongside Export JSON. One tap copies the full `tiles.json` content to the clipboard — useful on mobile where file downloads are awkward. Paste directly into the GitHub app's file editor to update the repo without a computer.
-
-Simple fallback for the full OAuth flow, and zero infrastructure required.
-
----
-
 ## Groups
 
 A named alias for a set of sections, placed in a page with a single comment tag.
