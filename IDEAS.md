@@ -104,6 +104,8 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 
 Tiles without images are compact and look great in single-column (mobile) — but in a multi-column layout they sit next to image tiles and stretch to match their height, leaving a large empty space where the image would be. A previous version filled that space with a CSS gradient which just looked like wasted real estate.
 
-**Ideal fix:** imageless tiles stack in a sub-column next to image tiles rather than stretching — so one tall image tile sits beside two or three compact imageless tiles. CSS grid can do this with `grid-row: span` but it requires knowing at build time which tiles have images, which makes it a `build.js` concern (adding a class or span attribute) rather than a pure CSS fix.
+**Fix:** keep the algorithm dead simple — consecutive imageless tiles (up to 3) get wrapped in a single grid cell and stack vertically inside it. No reordering, no bin-packing. The user controls the visual outcome by arranging tiles in the admin and adding images where they want them. If the order produces gaps, they fix it by reordering or adding an image.
 
-**Constraint:** the mobile single-column view should stay as-is — compact imageless tiles look fine there and no fix is needed. The stacking behavior only matters at 2+ columns.
+`build.js` detects runs of consecutive imageless tiles, caps the group at 3, wraps them in a `.tile-stack` container, and the grid treats the container as one cell. Runs longer than 3 start a new group.
+
+**Constraint:** mobile single-column stays untouched — stacking only applies at 2+ columns via CSS media query on `.tile-stack`.
