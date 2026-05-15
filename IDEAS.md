@@ -4,6 +4,24 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ---
 
+## Export direct to GitHub repo
+
+Push `tiles.json` straight from the admin to the GitHub repo via the GitHub Contents API — no file download, no terminal, no manual copy. Cloudflare Pages picks up the push and rebuilds automatically.
+
+**How it works:**
+1. Admin stores repo config in localStorage: GitHub PAT, owner, repo name, branch, file path
+2. On push: GET the current file SHA, then PUT the new base64-encoded content with a commit message
+3. Done — live site updates within seconds via Cloudflare's git webhook
+
+**UI:**
+- Gear icon in the admin toolbar opens a Repo Settings modal (one-time setup)
+- "Push to Repo" button lives next to the existing Export JSON button
+- Toast shows success or API error
+
+**Security note:** PAT lives in localStorage — fine for a personal self-hosted admin tool. Scope it to `contents: write` on the specific repo only.
+
+---
+
 ## Groups
 
 A named alias for a set of sections, placed in a page with a single comment tag.
