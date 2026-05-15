@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-05-14
+
+### Section tags
+- `build.js` now processes all `*.html` files in `site/` (not just `index.html`), substituting `{{SITE_*}}` tokens and section comment tags in every page.
+- Four comment placeholders supported:
+  - `<!--SECTIONS-->` — renders all visible non-featured sections
+  - `<!--FEATURED-->` — renders the featured section (tiles sorted by `featured` order)
+  - `<!--SECTION:ID-->` — renders one specific section by its ID
+  - `<!--FILTERS-->` — renders the status filter buttons
+- All tags are optional; any tag absent from a page is silently skipped.
+- `app.js` is now file-independent — it uses a `NodeFilter.SHOW_COMMENT` TreeWalker to locate and replace the same four comment tags at runtime for local preview. No dependency on specific container element IDs.
+- `site/index.html` updated to use `<!--FEATURED-->` and `<!--SECTIONS-->` directly, removing the `<div id="sections-container">` wrapper.
+
+---
+
 ## 2026-05-13
 
 ### SITE_ICON token

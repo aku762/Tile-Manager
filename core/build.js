@@ -21,12 +21,10 @@ const TILE_BP_SINGLE = 560;
 const TILE_BP_DOUBLE = 1120;
 const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
-// Escape a value for use inside an HTML attribute (href, src, alt, etc.)
 function attr(val) {
     return String(val ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-// Escape a value for use as visible text content
 function text(val) {
     return String(val ?? '')
         .replace(/&/g, '&amp;')
@@ -78,22 +76,83 @@ function buildTile(tile, statusMap) {
         </${tag}>`;
 }
 
-function buildSections(sections, tiles, statusMap) {
-    return sections
-        .filter(sec => sec.visible !== false)
-        .map(sec => {
-            const secTiles = sec.featured
-                ? tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured)
-                : tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
-            if (!secTiles.length) return '';
-            return `
+function buildSectionHtml(sec, secTiles) {
+    if (!secTiles.length) return '';
+    return `
     <div class="section">
-        <div class="section-header">${sec.title}</div>
-        <div class="tile-grid">${secTiles.map(t => buildTile(t, statusMap)).join('')}
+        <div class="section-header">${text(sec.title)}</div>
+        <div class="tile-grid">${secTiles.join('')}
         </div>
     </div>`;
+}
+
+// <!--SECTIONS--> — all visible non-featured sections
+function buildSections(sections, tiles, statusMap) {
+    return sections
+        .filter(sec => sec.visible !== false && !sec.featured)
+        .map(sec => {
+            const secTiles = tiles
+                .filter(t => String(t.section) === String(sec.id) && t.visible !== false)
+                .map(t => buildTile(t, statusMap));
+            return buildSectionHtml(sec, secTiles);
         })
         .join('\n');
+}
+
+// <!--FEATURED--> — the featured section's tiles sorted by featured order
+function buildFeatured(sections, tiles, statusMap) {
+    const sec = sections.find(s => s.featured && s.visible !== false);
+    if (!sec) return '';
+    const secTiles = tiles
+        .filter(t => t.visible !== false && t.featured > 0)
+        .sort((a, b) => a.featured - b.featured)
+        .map(t => buildTile(t, statusMap));
+    return buildSectionHtml(sec, secTiles);
+}
+
+// <!--SECTION:ID--> — one specific section by ID
+function buildSingleSection(id, sections, tiles, statusMap) {
+    const sec = sections.find(s => String(s.id) === String(id) && s.visible !== false);
+    if (!sec) return '';
+    if (sec.featured) return buildFeatured(sections, tiles, statusMap);
+    const secTiles = tiles
+        .filter(t => String(t.section) === String(id) && t.visible !== false)
+        .map(t => buildTile(t, statusMap));
+    return buildSectionHtml(sec, secTiles);
+}
+
+function processTemplate(template, site, data, statusMap) {
+    // Strip local-preview lines (marker comment + app.js script tag)
+    template = template
+        .split('\n')
+        .filter(l => !l.includes('local-preview:') && !l.includes('../core/app.js'))
+        .join('\n');
+
+    // Substitute {{SITE_*}} tokens from site.json
+    const tokens = {
+        '{{SITE_TITLE}}':       site.title       ?? '',
+        '{{SITE_DESCRIPTION}}': site.description ?? '',
+        '{{SITE_TAGLINE}}':     site.tagline     ?? '',
+        '{{SITE_URL}}':         site.url         ?? '',
+        '{{SITE_LOGO}}':        site.logo        ?? '',
+        '{{SITE_OG}}':          site.og          ?? '',
+        '{{SITE_ICON}}':        site.icon        ?? '',
+        '{{SITE_FOOTER}}':      site.footer      ?? '',
+    };
+    for (const [token, value] of Object.entries(tokens)) {
+        template = template.split(token).join(value);
+    }
+
+    // Replace section/filter tags — all optional, silently skipped if absent
+    const statuses = data.statuses || [];
+    template = template.replace('<!--FILTERS-->',  buildFilters(statuses));
+    template = template.replace('<!--SECTIONS-->', buildSections(data.sections, data.tiles, statusMap));
+    template = template.replace('<!--FEATURED-->',  buildFeatured(data.sections, data.tiles, statusMap));
+    template = template.replace(/<!--SECTION:([a-zA-Z0-9_]+)-->/g, (_, id) =>
+        buildSingleSection(id, data.sections, data.tiles, statusMap)
+    );
+
+    return template;
 }
 
 function copyDir(src, dest) {
@@ -109,58 +168,26 @@ function copyDir(src, dest) {
 // ── Read inputs ──────────────────────────────────────────────────────────
 const site = JSON.parse(fs.readFileSync(path.join(SITE, 'site.json'), 'utf8'));
 const data = JSON.parse(fs.readFileSync(path.join(SITE, 'tiles.json'), 'utf8'));
-let template = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
 
-if (!template.includes('<!--SECTIONS-->')) {
-    console.error('Error: <!--SECTIONS--> placeholder not found in site/index.html');
-    process.exit(1);
-}
-if (!template.includes('<!--FILTERS-->')) {
-    console.error('Error: <!--FILTERS--> placeholder not found in site/index.html');
-    process.exit(1);
-}
-
-// ── Strip local-preview lines (marker comment + app.js script tag) ────────
-template = template
-    .split('\n')
-    .filter(l => !l.includes('local-preview:') && !l.includes('../core/app.js'))
-    .join('\n');
-
-// ── Substitute {{SITE_*}} tokens from site.json ──────────────────────────
-const tokens = {
-    '{{SITE_TITLE}}':       site.title       ?? '',
-    '{{SITE_DESCRIPTION}}': site.description ?? '',
-    '{{SITE_TAGLINE}}':     site.tagline     ?? '',
-    '{{SITE_URL}}':         site.url         ?? '',
-    '{{SITE_LOGO}}':        site.logo        ?? '',
-    '{{SITE_OG}}':          site.og          ?? '',
-    '{{SITE_ICON}}':        site.icon        ?? '',
-    '{{SITE_FOOTER}}':      site.footer      ?? '',
-};
-for (const [token, value] of Object.entries(tokens)) {
-    template = template.split(token).join(value);
-}
-
-// ── Inject pre-rendered filters and sections ─────────────────────────────
 const statuses  = data.statuses || [];
 const statusMap = Object.fromEntries(statuses.map(s => [s.id, s]));
-const html = template
-    .replace('<!--FILTERS-->',  buildFilters(statuses))
-    .replace('<!--SECTIONS-->', buildSections(data.sections, data.tiles, statusMap));
 
-// ── Write dist/ ──────────────────────────────────────────────────────────
+// ── Process all HTML files in site/ ─────────────────────────────────────
 fs.mkdirSync(DIST, { recursive: true });
 
-// Generated site
-fs.writeFileSync(path.join(DIST, 'index.html'), html, 'utf8');
+const htmlFiles = fs.readdirSync(SITE).filter(f => f.endsWith('.html'));
+for (const file of htmlFiles) {
+    const template = fs.readFileSync(path.join(SITE, file), 'utf8');
+    fs.writeFileSync(path.join(DIST, file), processTemplate(template, site, data, statusMap), 'utf8');
+}
 
-// Site assets (style + tiles data for app.js fallback + images)
+// ── Copy assets ──────────────────────────────────────────────────────────
 fs.copyFileSync(path.join(SITE, 'style.css'),  path.join(DIST, 'style.css'));
 fs.copyFileSync(path.join(SITE, 'tiles.json'), path.join(DIST, 'tiles.json'));
 const siteImages = path.join(SITE, 'images');
 if (fs.existsSync(siteImages)) copyDir(siteImages, path.join(DIST, 'images'));
 
-// Core engine files (admin panel + local preview fallback)
+// Core engine files
 fs.copyFileSync(path.join(CORE, 'admin.html'), path.join(DIST, 'admin.html'));
 fs.copyFileSync(path.join(CORE, 'admin.css'),  path.join(DIST, 'admin.css'));
 fs.copyFileSync(path.join(CORE, 'admin.js'),   path.join(DIST, 'admin.js'));

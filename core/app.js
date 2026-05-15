@@ -1,5 +1,5 @@
 // app.js — local preview hydration
-// Loaded only by site/index.html for local live preview.
+// Loaded by any site/*.html page for local live preview.
 // build.js strips this script tag from the output; in dist/ all tokens
 // are substituted and tiles are pre-rendered statically.
 //
@@ -15,15 +15,11 @@ const TILE_BP_SINGLE = 560;
 const TILE_BP_DOUBLE = 1120;
 const TILE_SIZES     = `(max-width: ${TILE_BP_SINGLE}px) 100vw, (max-width: ${TILE_BP_DOUBLE}px) 50vw, 33vw`;
 
-function renderFilters(statuses) {
-    const container = document.getElementById('filters');
-    statuses.forEach(s => {
-        const btn = document.createElement('button');
-        btn.className   = 'filter-btn';
-        btn.textContent = s.label;
-        btn.onclick     = function() { filter(s.id, this); };
-        container.appendChild(btn);
-    });
+function getCommentNodes(root) {
+    const nodes = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT);
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    return nodes;
 }
 
 function renderTile(tile, statusMap) {
@@ -67,28 +63,79 @@ function renderTile(tile, statusMap) {
         `<div class="tile-desc">${tile.desc}</div>` +
         `<div class="tile-footer">` +
           `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
-          `<div class="tile-domain">${tile.domain}</div>` +
+          `<div class="tile-domain">${tile.domain || ''}</div>` +
         `</div>`
     );
     return el;
 }
 
+function buildSectionEl(sec, secTiles, statusMap) {
+    if (!secTiles.length) return null;
+    const secEl = document.createElement('div');
+    secEl.className = 'section';
+    secEl.innerHTML = `<div class="section-header">${sec.title}</div><div class="tile-grid"></div>`;
+    secEl.querySelector('.tile-grid').append(...secTiles.map(t => renderTile(t, statusMap)));
+    return secEl;
+}
+
 async function loadTiles() {
     const { sections, tiles, statuses = [] } = await fetch('tiles.json').then(r => r.json());
     const statusMap = Object.fromEntries(statuses.map(s => [s.id, s]));
-    renderFilters(statuses);
-    const container = document.getElementById('sections-container');
-    sections.filter(sec => sec.visible !== false).forEach(sec => {
-        const secTiles = sec.featured
-            ? tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured)
-            : tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
-        if (!secTiles.length) return;
-        const secEl = document.createElement('div');
-        secEl.className = 'section';
-        secEl.innerHTML = `<div class="section-header">${sec.title}</div><div class="tile-grid"></div>`;
-        secEl.querySelector('.tile-grid').append(...secTiles.map(t => renderTile(t, statusMap)));
-        container.appendChild(secEl);
-    });
+
+    const comments = getCommentNodes(document.body);
+    for (const comment of comments) {
+        const tag = comment.nodeValue.trim();
+
+        if (tag === 'FILTERS') {
+            const frag = document.createDocumentFragment();
+            statuses.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className   = 'filter-btn';
+                btn.textContent = s.label;
+                btn.onclick     = function() { filter(s.id, this); };
+                frag.appendChild(btn);
+            });
+            comment.replaceWith(frag);
+
+        } else if (tag === 'SECTIONS') {
+            const frag = document.createDocumentFragment();
+            sections
+                .filter(sec => sec.visible !== false && !sec.featured)
+                .forEach(sec => {
+                    const secTiles = tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
+                    const el = buildSectionEl(sec, secTiles, statusMap);
+                    if (el) frag.appendChild(el);
+                });
+            comment.replaceWith(frag);
+
+        } else if (tag === 'FEATURED') {
+            const sec = sections.find(s => s.featured && s.visible !== false);
+            if (sec) {
+                const secTiles = tiles
+                    .filter(t => t.visible !== false && t.featured > 0)
+                    .sort((a, b) => a.featured - b.featured);
+                const el = buildSectionEl(sec, secTiles, statusMap);
+                if (el) comment.replaceWith(el);
+                else comment.replaceWith(document.createDocumentFragment());
+            } else {
+                comment.replaceWith(document.createDocumentFragment());
+            }
+
+        } else if (tag.startsWith('SECTION:')) {
+            const id  = tag.slice('SECTION:'.length);
+            const sec = sections.find(s => String(s.id) === id && s.visible !== false);
+            if (sec) {
+                const secTiles = sec.featured
+                    ? tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured)
+                    : tiles.filter(t => String(t.section) === String(sec.id) && t.visible !== false);
+                const el = buildSectionEl(sec, secTiles, statusMap);
+                if (el) comment.replaceWith(el);
+                else comment.replaceWith(document.createDocumentFragment());
+            } else {
+                comment.replaceWith(document.createDocumentFragment());
+            }
+        }
+    }
 }
 
 async function loadSite() {
@@ -110,13 +157,10 @@ async function loadSite() {
         return str;
     }
 
-    // <title>
     document.title = sub(document.title);
 
-    // <meta content="...">
     document.querySelectorAll('meta[content]').forEach(m => { m.content = sub(m.content); });
 
-    // Logo img — set src directly and reset display so the onerror/load cycle fires fresh
     const logoImg  = document.querySelector('#logo-wrap img');
     const logoText = document.getElementById('logo-text');
     if (logoImg && site.logo) {
@@ -126,15 +170,12 @@ async function loadSite() {
         logoImg.src = site.logo;
     }
 
-    // Favicon — sub() walker doesn't cover <link href> attributes
     const iconLink = document.querySelector('link[rel="icon"]');
     if (iconLink && site.icon) iconLink.href = site.icon;
 
-    // Footer innerHTML allows HTML markup from site.json
     const footer = document.getElementById('footer');
     if (footer) footer.innerHTML = sub(footer.innerHTML);
 
-    // All remaining text nodes (hero-sub, logo-text, any other visible tokens)
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
@@ -142,6 +183,4 @@ async function loadSite() {
 }
 
 loadSite();
-if (!document.querySelector('#sections-container .section')) {
-    loadTiles();
-}
+loadTiles();
