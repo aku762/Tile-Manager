@@ -131,3 +131,23 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 ## Known issues / things to address
 
 *(none currently)*
+
+---
+
+## Derivative projects
+
+Ideas that use tile-manager as a foundation but may become their own repos. Preserved here until scope becomes clear — could end up as built-in tags, a separate package, or a standalone product.
+
+### Webring
+
+A modern federated webring protocol built on the tile-manager JSON schema. Each site publishes a `card.json` — logo, tagline, audio clip, blurb, status, link — and member sites fetch and render each other's cards as native tiles in their grid.
+
+**Key concepts:**
+- Each site is a node. Member sites list each other in their config.
+- Mutual verification: your API checks if the other site lists you before rendering their card. No freeloading — both sides have to publish each other or neither shows.
+- Ringmasters curate their ring manually. The protocol handles verification, not trust — trust is human.
+- The prestige economy is built in: a selective ring is worth being on.
+- A `<!--WEBRING:url-->` tag could render a horizontal scroller of member tiles natively in any tile-manager page.
+- Rich cards replace the old "previous / next / random" banner — logo + audio + blurb + link, rendered as a first-class tile.
+
+**Stack:** each node needs a small API (a Cloudflare Worker would do). The tile-manager JSON schema is already the card format. This might ship as a `<!--WEBRING-->` tag in tile-manager core, or as its own repo that depends on tile-manager.
