@@ -128,6 +128,7 @@ This lets you build multi-page sites — place different section tags on differe
 | `expand` | boolean | `true` makes the tile standalone — never stacks, gradient suppressed, fills available row height. Use for text-heavy tiles. Ignored on tiles with a real image. Default `false`. |
 | `visible` | boolean | `false` hides the tile from the built site and local preview |
 | `featured` | number | Position in the featured section (1 = first). Omit or `0` to exclude from featured. |
+| `audio` | string | Relative path (e.g. `audio/track.mp3`) or full URL to an audio file. Renders an inline player on the tile. |
 
 Statuses are user-defined colored classifiers — add, edit, and delete them from the **Statuses** tab in the admin panel. The filter bar on the public site is generated from whatever statuses exist in `tiles.json`.
 
@@ -152,6 +153,15 @@ Three layout modes per tile:
 | Expand | `expand` on | Full-height tile, no image area, no stacking — description fills the space |
 
 On mobile (single column) stacking is disabled and all tiles flow normally.
+
+## Audio tiles
+
+Set the `audio` field on any tile to a relative path or URL pointing to an audio file. The tile renders an inline player: play/pause, a scrubber bar with a handle dot, a timestamp, and a mute button.
+
+**Compact tile:** player bar sits above the category label.
+**Image tile:** slim frosted bar overlaid at the bottom of the image (click the image to play/pause).
+
+Only one track plays at a time — starting a new tile pauses whatever was playing. When a track finishes it auto-advances to the next audio tile in DOM order and stops at the last one.
 
 ## Admin panel
 

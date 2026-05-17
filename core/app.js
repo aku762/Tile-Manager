@@ -18,19 +18,28 @@ function renderTile(tile, statusMap) {
     el.dataset.status = tile.status;
     if (tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
-    if (tile.showImage && !(tile.expand && !tile.image)) {
+    const showImg = tile.showImage && !(tile.expand && !tile.image);
+    const audioHTML = tile.audio
+        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${tile.audio}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+        : '';
+
+    if (showImg) {
         const wrap = document.createElement('div');
-        wrap.className = 'tile-img-wrap';
+        wrap.className = 'tile-img-wrap' + (tile.audio ? ' tile-img-audio' : '');
+        if (tile.audio) wrap.onclick = function(e) { audioImgPlay(e, wrap); };
         if (tile.image) {
             const img = document.createElement('img');
-            img.src     = `images/tiles/${tile.image}`;
-            img.alt     = tile.name;
-            img.loading = 'lazy';
+            img.src      = `images/tiles/${tile.image}`;
+            img.alt      = tile.name;
+            img.loading  = 'lazy';
             img.decoding = 'async';
-            img.onerror = function() { this.style.display = 'none'; };
+            img.onerror  = function() { this.style.display = 'none'; };
             wrap.appendChild(img);
         }
+        if (audioHTML) wrap.insertAdjacentHTML('beforeend', audioHTML);
         el.appendChild(wrap);
+    } else if (audioHTML) {
+        el.insertAdjacentHTML('beforeend', audioHTML);
     }
     el.insertAdjacentHTML('beforeend', `<div class="tile-cat">${tile.cat}</div>`);
 

@@ -58,6 +58,62 @@
             else tile.setAttribute('data-hidden', 'true');
         });
     }
+
+    let _aud = null, _audBtn = null, _audWrap = null;
+
+    function _fmtTime(s) {
+        s = Math.floor(s || 0);
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function audioPlay(btn) {
+        const wrap = btn.closest('.tile-audio');
+        const src  = wrap.dataset.src;
+        if (_audBtn && _audBtn !== btn) {
+            _aud.pause();
+            _audBtn.textContent = '▶';
+        }
+        if (!_aud || _audWrap !== wrap) {
+            if (_aud) _aud.pause();
+            _aud     = new Audio(src);
+            _audWrap = wrap;
+            _aud.ontimeupdate = function() {
+                const pct = (_aud.currentTime / _aud.duration * 100) || 0;
+                wrap.querySelector('.audio-prog').style.width = pct + '%';
+                wrap.querySelector('.audio-time').textContent = _fmtTime(_aud.currentTime) + ' / ' + _fmtTime(_aud.duration);
+            };
+            _aud.onended = function() {
+                btn.textContent = '▶';
+                wrap.querySelector('.audio-prog').style.width = '0%';
+                const all = Array.from(document.querySelectorAll('.tile-audio'));
+                const next = all[all.indexOf(wrap) + 1];
+                if (next) audioPlay(next.querySelector('.audio-btn'));
+            };
+        }
+        if (_aud.paused) { _aud.play(); btn.textContent = '⏸'; }
+        else             { _aud.pause(); btn.textContent = '▶'; }
+        _audBtn = btn;
+    }
+
+    function audioSeek(e, bar) {
+        if (!_aud || !_aud.duration) return;
+        const rect = bar.getBoundingClientRect();
+        _aud.currentTime = ((e.clientX - rect.left) / rect.width) * _aud.duration;
+    }
+
+    function audioMute(btn) {
+        if (!_aud) return;
+        _aud.muted = !_aud.muted;
+        btn.textContent = _aud.muted ? '🔇' : '🔊';
+    }
+
+    function audioImgPlay(e, wrap) {
+        if (e.target.closest('.tile-audio')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const btn = wrap.querySelector('.audio-btn');
+        if (btn) audioPlay(btn);
+    }
 </script>
 
 <!-- local-preview: stripped at build time -->

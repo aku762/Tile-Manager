@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-05-17
+
+### Audio tiles
+- Added `audio` field to tiles — accepts a relative path (e.g. `audio/track.mp3`) or a full URL.
+- Audio player renders inline in the tile: play/pause button, scrubber bar with handle dot, timestamp, and mute button.
+- **Compact tile mode:** player bar appears above `.tile-cat` as a standalone row.
+- **Image tile mode:** slim frosted player bar overlaid at the bottom of the image with `backdrop-filter: blur`.
+- Clicking the image or gradient placeholder toggles play/pause (clicking the overlay controls themselves is not intercepted).
+- Only one track plays at a time — starting a new tile pauses the previous one.
+- Auto-advance: when a track ends, playback moves to the next `.tile-audio` element in DOM order. Stops at the last track.
+- Player JS is inline in `site/index.html` so it is present in both local preview and the built `dist/` output.
+- `core/admin.html` gains an **Audio** field in the tile edit modal.
+- `core/build.js` and `core/app.js` both generate the player HTML for tiles with an `audio` field.
+
+---
+
 ## 2026-05-15
 
 ### Copy JSON to clipboard

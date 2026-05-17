@@ -53,10 +53,11 @@
       "name": "TILE MANAGER",
       "desc": "JSON-driven static homepage generator. Edit tiles in the admin panel, export, and deploy to Cloudflare Pages in one build step.",
       "status": "active",
-      "domain": "github.com",
-      "href": "https://github.com",
+      "domain": "github.com/aku762/Tile-Manager",
+      "href": "https://github.com/aku762/Tile-Manager",
       "image": "tilemanager.webp",
-      "featured": 3
+      "showImage": true,
+      "featured": 2
     },
     {
       "id": "2",
@@ -78,8 +79,7 @@
       "status": "beta",
       "domain": "",
       "href": "",
-      "image": "blankslate.webp",
-      "expand": true
+      "image": "blankslate.webp"
     },
     {
       "id": "4",
@@ -153,17 +153,6 @@
     {
       "id": "10",
       "section": "5",
-      "cat": "DEV / PLATFORM",
-      "name": "GITHUB",
-      "desc": "The home of open source. Host repositories, review pull requests, run Actions CI, and ship software with the world's largest developer community.",
-      "status": "new",
-      "domain": "github.com",
-      "href": "https://github.com",
-      "image": "github.webp"
-    },
-    {
-      "id": "11",
-      "section": "5",
       "cat": "AI / ASSISTANT",
       "name": "CLAUDE",
       "desc": "Anthropic's AI assistant. Write code, analyze documents, think through hard problems, and build AI-powered applications via the API.",
@@ -171,7 +160,19 @@
       "domain": "claude.ai",
       "href": "https://claude.ai",
       "image": "claude.webp",
-      "featured": 2
+      "showImage": true,
+      "featured": 3
+    },
+    {
+      "id": "11",
+      "section": "5",
+      "cat": "DEV / PLATFORM",
+      "name": "GITHUB",
+      "desc": "The home of open source. Host repositories, review pull requests, run Actions CI, and ship software with the world's largest developer community.",
+      "status": "new",
+      "domain": "github.com",
+      "href": "https://github.com",
+      "image": "github.webp"
     },
     {
       "id": "12",
@@ -183,6 +184,20 @@
       "domain": "cloudflare.com",
       "href": "https://cloudflare.com",
       "image": "cloudflare.webp"
+    },
+    {
+      "id": "13",
+      "section": "2",
+      "cat": "AUDIO / MP3",
+      "name": "DJ TYPHOON - MEDUSA'S ESCAPE (2006 MIX)",
+      "desc": "The 2006 remix of DJ Typhoon's classic trance mashup banger.",
+      "status": "new",
+      "domain": "",
+      "href": "",
+      "image": "medusasescape.webp",
+      "audio": "https://media.djtyphoon.com/DJ_Typhoon_Medusa's_Escape_2006_Mix.mp3",
+      "showImage": true,
+      "featured": 1
     }
   ]
 }
