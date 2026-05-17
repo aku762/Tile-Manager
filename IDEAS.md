@@ -130,7 +130,9 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 
 ## Known issues / things to address
 
-*(none currently)*
+### Featured tag may be lost when editing a tile in the admin
+
+When editing a tile that has a `featured` order number, saving it from the modal may strip the `featured` value. Possibly caused by old `tiles.json` files missing fields that the current admin expects, or the save logic not preserving `featured` when it's not explicitly surfaced in the form. Needs investigation — confirm whether it's a data artifact from an older schema or a real bug in `saveTile()`.
 
 ---
 

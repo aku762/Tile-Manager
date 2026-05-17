@@ -34,8 +34,11 @@ function buildTile(tile, statusMap) {
         : '';
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
+    const audioBar = tile.audio
+        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${attr(tile.audio)}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+        : '';
     const imgWrap = showImg
-        ? `\n            <div class="tile-img-wrap">${tile.image ? `<img src="images/tiles/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}</div>`
+        ? `\n            <div class="tile-img-wrap${tile.audio ? ' tile-img-audio' : ''}"${tile.audio ? ' onclick="audioImgPlay(event,this)"' : ''}>${tile.image ? `<img src="images/tiles/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}${audioBar}</div>`
         : '';
 
     const favicon = tile.domain
@@ -45,7 +48,7 @@ function buildTile(tile, statusMap) {
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
 
     return `
-        <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}
+        <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}${!showImg && audioBar ? `\n            ${audioBar}` : ''}
             <div class="tile-cat">${tile.cat}</div>
             <div class="tile-name">${favicon}${text(tile.name)}</div>
             <div class="tile-desc">${tile.desc}</div>

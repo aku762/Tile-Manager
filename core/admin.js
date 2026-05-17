@@ -22,6 +22,7 @@ try {
                 if (!t.id)               t.id      = Date.now().toString();
                 if (!t.href)             t.href    = '';
                 if (!t.image)            t.image   = '';
+                if (!t.audio)            t.audio   = '';
                 if (!t.domain)           t.domain  = '';
                 if (!t.cat)              t.cat     = '';
                 if (!t.desc)             t.desc    = '';
@@ -212,6 +213,7 @@ function buildExportJSON() {
         domain:  t.domain,
         href:    t.href,
         image:   t.image,
+        ...(t.audio ? { audio: t.audio } : {}),
         ...(t.visible === false ? { visible: false } : {}),
         ...(t.showImage === true ? { showImage: true } : {}),
         ...(t.expand === true ? { expand: true } : {}),
@@ -398,6 +400,7 @@ function openTileModal(id) {
         document.getElementById('f-domain').value  = t.domain;
         document.getElementById('f-href').value    = t.href  || '';
         document.getElementById('f-image').value   = t.image || '';
+        document.getElementById('f-audio').value   = t.audio || '';
         document.getElementById('f-expand').checked = !!t.expand;
     } else {
         document.getElementById('f-expand').checked = false;
@@ -422,6 +425,7 @@ function saveTile(e) {
         domain:  document.getElementById('f-domain').value,
         href:    document.getElementById('f-href').value,
         image:     document.getElementById('f-image').value,
+        audio:     document.getElementById('f-audio').value,
         visible:   existing ? existing.visible : true,
         expand:    document.getElementById('f-expand').checked,
         showImage: document.getElementById('f-expand').checked ? false : (existing ? !!existing.showImage : false),
