@@ -442,7 +442,8 @@ function saveTile(e) {
         slug:   document.getElementById('f-slug').value,
         artist: document.getElementById('f-artist').value,
         album:  document.getElementById('f-album').value,
-        visible:   existing ? existing.visible : true,
+        visible:   existing ? existing.visible  : true,
+        featured:  existing ? (existing.featured || 0) : 0,
         expand:    document.getElementById('f-expand').checked,
         showImage: document.getElementById('f-expand').checked ? false : (existing ? !!existing.showImage : false),
     };
