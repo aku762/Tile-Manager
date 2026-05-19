@@ -31,7 +31,10 @@ site/               ← your customizations — never touched by core updates
   site.json         ← site metadata (title, logo, footer, etc.)
   tiles.json        ← statuses, sections, and tile data
   style.css         ← public site styles
-  images/           ← logo, og image, tile images
+  images/
+    wide/           ← tile images (1200×630 landscape)
+    square/         ← square artwork (512×512, used for lock screen)
+    portrait/       ← portrait images (future)
   source/           ← original source files (not served, not built)
     tiles/          ← drop source images here, run convert-tiles.bat
 
@@ -83,7 +86,7 @@ This lets you build multi-page sites — place different section tags on differe
   ],
   "sections": [
     { "id": "1", "title": "PICKS", "featured": true },
-    { "id": "2", "title": "TOOLS" },
+    { "id": "2", "title": "TRACKS" },
     { "id": "3", "title": "ARCHIVED", "visible": false }
   ],
   "tiles": [
@@ -95,8 +98,13 @@ This lets you build multi-page sites — place different section tags on differe
       "domain": "example.com",
       "href": "https://example.com",
       "image": "example.webp",
+      "showImage": true,
       "featured": 1,
-      "visible": false
+      "audio": "audio/track.mp3",
+      "track": "Track Title",
+      "artist": "Artist Name",
+      "album": "Album Name",
+      "slug": "track-title"
     }
   ]
 }
@@ -118,69 +126,94 @@ This lets you build multi-page sites — place different section tags on differe
 | `id` | string | Sequential number assigned on export — controls display order, not a permanent identifier |
 | `section` | string | ID of the section this tile belongs to |
 | `cat` | string | Category label shown above the tile name |
-| `name` | string | Tile title |
+| `name` | string | Tile display title |
 | `desc` | string | Short description |
 | `status` | string | ID of a status from the `statuses` array |
 | `domain` | string | Domain shown at the bottom of the tile; also used for the favicon |
 | `href` | string | Link URL — omit to render the tile as a non-clickable div |
-| `image` | string | Full filename including extension in `site/images/tiles/` (e.g. `mytile.webp`) |
+| `image` | string | Filename in `site/images/wide/` (e.g. `mytile.webp`) — same name used across `wide/`, `square/`, `portrait/` |
 | `showImage` | boolean | `true` renders the image area — real image if `image` is set, gradient placeholder if not. Default `false` (compact tile). Toggled via the thumbnail in the admin. |
-| `expand` | boolean | `true` makes the tile standalone — never stacks, gradient suppressed, fills available row height. Use for text-heavy tiles. Ignored on tiles with a real image. Default `false`. |
+| `expand` | boolean | `true` makes the tile standalone — never stacks, gradient suppressed, fills available row height. Use for text-heavy tiles. Default `false`. |
 | `visible` | boolean | `false` hides the tile from the built site and local preview |
 | `featured` | number | Position in the featured section (1 = first). Omit or `0` to exclude from featured. |
-| `audio` | string | Relative path (e.g. `audio/track.mp3`) or full URL to an audio file. Renders an inline player on the tile. |
+| `audio` | string | Relative path (e.g. `audio/track.mp3`) or full URL. Renders an inline audio player on the tile. |
+| `track` | string | Track title shown on the OS lock screen. Defaults to `name` if omitted. |
+| `artist` | string | Artist name for the lock screen media card. |
+| `album` | string | Album name for the lock screen media card. |
+| `slug` | string | URL-safe identifier (e.g. `minimal-effort`). Updates the URL to `site.com/#slug` on play and enables direct linking to a track. |
 
 Statuses are user-defined colored classifiers — add, edit, and delete them from the **Statuses** tab in the admin panel. The filter bar on the public site is generated from whatever statuses exist in `tiles.json`.
 
 ## Tile images
 
-Drop images into `site/images/tiles/` and reference them by full filename including extension in the tile's `image` field. Any format works — `.webp`, `.jpg`, `.gif`, `.png`.
+Images live in `site/images/wide/` and are referenced by filename in the tile's `image` field. Use the same filename across all three image folders — the folder determines the format:
 
-Set `showImage: true` on the tile (or click the thumbnail in the admin) to display the image. If the file is missing, a gradient placeholder shows instead so you can see the slot is reserved. If the file loads, it covers the gradient automatically.
+| Folder | Size | Used for |
+|---|---|---|
+| `images/wide/` | 1200×630 | Tile display |
+| `images/square/` | 512×512 | Lock screen artwork (tried first, falls back to wide) |
+| `images/portrait/` | 9×16 | Future portrait tile format |
 
-**Converting source images:** drop your original files into `site/source/tiles/` and run `convert-tiles.bat`. It uses [ImageMagick](https://imagemagick.org/) to convert and resize them to 900px wide WebP, outputting directly into `site/images/tiles/`.
+You don't need all three — just drop whichever sizes you have and the right one gets used automatically.
+
+Set `showImage: true` on the tile (or click the thumbnail in the admin) to display the image. If the file is missing, a gradient placeholder shows instead.
+
+**Converting source images:** drop originals into `site/source/tiles/` and run `convert-tiles.bat`. It uses [ImageMagick](https://imagemagick.org/) to resize to 900px wide WebP and outputs to `images/wide/`.
 
 ## Tile layout
 
-By default tiles are compact (no image area) and eligible for stacking. Two consecutive compact tiles in a section are automatically grouped into a single grid cell, splitting the height equally. This keeps the grid balanced when mixing image and non-image tiles.
-
-Three layout modes per tile:
+By default tiles are compact (no image area) and eligible for stacking. Two consecutive compact tiles in a section are automatically grouped into a single grid cell, splitting the height equally.
 
 | Mode | How | Result |
 |---|---|---|
 | Compact (default) | `showImage` off, `expand` off | Small tile, stacks with the next compact tile |
 | Image / gradient | `showImage` on | Full-height tile with image or gradient placeholder |
-| Expand | `expand` on | Full-height tile, no image area, no stacking — description fills the space |
+| Expand | `expand` on | Full-height standalone tile, no image area — description fills the space |
 
 On mobile (single column) stacking is disabled and all tiles flow normally.
 
 ## Audio tiles
 
-Set the `audio` field on any tile to a relative path or URL pointing to an audio file. The tile renders an inline player: play/pause, a scrubber bar with a handle dot, a timestamp, and a mute button.
+Set the `audio` field on any tile to a relative path or URL. The tile renders an inline player: play/pause, scrubber with handle, timestamp, and mute button.
 
-**Compact tile:** player bar sits above the category label.
-**Image tile:** slim frosted bar overlaid at the bottom of the image (click the image to play/pause).
+- **Compact tile:** player bar sits above the category label
+- **Image tile:** slim frosted bar overlaid at the bottom of the image — click the image to play/pause
 
-Only one track plays at a time — starting a new tile pauses whatever was playing. When a track finishes it auto-advances to the next audio tile in DOM order and stops at the last one.
+Only one track plays at a time. When a track ends it auto-advances to the next audio tile in DOM order and stops at the last one.
+
+### Lock screen (Media Session API)
+
+On supported browsers, the OS lock screen and Control Center show a full media card for the playing track with prev/next buttons. Populate `track`, `artist`, `album`, and `image` on the tile for the best experience. Artwork uses `images/square/` if available, falls back to `images/wide/`.
+
+### Hash routing
+
+Set a `slug` on any audio tile and the URL updates to `site.com/#slug` whenever that track plays. Sharing that URL scrolls to the tile and starts playback automatically. Works on any page without a build step.
 
 ## Admin panel
 
-Open `core/admin.html` directly via Live Server (or `dist/admin.html` after a build). The admin panel saves state to `localStorage` under the key `tile_manager_admin`. Use **Export JSON** to download `tiles.json` or **Copy JSON** to copy it to the clipboard — useful on mobile for pasting directly into the GitHub app.
+Open `core/admin.html` directly via Live Server (or `dist/admin.html` after a build). The admin panel saves state to `localStorage` under the key `tile_manager_admin`. Use **Export JSON** to download `tiles.json` or **Copy JSON** to copy it to the clipboard.
 
 The admin has three tabs:
-- **Tiles** — add, edit, delete, and drag-to-reorder tiles within a section. Each row has a favicon thumbnail (click to toggle `showImage`), a star (☆/★) to feature/unfeature, and a hide/show toggle. The tile edit modal includes an **Expand** checkbox. The **SHOW HIDDEN** toolbar button reveals tiles from hidden sections in the all-sections view.
-- **Sections** — add, edit, delete, and drag-to-reorder sections. Each section has a hide/show toggle. The featured section shows a badge and cannot be deleted — it can only be renamed or hidden.
-- **Statuses** — add, edit, and delete status labels with custom colors; deleting a status that is still in use shows an error.
+
+- **Tiles** — add, edit, copy, delete, and drag-to-reorder tiles. Each row has a favicon thumbnail (click to toggle `showImage`), a star (☆/★) to feature/unfeature, and a hide/show toggle. The **SHOW HIDDEN** toolbar button reveals tiles from hidden sections.
+- **Sections** — add, edit, delete, and drag-to-reorder sections. The featured section shows a badge and cannot be deleted.
+- **Statuses** — add, edit, and delete status labels with custom colors.
+
+### Tile edit modal
+
+The modal is split into two areas by a separator. The top half covers display fields (section, category, status, name, description, domain, link, expand). The bottom half covers media fields: image file, audio file, track title, artist, album, and slug.
+
+### Copy tile
+
+The **COPY** action in each tile row opens a small modal pre-filled with the tile's name and section. Edit the name, pick a destination section, and confirm. Featured status is not copied — the star is earned separately.
 
 ### Visibility
 
-Both tiles and sections support a `visible` field. Hidden items are excluded from the built site and local preview but remain fully editable in the admin. Hidden rows are visually dimmed with an orange left border and a strikethrough on the name.
+Both tiles and sections support a `visible` field. Hidden items are excluded from the built site and local preview but remain fully editable in the admin. Hidden rows are visually dimmed with an orange left border.
 
 ### Featured section
 
-One section in `tiles.json` carries `"featured": true` — this designates it as the featured section. It can be renamed and hidden like any other section, but not deleted. The default `tiles.json` ships with a section called **PICKS** as the featured section.
-
-The featured section ignores its own tile assignments and instead displays all tiles that have a `featured` order number, sorted by that number. To feature a tile, click the ☆ in the admin — it becomes ★ and is assigned the next available position. To reorder, select the featured section from the section dropdown and drag tiles into the desired order.
+One section carries `"featured": true`. It displays all tiles that have a `featured` order number, sorted by that number — it does not use normal section assignment. To feature a tile click ☆ in the admin; to reorder, select the featured section from the dropdown and drag. The featured section cannot be deleted, only hidden or renamed.
 
 ## Cloudflare Pages settings
 
