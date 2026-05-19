@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-05-19
+
+### Media Session API, audio metadata, image folder structure
+
+- Added `artist` and `album` optional fields to tiles — feed the OS lock screen card and future JSON-LD.
+- Media Session API wired into `audioPlay()`: title, artist, album, and artwork update per track so iOS/Android lock screen and Control Center show the right info.
+- Lock screen prev/next buttons work via `_audioGetAdjacent()` — same dedup logic as auto-advance.
+- Artwork fallback priority: `images/square/filename` tried first (512×512 ideal for lock screen), falls back to `images/wide/filename` automatically — no field needed, just drop whichever sizes you have.
+- Image folder convention: `images/tiles/` renamed to `images/wide/`. Two new sibling folders: `images/square/` and `images/portrait/`. Same filename across all three — the folder determines the format, not the tile data.
+- `convert-tiles.bat` output updated to `images/wide/`.
+- Admin modal: image, audio, artist, album grouped below a separator line at the bottom of the tile form.
+- Auto image naming (`suggestImage`) removed — it was mangling tile names on rename.
+- Scrubber handle: was invisible due to undefined `--accent` CSS variable. Fixed to `--blue` with a double-layer glow.
+
+---
+
 ## 2026-05-17
 
 ### Audio tiles

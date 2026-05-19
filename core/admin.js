@@ -23,6 +23,8 @@ try {
                 if (!t.href)             t.href    = '';
                 if (!t.image)            t.image   = '';
                 if (!t.audio)            t.audio   = '';
+                if (!t.artist)           t.artist  = '';
+                if (!t.album)            t.album   = '';
                 if (!t.domain)           t.domain  = '';
                 if (!t.cat)              t.cat     = '';
                 if (!t.desc)             t.desc    = '';
@@ -213,7 +215,9 @@ function buildExportJSON() {
         domain:  t.domain,
         href:    t.href,
         image:   t.image,
-        ...(t.audio ? { audio: t.audio } : {}),
+        ...(t.audio  ? { audio:  t.audio  } : {}),
+        ...(t.artist ? { artist: t.artist } : {}),
+        ...(t.album  ? { album:  t.album  } : {}),
         ...(t.visible === false ? { visible: false } : {}),
         ...(t.showImage === true ? { showImage: true } : {}),
         ...(t.expand === true ? { expand: true } : {}),
@@ -399,8 +403,10 @@ function openTileModal(id) {
         document.getElementById('f-status').value  = t.status;
         document.getElementById('f-domain').value  = t.domain;
         document.getElementById('f-href').value    = t.href  || '';
-        document.getElementById('f-image').value   = t.image || '';
-        document.getElementById('f-audio').value   = t.audio || '';
+        document.getElementById('f-image').value  = t.image || '';
+        document.getElementById('f-audio').value  = t.audio || '';
+        document.getElementById('f-artist').value       = t.artist      || '';
+        document.getElementById('f-album').value        = t.album       || '';
         document.getElementById('f-expand').checked = !!t.expand;
     } else {
         document.getElementById('f-expand').checked = false;
@@ -424,8 +430,10 @@ function saveTile(e) {
         status:  document.getElementById('f-status').value,
         domain:  document.getElementById('f-domain').value,
         href:    document.getElementById('f-href').value,
-        image:     document.getElementById('f-image').value,
-        audio:     document.getElementById('f-audio').value,
+        image:  document.getElementById('f-image').value,
+        audio:  document.getElementById('f-audio').value,
+        artist:      document.getElementById('f-artist').value,
+        album:       document.getElementById('f-album').value,
         visible:   existing ? existing.visible : true,
         expand:    document.getElementById('f-expand').checked,
         showImage: document.getElementById('f-expand').checked ? false : (existing ? !!existing.showImage : false),
@@ -482,11 +490,6 @@ function deleteTile(id) {
     save();
     renderTiles();
     toast('Tile deleted.');
-}
-
-function suggestImage() {
-    const slug = document.getElementById('f-name').value.toLowerCase().replace(/[^a-z0-9]/g, '') + '.webp';
-    document.getElementById('f-image').value = slug;
 }
 
 // ── Section CRUD ─────────────────────────────────────────────────────────

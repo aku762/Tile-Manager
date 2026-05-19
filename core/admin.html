@@ -97,7 +97,7 @@
             </div>
             <div class="form-row">
                 <label>NAME</label>
-                <input id="f-name" type="text" required oninput="suggestImage()" placeholder="FORTRESS FLASH LABS">
+                <input id="f-name" type="text" required placeholder="FORTRESS FLASH LABS">
             </div>
             <div class="form-row">
                 <label>DESCRIPTION</label>
@@ -113,18 +113,29 @@
                     <input id="f-href" type="text" placeholder="https://...">
                 </div>
             </div>
+            <div class="form-row form-row-checks">
+                <label class="check-label"><input type="checkbox" id="f-expand"> Expand tile — standalone cell, no stacking, no gradient</label>
+            </div>
+            <div class="form-sep"></div>
             <div class="form-row">
                 <label>IMAGE FILE</label>
-                <input id="f-image" type="text" placeholder="fortressflashlabs.png">
-                <span class="hint">Drop file into images/tiles/ — auto-suggested from name</span>
+                <input id="f-image" type="text" placeholder="filename.webp">
+                <span class="hint">Same filename in images/wide/, images/square/, images/portrait/ — drop whichever you have</span>
             </div>
             <div class="form-row">
                 <label>AUDIO FILE / URL</label>
                 <input id="f-audio" type="text" placeholder="audio/mix.mp3 or https://...">
                 <span class="hint">Relative path or full URL — mp3, ogg, wav</span>
             </div>
-            <div class="form-row form-row-checks">
-                <label class="check-label"><input type="checkbox" id="f-expand"> Expand tile — standalone cell, no stacking, no gradient</label>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>ARTIST</label>
+                    <input id="f-artist" type="text" placeholder="DJ Typhoon">
+                </div>
+                <div class="form-row">
+                    <label>ALBUM</label>
+                    <input id="f-album" type="text" placeholder="Unreleased 2024">
+                </div>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-save">SAVE TILE</button>

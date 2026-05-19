@@ -4,6 +4,115 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ---
 
+## Audio metadata, Media Session, hash routing, and sharing
+
+A bundle of quick-win polish for audio-heavy pages like djtyphoon.com. Mostly additive — no schema changes, no new build step.
+
+**Already done:** Open Graph and Twitter/X card meta tags are already in `site/index.html` via `{{SITE_*}}` tokens — page-level previews work today.
+
+---
+
+### Tile-level audio metadata fields
+
+Add to each audio tile in `tiles.json`:
+
+```json
+"artist": "DJ Typhoon",
+"album":  "Unreleased 2024",
+"slug":   "minimal-effort"
+```
+
+`slug` drives hash routing and share URLs. `artist` / `album` feed the Media Session API and JSON-LD. These are optional — omitting them degrades gracefully.
+
+---
+
+### Media Session API
+
+On play, update the browser's media session so the OS lock screen and Control Center show the right track info:
+
+```js
+navigator.mediaSession.metadata = new MediaMetadata({
+    title:  tile.name,
+    artist: tile.artist ?? '',
+    album:  tile.album  ?? '',
+    artwork: tile.image ? [{ src: 'images/tiles/' + tile.image }] : []
+});
+```
+
+Gives native play/pause/skip controls in the notification shade and on headphones. Low effort, high polish.
+
+---
+
+### Hash routing
+
+On play, push `#slug` to the URL. On page load, read the hash, scroll to and auto-play that tile.
+
+```
+djtyphoon.com/#minimal-effort
+djtyphoon.com/#sentient-arrival
+```
+
+Hash = great for users sharing direct track links. The page is still one static file — no build change needed.
+
+---
+
+### Share button
+
+A share icon on each audio tile. Uses `navigator.share()` on mobile (native share sheet), falls back to copying `location.origin + location.pathname + '#' + slug` to the clipboard on desktop.
+
+---
+
+### preload="metadata"
+
+Set `preload="metadata"` when creating the `Audio` object so the browser fetches just enough to show the track duration before the user hits play. Avoids pre-buffering every file on page load.
+
+```js
+_aud = new Audio(src);
+_aud.preload = 'metadata';
+```
+
+---
+
+### JSON-LD structured data
+
+Inject a `<script type="application/ld+json">` block at build time for audio pages — tells search engines these are `MusicRecording` entities, not random MP3 links. Feeds into the auto-generated subpages idea (see *Tile types and detail pages*) where each track gets its own SEO-friendly URL. Hash routing is phase 1; generated `/tracks/slug/` pages are phase 2.
+
+---
+
+## Three tile image formats: wide, portrait, square
+
+Three canonical image shapes to design assets for:
+
+| Format | Ratio | Use case |
+|---|---|---|
+| Wide | 1200×630 (current default) | Standard web tile, OG image, desktop-first layouts |
+| Portrait | 9×16 or 3×4 | Mobile-first, full-bleed on single-column |
+| Square | 1×1 (512×512 recommended) | Media Session API lock screen artwork, also works as a tile |
+
+**Square is the immediate need** — Media Session API artwork on iOS/Android needs a square image. Best added as a second output from `convert-tiles.bat` alongside the wide: crop to 512×512, drop in `images/artwork/`, reference via `"artwork": "track.webp"` on the tile.
+
+**Portrait** is the bigger layout project. On desktop, taller tiles break grid rhythm when mixed with wide neighbors — probably `object-fit: cover` + `object-position: top` with `align-self: start`. On mobile it's the natural format — image fills the viewport width, audio player overlay at the bottom if set.
+
+**Implementation idea:** an `imageFormat` field on the tile (`"wide"` default, `"portrait"`, `"square"`). The CSS aspect-ratio and grid behavior switch based on a `data-format` attribute. `object-position` could also be a tile field (`"top"`, `"center"`, `"bottom"`) for fine control over how the subject sits in the crop.
+
+---
+
+## Featured tile duplication
+
+Tiles with a `featured` order appear in both `<!--FEATURED-->` and their normal section via `<!--SECTIONS-->`. On pages with few tiles this is immediately noticeable — the same tile shows up twice. For audio auto-advance it means every track plays twice before stopping.
+
+With section tags, the duplication is less of a problem in practice — you can use `<!--SECTION:ID-->` to place exactly the tiles you want without `<!--SECTIONS-->` pulling everything in. So this is mostly an issue on simple single-page layouts.
+
+**Reframe:** "featured" is really just "pinned to top" — it's a position in the page, not a separate editorial concept. The tile still lives in its section; the featured block just surfaces it higher. That framing suggests the right fix isn't hiding tiles from sections, but making it easy to build a page where the pin and the section don't both appear at the same time.
+
+**Options being considered:**
+
+- **`showInSection` boolean on the featured section** (or `duplicateInSections: false`) — opt-out flag that suppresses featured tiles from their normal section when the featured block is present on the same page.
+- **Scoped auto-advance** — audio auto-advance stays within the section the user started playing from, rather than walking all `.tile-audio` elements on the page. Naturally avoids cross-section duplicates.
+- **No change** — use section tags to compose the page so the same tile never appears twice. Only a real problem on small catch-all pages.
+
+---
+
 ## Export direct to GitHub repo
 
 Push `tiles.json` straight from the admin to the GitHub repo via the GitHub Contents API — no file download, no terminal, no manual copy. Cloudflare Pages picks up the push and rebuilds automatically.

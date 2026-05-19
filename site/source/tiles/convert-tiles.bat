@@ -5,7 +5,7 @@ REM Go to the folder where this BAT file lives: source\tiles
 cd /d "%~dp0"
 
 REM Output folder relative to source\tiles
-set "OUT=..\..\images\tiles"
+set "OUT=..\..\images\wide"
 
 if not exist "%OUT%" mkdir "%OUT%"
 
