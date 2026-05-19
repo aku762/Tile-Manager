@@ -263,7 +263,7 @@ body {
 .audio-prog {
     height: 100%;
     width: 0%;
-    background: var(--accent);
+    background: var(--blue);
     border-radius: 2px;
     transition: width 0.1s linear;
     position: relative;
@@ -272,14 +272,14 @@ body {
 .audio-prog::after {
     content: '';
     position: absolute;
-    right: -4px;
+    right: -5px;
     top: 50%;
     transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 5px rgba(12,157,222,0.6);
+    background: var(--blue);
+    box-shadow: 0 0 8px 2px rgba(12,157,222,0.9), 0 0 3px rgba(12,157,222,1);
 }
 
 .audio-time {

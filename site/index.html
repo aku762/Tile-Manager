@@ -113,7 +113,7 @@
                     { src: new URL('images/wide/'   + img, location.href).href, sizes: '1200x630'  }
                 ] : [];
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title:   wrap.dataset.name   || '',
+                    title:   wrap.dataset.track  || wrap.dataset.name || '',
                     artist:  wrap.dataset.artist || '',
                     album:   wrap.dataset.album  || '',
                     artwork
