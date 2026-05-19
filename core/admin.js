@@ -505,8 +505,8 @@ function deleteTile(id) {
 function openCopyModal(id) {
     const t = state.tiles.find(t => t.id === id);
     if (!t) return;
-    document.getElementById('copy-src-id').value   = id;
-    document.getElementById('copy-src-name').textContent = t.name;
+    document.getElementById('copy-src-id').value = id;
+    document.getElementById('cf-name').value     = t.name;
     const sel = document.getElementById('cf-section');
     sel.innerHTML = state.sections.filter(s => !s.featured).map(s =>
         `<option value="${s.id}"${s.id === t.section ? ' selected' : ''}>${s.title}${s.visible === false ? ' [HIDDEN]' : ''}</option>`
@@ -519,7 +519,7 @@ function confirmCopy(e) {
     const id = document.getElementById('copy-src-id').value;
     const t  = state.tiles.find(t => t.id === id);
     if (!t) return;
-    const copy = { ...t, id: String(Date.now()), section: document.getElementById('cf-section').value, featured: 0 };
+    const copy = { ...t, id: String(Date.now()), name: document.getElementById('cf-name').value, section: document.getElementById('cf-section').value, featured: 0 };
     state.tiles.push(copy);
     closeModal('copy-modal');
     save();
