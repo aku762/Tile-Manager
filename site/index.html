@@ -110,8 +110,7 @@
             if ('mediaSession' in navigator) {
                 const img = wrap.dataset.image;
                 const artwork = img ? [
-                    { src: new URL('images/square/' + img, location.href).href, sizes: '512x512'   },
-                    { src: new URL('images/wide/'   + img, location.href).href, sizes: '1200x630'  }
+                    { src: new URL('images/wide/' + img, location.href).href, sizes: '1200x630' }
                 ] : [];
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title:   wrap.dataset.track  || wrap.dataset.name || '',
