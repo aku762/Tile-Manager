@@ -6,46 +6,15 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ## Audio metadata, Media Session, hash routing, and sharing
 
-A bundle of quick-win polish for audio-heavy pages like djtyphoon.com. Mostly additive — no schema changes, no new build step.
+**Shipped:** Open Graph and Twitter/X card meta tags (`{{SITE_*}}` tokens), Media Session API (title, artist, album, artwork, prev/next), `track`/`artist`/`album` tile fields, `images/wide/` + `images/square/` + `images/portrait/` folder convention with automatic artwork fallback.
 
-**Already done:** Open Graph and Twitter/X card meta tags are already in `site/index.html` via `{{SITE_*}}` tokens — page-level previews work today.
-
----
-
-### Tile-level audio metadata fields
-
-Add to each audio tile in `tiles.json`:
-
-```json
-"artist": "DJ Typhoon",
-"album":  "Unreleased 2024",
-"slug":   "minimal-effort"
-```
-
-`slug` drives hash routing and share URLs. `artist` / `album` feed the Media Session API and JSON-LD. These are optional — omitting them degrades gracefully.
-
----
-
-### Media Session API
-
-On play, update the browser's media session so the OS lock screen and Control Center show the right track info:
-
-```js
-navigator.mediaSession.metadata = new MediaMetadata({
-    title:  tile.name,
-    artist: tile.artist ?? '',
-    album:  tile.album  ?? '',
-    artwork: tile.image ? [{ src: 'images/tiles/' + tile.image }] : []
-});
-```
-
-Gives native play/pause/skip controls in the notification shade and on headphones. Low effort, high polish.
+Still to do:
 
 ---
 
 ### Hash routing
 
-On play, push `#slug` to the URL. On page load, read the hash, scroll to and auto-play that tile.
+On play, push `#slug` to the URL. On page load, read the hash, scroll to and auto-play that tile. Requires a `slug` field on audio tiles (short URL-safe string).
 
 ```
 djtyphoon.com/#minimal-effort
@@ -58,7 +27,7 @@ Hash = great for users sharing direct track links. The page is still one static 
 
 ### Share button
 
-A share icon on each audio tile. Uses `navigator.share()` on mobile (native share sheet), falls back to copying `location.origin + location.pathname + '#' + slug` to the clipboard on desktop.
+A share icon on each audio tile. Uses `navigator.share()` on mobile (native share sheet), falls back to copying `location.origin + location.pathname + '#' + slug` to the clipboard on desktop. Depends on hash routing (`slug` field) being in place first.
 
 ---
 
@@ -71,6 +40,8 @@ _aud = new Audio(src);
 _aud.preload = 'metadata';
 ```
 
+Quick win — one line change.
+
 ---
 
 ### JSON-LD structured data
@@ -80,6 +51,10 @@ Inject a `<script type="application/ld+json">` block at build time for audio pag
 ---
 
 ## Three tile image formats: wide, portrait, square
+
+**Shipped:** `images/wide/`, `images/square/`, `images/portrait/` folder convention. Wide is used for tile display; square is tried first for Media Session artwork, wide as fallback. Same filename across all three.
+
+**Still to do:** portrait tile display — CSS aspect ratio and grid behavior for portrait-oriented images. See ideas above under *Vertical / portrait tile images* (now superseded by this entry).
 
 Three canonical image shapes to design assets for:
 
