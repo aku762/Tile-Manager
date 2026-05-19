@@ -157,6 +157,31 @@
     </div>
 </div>
 
+<!-- ── COPY MODAL ── -->
+<div id="copy-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>COPY TILE</span>
+            <button onclick="closeModal('copy-modal')">✕</button>
+        </div>
+        <form id="copy-form" onsubmit="confirmCopy(event)">
+            <input type="hidden" id="copy-src-id">
+            <div class="form-row">
+                <label>TILE</label>
+                <div id="copy-src-name" style="padding:6px 0;font-size:0.8rem;color:var(--text)"></div>
+            </div>
+            <div class="form-row">
+                <label>COPY TO SECTION</label>
+                <select id="cf-section" required></select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">COPY</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('copy-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- ── SECTION MODAL ── -->
 <div id="section-modal" class="modal-overlay hidden">
     <div class="modal-box">

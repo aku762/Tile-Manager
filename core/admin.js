@@ -336,6 +336,7 @@ function renderTiles() {
             <td class="domain-cell">${t.domain}</td>
             <td style="white-space:nowrap">
                 <button class="btn btn-sm" onclick="openTileModal('${t.id}')">EDIT</button>
+                <button class="btn btn-sm" onclick="openCopyModal('${t.id}')">COPY</button>
                 <button class="btn btn-sm ${hidden ? 'btn-vis-off' : 'btn-vis'}" onclick="toggleVisible('${t.id}')">${hidden ? 'SHOW' : 'HIDE'}</button>
                 <button class="btn btn-sm btn-del" onclick="deleteTile('${t.id}')">DEL</button>
             </td>
@@ -499,6 +500,31 @@ function deleteTile(id) {
     save();
     renderTiles();
     toast('Tile deleted.');
+}
+
+function openCopyModal(id) {
+    const t = state.tiles.find(t => t.id === id);
+    if (!t) return;
+    document.getElementById('copy-src-id').value   = id;
+    document.getElementById('copy-src-name').textContent = t.name;
+    const sel = document.getElementById('cf-section');
+    sel.innerHTML = state.sections.map(s =>
+        `<option value="${s.id}"${s.id === t.section ? ' selected' : ''}>${s.title}${s.visible === false ? ' [HIDDEN]' : ''}</option>`
+    ).join('');
+    document.getElementById('copy-modal').classList.remove('hidden');
+}
+
+function confirmCopy(e) {
+    e.preventDefault();
+    const id = document.getElementById('copy-src-id').value;
+    const t  = state.tiles.find(t => t.id === id);
+    if (!t) return;
+    const copy = { ...t, id: String(Date.now()), section: document.getElementById('cf-section').value, featured: 0 };
+    state.tiles.push(copy);
+    closeModal('copy-modal');
+    save();
+    renderTiles();
+    toast('Tile copied.');
 }
 
 // ── Section CRUD ─────────────────────────────────────────────────────────
