@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-19 (3)
+
+### Bug fix: featured order lost on tile edit
+
+Editing any featured tile in the admin modal would silently drop its `featured` order number on save — the tile would vanish from the featured section and the remaining tiles would need to be re-starred and re-sorted manually. Root cause: `saveTile()` built a fresh tile object from form fields only, and `featured` was never included. Fixed by preserving `featured` from the existing tile on save, the same way `visible` and `showImage` are handled.
+
+---
+
 ## 2026-05-19 (2)
 
 ### Hash routing and slug field
