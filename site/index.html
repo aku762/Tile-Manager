@@ -88,7 +88,8 @@
         }
         if (!_aud || _audWrap !== wrap) {
             if (_aud) _aud.pause();
-            _aud     = new Audio(src);
+            _aud          = new Audio(src);
+            _aud.preload  = 'metadata';
             _audWrap = wrap;
             _aud.ontimeupdate = function() {
                 const pct = (_aud.currentTime / _aud.duration * 100) || 0;
@@ -131,10 +132,25 @@
                 }
             }
         }
-        if (_aud.paused) { _aud.play(); btn.textContent = '⏸'; }
-        else             { _aud.pause(); btn.textContent = '▶'; }
+        if (_aud.paused) {
+            _aud.play(); btn.textContent = '⏸';
+            if (wrap.dataset.slug) history.replaceState(null, '', '#' + wrap.dataset.slug);
+        } else {
+            _aud.pause(); btn.textContent = '▶';
+        }
         _audBtn = btn;
     }
+
+    function initHashRouting() {
+        const slug = location.hash.slice(1);
+        if (!slug) return;
+        const target = document.querySelector('.tile-audio[data-slug="' + CSS.escape(slug) + '"]');
+        if (!target) return;
+        const tile = target.closest('.tile');
+        if (tile) tile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => audioPlay(target.querySelector('.audio-btn')), 400);
+    }
+    initHashRouting();
 
     function audioSeek(e, bar) {
         if (!_aud || !_aud.duration) return;
