@@ -213,6 +213,7 @@ tr.tile-hidden .name-cell { text-decoration: line-through; text-decoration-color
 .form-row-checks { flex-direction: row; flex-wrap: wrap; gap: 12px; }
 .check-label { display: flex; align-items: center; gap: 6px; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); cursor: pointer; }
 .check-label input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+.form-sep { border-top: 1px solid var(--border); margin: 0.5rem 0; }
 .form-actions { display: flex; gap: 10px; padding-top: 0.5rem; border-top: 1px solid var(--border); margin-top: 0.5rem; }
 
 /* ── TOAST ── */

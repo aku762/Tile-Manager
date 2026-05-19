@@ -55,9 +55,7 @@
       "status": "active",
       "domain": "github.com/aku762/Tile-Manager",
       "href": "https://github.com/aku762/Tile-Manager",
-      "image": "tilemanager.webp",
-      "showImage": true,
-      "featured": 2
+      "image": "tilemanager.webp"
     },
     {
       "id": "2",
@@ -172,7 +170,9 @@
       "status": "new",
       "domain": "github.com",
       "href": "https://github.com",
-      "image": "github.webp"
+      "image": "github.webp",
+      "showImage": true,
+      "featured": 4
     },
     {
       "id": "12",
@@ -197,7 +197,7 @@
       "image": "medusasescape.webp",
       "audio": "https://media.djtyphoon.com/DJ_Typhoon_Medusa's_Escape_2006_Mix.mp3",
       "showImage": true,
-      "featured": 1
+      "featured": 2
     }
   ]
 }
