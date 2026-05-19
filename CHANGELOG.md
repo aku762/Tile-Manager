@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-05-19 (2)
+
+### Hash routing and slug field
+
+- Added `slug` field to tiles — short URL-safe string (e.g. `minimal-effort`).
+- On play, the URL updates to `site.com/#slug` via `history.replaceState` so the link is always shareable without polluting browser history.
+- On page load, the hash is read, the matching tile is scrolled into view, and playback starts automatically. On iOS, autoplay may be blocked by the browser until the user taps — the scroll still happens.
+- `slug` field added to the audio section of the tile edit modal alongside track title.
+- `app.js` calls `initHashRouting()` after tiles are hydrated for live preview; the built `dist/` calls it directly since tiles are already in the HTML.
+- Added `preload="metadata"` when creating Audio objects — browser fetches duration without buffering the full file.
+
+---
+
 ## 2026-05-19
 
 ### Media Session API, audio metadata, image folder structure

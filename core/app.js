@@ -20,7 +20,7 @@ function renderTile(tile, statusMap) {
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
     const audioHTML = tile.audio
-        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${tile.audio}" data-name="${tile.name}" data-track="${tile.track || ''}" data-artist="${tile.artist || ''}" data-album="${tile.album || ''}" data-image="${tile.image || ''}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${tile.audio}" data-name="${tile.name}" data-track="${tile.track || ''}" data-slug="${tile.slug || ''}" data-artist="${tile.artist || ''}" data-album="${tile.album || ''}" data-image="${tile.image || ''}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
         : '';
 
     if (showImg) {
@@ -158,6 +158,7 @@ async function loadTiles() {
             }
         }
     }
+    if (typeof initHashRouting === 'function') initHashRouting();
 }
 
 async function loadSite() {

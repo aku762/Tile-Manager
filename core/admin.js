@@ -24,6 +24,7 @@ try {
                 if (!t.image)            t.image   = '';
                 if (!t.audio)            t.audio   = '';
                 if (!t.track)            t.track   = '';
+                if (!t.slug)             t.slug    = '';
                 if (!t.artist)           t.artist  = '';
                 if (!t.album)            t.album   = '';
                 if (!t.domain)           t.domain  = '';
@@ -218,6 +219,7 @@ function buildExportJSON() {
         image:   t.image,
         ...(t.audio  ? { audio:  t.audio  } : {}),
         ...(t.track  ? { track:  t.track  } : {}),
+        ...(t.slug   ? { slug:   t.slug   } : {}),
         ...(t.artist ? { artist: t.artist } : {}),
         ...(t.album  ? { album:  t.album  } : {}),
         ...(t.visible === false ? { visible: false } : {}),
@@ -408,6 +410,7 @@ function openTileModal(id) {
         document.getElementById('f-image').value  = t.image || '';
         document.getElementById('f-audio').value  = t.audio  || '';
         document.getElementById('f-track').value  = t.track  || '';
+        document.getElementById('f-slug').value   = t.slug   || '';
         document.getElementById('f-artist').value = t.artist || '';
         document.getElementById('f-album').value  = t.album  || '';
         document.getElementById('f-expand').checked = !!t.expand;
@@ -436,6 +439,7 @@ function saveTile(e) {
         image:  document.getElementById('f-image').value,
         audio:  document.getElementById('f-audio').value,
         track:  document.getElementById('f-track').value,
+        slug:   document.getElementById('f-slug').value,
         artist: document.getElementById('f-artist').value,
         album:  document.getElementById('f-album').value,
         visible:   existing ? existing.visible : true,
