@@ -107,13 +107,16 @@
                 }
             };
             if ('mediaSession' in navigator) {
-                const fmt = wrap.dataset.imageFormat || 'wide';
                 const img = wrap.dataset.image;
+                const artwork = img ? [
+                    { src: new URL('images/square/' + img, location.href).href, sizes: '512x512'   },
+                    { src: new URL('images/wide/'   + img, location.href).href, sizes: '1200x630'  }
+                ] : [];
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title:   wrap.dataset.name   || '',
                     artist:  wrap.dataset.artist || '',
                     album:   wrap.dataset.album  || '',
-                    artwork: img ? [{ src: new URL('images/' + fmt + '/' + img, location.href).href }] : []
+                    artwork
                 });
                 if (!_sessionReady) {
                     _sessionReady = true;

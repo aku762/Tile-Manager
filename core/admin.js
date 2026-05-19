@@ -215,7 +215,6 @@ function buildExportJSON() {
         domain:  t.domain,
         href:    t.href,
         image:   t.image,
-        ...(t.imageFormat && t.imageFormat !== 'wide' ? { imageFormat: t.imageFormat } : {}),
         ...(t.audio  ? { audio:  t.audio  } : {}),
         ...(t.artist ? { artist: t.artist } : {}),
         ...(t.album  ? { album:  t.album  } : {}),
@@ -404,15 +403,13 @@ function openTileModal(id) {
         document.getElementById('f-status').value  = t.status;
         document.getElementById('f-domain').value  = t.domain;
         document.getElementById('f-href').value    = t.href  || '';
-        document.getElementById('f-image').value        = t.image       || '';
-        document.getElementById('f-image-format').value = t.imageFormat || 'wide';
-        document.getElementById('f-audio').value        = t.audio       || '';
+        document.getElementById('f-image').value  = t.image || '';
+        document.getElementById('f-audio').value  = t.audio || '';
         document.getElementById('f-artist').value       = t.artist      || '';
         document.getElementById('f-album').value        = t.album       || '';
         document.getElementById('f-expand').checked = !!t.expand;
     } else {
         document.getElementById('f-expand').checked = false;
-        document.getElementById('f-image-format').value = 'wide';
         document.getElementById('tile-modal-title').textContent = 'ADD TILE';
         document.getElementById('f-id').value = '';
     }
@@ -433,9 +430,8 @@ function saveTile(e) {
         status:  document.getElementById('f-status').value,
         domain:  document.getElementById('f-domain').value,
         href:    document.getElementById('f-href').value,
-        image:       document.getElementById('f-image').value,
-        imageFormat: document.getElementById('f-image-format').value || 'wide',
-        audio:       document.getElementById('f-audio').value,
+        image:  document.getElementById('f-image').value,
+        audio:  document.getElementById('f-audio').value,
         artist:      document.getElementById('f-artist').value,
         album:       document.getElementById('f-album').value,
         visible:   existing ? existing.visible : true,
