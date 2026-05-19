@@ -508,7 +508,7 @@ function openCopyModal(id) {
     document.getElementById('copy-src-id').value   = id;
     document.getElementById('copy-src-name').textContent = t.name;
     const sel = document.getElementById('cf-section');
-    sel.innerHTML = state.sections.map(s =>
+    sel.innerHTML = state.sections.filter(s => !s.featured).map(s =>
         `<option value="${s.id}"${s.id === t.section ? ' selected' : ''}>${s.title}${s.visible === false ? ' [HIDDEN]' : ''}</option>`
     ).join('');
     document.getElementById('copy-modal').classList.remove('hidden');
