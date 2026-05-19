@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-19 (4)
+
+### Copy tile (yes, finally)
+
+You can now copy a tile. COPY button in the action row opens a modal with the tile name pre-filled and a section dropdown — rename it, pick a destination, done. Featured status resets on copy since the star is earned, not inherited. This feature should have existed on day one and we're not talking about it.
+
+---
+
 ## 2026-05-19 (3)
 
 ### Bug fix: featured order lost on tile edit
