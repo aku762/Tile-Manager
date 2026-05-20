@@ -142,7 +142,11 @@
             }
         }
         if (_aud.paused) {
-            _aud.play(); btn.textContent = '⏸';
+            _aud.play().then(() => {
+                btn.textContent = '⏸';
+            }).catch(() => {
+                _aud = null; _audBtn = null; _audWrap = null;
+            });
             if (wrap.dataset.slug) history.replaceState(null, '', '#' + wrap.dataset.slug);
         } else {
             _aud.pause(); btn.textContent = '▶';
