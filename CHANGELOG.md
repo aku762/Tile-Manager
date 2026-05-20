@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-05-20 (2)
+
+### Site-level schema token
+
+- `{{SITE_SCHEMA}}` token added to `site/index.html` — replaced at build time with a `<script type="application/ld+json">` block generated from `site.json` fields.
+- Set `schemaType` (e.g. `"MusicGroup"`) in `site.json` to enable. Leave empty and nothing is injected.
+- `sameAs` array in `site.json` feeds into the schema — list official external profile URLs (Spotify, SoundCloud, MusicBrainz, etc.) to link your entity to Google's knowledge graph.
+- `app.js` resolves the token to an empty string on local preview — schema is build-only.
+
+---
+
 ## 2026-05-20
 
 ### Track page polish, schema, and slug wiring

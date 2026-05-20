@@ -70,6 +70,14 @@ Tokens in any `site/*.html` file are substituted at build time and resolved at r
 | `{{SITE_OG}}` | `og` |
 | `{{SITE_ICON}}` | `icon` |
 | `{{SITE_FOOTER}}` | `footer` (supports HTML) |
+| `{{SITE_SCHEMA}}` | JSON-LD block generated from `schemaType` + `sameAs` — empty string if `schemaType` is not set |
+
+**Schema fields in `site.json`:**
+
+| Field | Type | Description |
+|---|---|---|
+| `schemaType` | string | Schema.org type to inject (e.g. `"MusicGroup"`, `"Person"`, `"Organization"`). Leave empty to disable. |
+| `sameAs` | array | External profile URLs — links your entity to Google's knowledge graph (Spotify, SoundCloud, MusicBrainz, etc.) |
 
 ## Section tags
 

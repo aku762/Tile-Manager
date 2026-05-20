@@ -177,6 +177,7 @@ async function loadSite() {
         '{{SITE_OG}}':          site.og          ?? '',
         '{{SITE_ICON}}':        site.icon        ?? '',
         '{{SITE_FOOTER}}':      site.footer      ?? '',
+        '{{SITE_SCHEMA}}':      '',
     };
     function sub(str) {
         for (const [k, v] of Object.entries(TOKENS)) str = str.split(k).join(v);

@@ -127,6 +127,21 @@ function processTemplate(template, site, data, statusMap) {
         .filter(l => !l.includes('local-preview:') && !l.includes('../core/app.js'))
         .join('\n');
 
+    // Build {{SITE_SCHEMA}} — MusicGroup (or configured type) JSON-LD
+    let siteSchema = '';
+    if (site.schemaType) {
+        const schema = {
+            '@context': 'https://schema.org',
+            '@type':    site.schemaType,
+            'name':     site.title ?? '',
+            'url':      site.url   ?? '',
+        };
+        if (site.description) schema.description = site.description;
+        if (site.og)          schema.image        = site.url ? `${site.url}/${site.og}` : site.og;
+        if (Array.isArray(site.sameAs) && site.sameAs.length) schema.sameAs = site.sameAs;
+        siteSchema = `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n    </script>`;
+    }
+
     // Substitute {{SITE_*}} tokens from site.json
     const tokens = {
         '{{SITE_TITLE}}':       site.title       ?? '',
@@ -137,6 +152,7 @@ function processTemplate(template, site, data, statusMap) {
         '{{SITE_OG}}':          site.og          ?? '',
         '{{SITE_ICON}}':        site.icon        ?? '',
         '{{SITE_FOOTER}}':      site.footer      ?? '',
+        '{{SITE_SCHEMA}}':      siteSchema,
     };
     for (const [token, value] of Object.entries(tokens)) {
         template = template.split(token).join(value);
