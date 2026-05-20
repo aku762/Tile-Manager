@@ -352,13 +352,14 @@ body {
     border: none;
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
     padding: 0;
-    margin-bottom: 4px;
-    opacity: 0.4;
+    margin-left: auto;
+    opacity: 0.35;
     transition: opacity 0.15s;
-    display: block;
+    flex-shrink: 0;
 }
 
 .share-btn:hover { opacity: 1; }

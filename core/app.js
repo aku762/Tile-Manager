@@ -54,12 +54,12 @@ function renderTile(tile, statusMap) {
         nameDiv.appendChild(fav);
     }
     nameDiv.appendChild(document.createTextNode(tile.name));
+    if (tile.slug) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="shareTrack(this)">↗</button>`);
+    else if (tile.href) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="shareTrack(this)">↗</button>`);
     el.appendChild(nameDiv);
 
     el.insertAdjacentHTML('beforeend',
         `<div class="tile-desc">${tile.desc}</div>` +
-        (tile.slug ? `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="shareTrack(this)">↗ SHARE</button>` :
-         tile.href ? `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="shareTrack(this)">↗ SHARE</button>` : '') +
         `<div class="tile-footer">` +
           `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
           `<div class="tile-domain">${tile.domain || ''}</div>` +
