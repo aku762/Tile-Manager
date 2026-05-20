@@ -95,8 +95,14 @@
                 const pct = (_aud.currentTime / _aud.duration * 100) || 0;
                 wrap.querySelector('.audio-prog').style.width = pct + '%';
                 wrap.querySelector('.audio-time').textContent = _fmtTime(_aud.currentTime) + ' / ' + _fmtTime(_aud.duration);
+                if ('mediaSession' in navigator && !isNaN(_aud.duration)) {
+                    navigator.mediaSession.setPositionState({ duration: _aud.duration, playbackRate: 1, position: _aud.currentTime });
+                }
             };
+            let _advancing = false;
             _aud.onended = function() {
+                if (_advancing) return;
+                _advancing = true;
                 btn.textContent = '▶';
                 wrap.querySelector('.audio-prog').style.width = '0%';
                 wrap.querySelector('.audio-time').textContent = '0:00';
@@ -106,6 +112,7 @@
                 } else {
                     _aud = null; _audBtn = null; _audWrap = null;
                 }
+                setTimeout(() => { _advancing = false; }, 500);
             };
             if ('mediaSession' in navigator) {
                 const img = wrap.dataset.image;
@@ -122,11 +129,14 @@
                     _sessionReady = true;
                     navigator.mediaSession.setActionHandler('play',  () => { if (_aud) { _aud.play();  if (_audBtn) _audBtn.textContent = '⏸'; }});
                     navigator.mediaSession.setActionHandler('pause', () => { if (_aud) { _aud.pause(); if (_audBtn) _audBtn.textContent = '▶'; }});
-                    navigator.mediaSession.setActionHandler('nexttrack',     () => { const n = _audioGetAdjacent(1);  if (n) audioPlay(n.querySelector('.audio-btn')); });
+                    navigator.mediaSession.setActionHandler('nexttrack',     () => { if (_advancing) return; const n = _audioGetAdjacent(1);  if (n) audioPlay(n.querySelector('.audio-btn')); });
                     navigator.mediaSession.setActionHandler('previoustrack', () => {
                         const p = _audioGetAdjacent(-1);
                         if (p) audioPlay(p.querySelector('.audio-btn'));
                         else if (_aud) _aud.currentTime = 0;
+                    });
+                    navigator.mediaSession.setActionHandler('seekto', (d) => {
+                        if (_aud && d.seekTime !== undefined) _aud.currentTime = d.seekTime;
                     });
                 }
             }
