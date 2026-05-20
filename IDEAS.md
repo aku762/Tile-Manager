@@ -4,27 +4,6 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ---
 
-## Audio metadata, Media Session, hash routing, and sharing
-
-**Shipped:** Open Graph and Twitter/X card meta tags (`{{SITE_*}}` tokens), Media Session API (title, artist, album, artwork, prev/next), `track`/`artist`/`album` tile fields, `images/wide/` + `images/square/` + `images/portrait/` folder convention with automatic artwork fallback.
-
-Still to do:
-
----
-
-### Hash routing
-
-On play, push `#slug` to the URL. On page load, read the hash, scroll to and auto-play that tile. Requires a `slug` field on audio tiles (short URL-safe string).
-
-```
-djtyphoon.com/#minimal-effort
-djtyphoon.com/#sentient-arrival
-```
-
-Hash = great for users sharing direct track links. The page is still one static file — no build change needed.
-
----
-
 ### Share button
 
 **Shipped:** Share button (↗) in the tile footer on any tile that has a `slug` (audio) or `href` (non-audio). Uses `navigator.share()` on mobile for the native share sheet; falls back to clipboard copy with a ✓ confirmation on desktop. Audio share URL is constructed as `location.href.split('#')[0] + '#' + slug` at click time so it works in any environment.
@@ -32,17 +11,6 @@ Hash = great for users sharing direct track links. The page is still one static 
 **When slugs become real URLs** (e.g. `/tracks/green-arrow/`), the share URL construction in `shareTrack()` in `site/index.html` needs to change — currently it builds a hash URL from `data-slug`. At that point `data-slug` may need to become `data-url` carrying the full path, or the function needs to know which tiles have real pages vs. hash anchors.
 
 ---
-
-### preload="metadata"
-
-Set `preload="metadata"` when creating the `Audio` object so the browser fetches just enough to show the track duration before the user hits play. Avoids pre-buffering every file on page load.
-
-```js
-_aud = new Audio(src);
-_aud.preload = 'metadata';
-```
-
-Quick win — one line change.
 
 ---
 
