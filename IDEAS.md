@@ -27,7 +27,9 @@ Hash = great for users sharing direct track links. The page is still one static 
 
 ### Share button
 
-A share icon on each audio tile. Uses `navigator.share()` on mobile (native share sheet), falls back to copying `location.origin + location.pathname + '#' + slug` to the clipboard on desktop. Depends on hash routing (`slug` field) being in place first.
+**Shipped:** Share button (↗) in the tile footer on any tile that has a `slug` (audio) or `href` (non-audio). Uses `navigator.share()` on mobile for the native share sheet; falls back to clipboard copy with a ✓ confirmation on desktop. Audio share URL is constructed as `location.href.split('#')[0] + '#' + slug` at click time so it works in any environment.
+
+**When slugs become real URLs** (e.g. `/tracks/green-arrow/`), the share URL construction in `shareTrack()` in `site/index.html` needs to change — currently it builds a hash URL from `data-slug`. At that point `data-slug` may need to become `data-url` carrying the full path, or the function needs to know which tiles have real pages vs. hash anchors.
 
 ---
 

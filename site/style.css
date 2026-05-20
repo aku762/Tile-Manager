@@ -341,11 +341,32 @@ body {
 
 /* dot and status label colors are set via inline styles from tiles.json statuses */
 
+.tile-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .tile-domain {
     font-size: 0.6rem;
     color: rgba(12,157,222,0.25);
     letter-spacing: 0.08em;
 }
+
+.share-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.share-btn:hover { opacity: 1; }
 
 /* hidden tiles when filtered */
 .tile[data-hidden="true"] {

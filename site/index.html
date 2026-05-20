@@ -194,6 +194,22 @@
         btn.textContent = _aud.muted ? '🔇' : '🔊';
     }
 
+    function shareTrack(btn) {
+        const url = btn.dataset.slug
+            ? location.href.split('#')[0] + '#' + btn.dataset.slug
+            : btn.dataset.href;
+        const title = btn.dataset.title || document.title;
+        if (navigator.share) {
+            navigator.share({ title, url }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✓';
+                setTimeout(() => { btn.textContent = orig; }, 1500);
+            }).catch(() => {});
+        }
+    }
+
     function audioImgPlay(e, wrap) {
         if (e.target.closest('.tile-audio')) return;
         e.preventDefault();

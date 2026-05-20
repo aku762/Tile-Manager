@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-05-19 (6)
+
+### Share button
+
+Share button (↗) added to the tile footer on any tile that has something to share:
+
+- **Audio tile with slug** — shares `site.com/#slug` via the native share sheet on mobile (`navigator.share()`), copies to clipboard on desktop with a ✓ confirmation.
+- **Non-audio tile with href** — same behavior using the tile's link URL.
+- Tiles with neither a slug nor an href get no button.
+- Button sits in the footer after the domain, in a new `.tile-footer-right` wrapper that keeps domain and share together on the right side.
+- **Note:** when slugs become real URLs the share URL construction in `shareTrack()` will need updating — tracked in IDEAS.md.
+
+---
+
 ## 2026-05-19 (5)
 
 ### Source folder restructure and per-format batch converters

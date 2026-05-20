@@ -57,7 +57,9 @@ function buildTile(tile, statusMap) {
                     <div class="dot" style="background:${s.color}"></div>
                     <span style="color:${s.color};opacity:0.85">${s.label}</span>
                 </div>
-                <div class="tile-domain">${tile.domain || ''}</div>
+                <div class="tile-footer-right">
+                    <div class="tile-domain">${tile.domain || ''}</div>${tile.slug ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="shareTrack(this)">↗</button>` : tile.href ? `<button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="shareTrack(this)">↗</button>` : ''}
+                </div>
             </div>
         </${tag}>`;
 }

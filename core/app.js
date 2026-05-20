@@ -60,7 +60,11 @@ function renderTile(tile, statusMap) {
         `<div class="tile-desc">${tile.desc}</div>` +
         `<div class="tile-footer">` +
           `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
-          `<div class="tile-domain">${tile.domain || ''}</div>` +
+          `<div class="tile-footer-right">` +
+            `<div class="tile-domain">${tile.domain || ''}</div>` +
+            (tile.slug ? `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="shareTrack(this)">↗</button>` :
+             tile.href ? `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="shareTrack(this)">↗</button>` : '') +
+          `</div>` +
         `</div>`
     );
     return el;
