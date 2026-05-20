@@ -95,7 +95,7 @@
                 const pct = (_aud.currentTime / _aud.duration * 100) || 0;
                 wrap.querySelector('.audio-prog').style.width = pct + '%';
                 wrap.querySelector('.audio-time').textContent = _fmtTime(_aud.currentTime) + ' / ' + _fmtTime(_aud.duration);
-                if ('mediaSession' in navigator && !isNaN(_aud.duration)) {
+                if ('mediaSession' in navigator && isFinite(_aud.duration) && _aud.duration > 0) {
                     navigator.mediaSession.setPositionState({ duration: _aud.duration, playbackRate: 1, position: _aud.currentTime });
                 }
             };
