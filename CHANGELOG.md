@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-05-20
+
+### Track page polish, schema, and slug wiring
+
+**Admin:**
+- Slug field now auto-fills and locks the Link URL field to `tracks/{slug}/` — entering a slug is all you need, no manual URL entry.
+
+**Track pages:**
+- `MusicRecording` JSON-LD schema injected into every track page `<head>` at build time — title, URL, description, image, `byArtist` (`MusicGroup`), `inAlbum` (`MusicAlbum`), `audio` (`AudioObject`). Set `url` in `site.json` for fully qualified URLs.
+- Asset paths changed from `/`-prefixed to relative (`../../style.css`, `../../images/wide/...`) — fixes loading when opened locally via file://; production behavior unchanged.
+- Hero image capped at 900px (matches player width), centered, `1.5rem` top gap from the nav bar, `10px` rounded corners.
+- Track page tiles on the index now open in the same tab — slug presence is the signal for internal navigation.
+
+**Bug fixes:**
+- Audio play/mute buttons were purple — `var(--accent)` was never defined after the color scheme refactor. Fixed to `var(--blue)`.
+- Audio controls enlarged: more padding, bigger buttons (`0.85rem`), taller scrubber bar (`4px`), larger timestamp (`0.58rem`).
+
+---
+
 ## 2026-05-19 (7)
 
 ### Per-track generated pages

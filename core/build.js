@@ -30,7 +30,7 @@ function buildTile(tile, statusMap) {
     const s    = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
     const tag  = tile.href ? 'a' : 'div';
     const link = tile.href
-        ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
+        ? ` href="${attr(tile.href)}"${tile.slug ? '' : ' target="_blank" rel="noopener"'}`
         : '';
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
@@ -219,9 +219,23 @@ function buildTrackPages(data, site, statusMap) {
             tmpl = tmpl.split(token).join(value);
         }
 
+        // Schema.org JSON-LD
+        const schema = {
+            '@context': 'https://schema.org',
+            '@type':    'MusicRecording',
+            'name':     trackTitle,
+            'url':      `${site.url}/tracks/${tile.slug}/`,
+        };
+        if (tile.desc)   schema.description = tile.desc;
+        if (tile.image)  schema.image       = `${site.url}/images/wide/${tile.image}`;
+        if (tile.artist) schema.byArtist    = { '@type': 'MusicGroup', 'name': tile.artist };
+        if (tile.album)  schema.inAlbum     = { '@type': 'MusicAlbum', 'name': tile.album };
+        if (tile.audio)  schema.audio       = { '@type': 'AudioObject', 'contentUrl': tile.audio.startsWith('http') ? tile.audio : `${site.url}/${tile.audio}` };
+        tmpl = tmpl.replace('{{TRACK_SCHEMA}}', `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n    </script>`);
+
         // Hero
         const heroHtml = tile.image
-            ? `<div class="track-hero"><img src="/images/wide/${attr(tile.image)}" alt="${attr(trackTitle)}" decoding="async"></div>`
+            ? `<div class="track-hero"><img src="../../images/wide/${attr(tile.image)}" alt="${attr(trackTitle)}" decoding="async"></div>`
             : '';
         tmpl = tmpl.replace('<!--TRACK_HERO-->', heroHtml);
 

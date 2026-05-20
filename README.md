@@ -35,6 +35,10 @@ site/               ← your customizations — never touched by core updates
     wide/           ← tile images (1200×630 landscape)
     square/         ← square artwork (512×512, used for lock screen)
     portrait/       ← portrait images (1080×1920)
+  templates/
+    track.html      ← template for generated track pages
+  content/
+    tracks/         ← optional markdown per track (slug.md)
 
 source/             ← original source files (not served, not built)
   wide/             ← drop originals here, run convert-tiles.bat → site/images/wide/
@@ -143,7 +147,7 @@ This lets you build multi-page sites — place different section tags on differe
 | `track` | string | Track title shown on the OS lock screen. Defaults to `name` if omitted. |
 | `artist` | string | Artist name for the lock screen media card. |
 | `album` | string | Album name for the lock screen media card. |
-| `slug` | string | URL-safe identifier (e.g. `minimal-effort`). Updates the URL to `site.com/#slug` on play and enables direct linking to a track. |
+| `slug` | string | URL-safe identifier (e.g. `minimal-effort`). Generates a static page at `dist/tracks/slug/` and auto-sets the tile link to that URL. Also updates the URL to `site.com/#slug` on play for hash routing. |
 
 Statuses are user-defined colored classifiers — add, edit, and delete them from the **Statuses** tab in the admin panel. The filter bar on the public site is generated from whatever statuses exist in `tiles.json`.
 
@@ -197,6 +201,32 @@ On supported browsers, the OS lock screen and Control Center show a full media c
 ### Hash routing
 
 Set a `slug` on any audio tile and the URL updates to `site.com/#slug` whenever that track plays. Sharing that URL scrolls to the tile and starts playback automatically. Works on any page without a build step.
+
+## Track pages
+
+Any tile with a `slug` field gets a static page generated at `dist/tracks/<slug>/index.html` (served as `/tracks/<slug>/`). The tile's link is automatically set to that URL in the admin — just enter a slug and the link is handled.
+
+**Template:** `site/templates/track.html` — contains the same `{{SITE_*}}` and `{{TRACK_*}}` tokens. Customize it per-site without touching `core/`.
+
+**Markdown content:** drop a file at `site/content/tracks/<slug>.md` and it renders as body content on the track page. Supports headings (`#`, `##`, `###`), paragraphs, bold, italic, and links.
+
+**Schema:** each track page gets a `MusicRecording` JSON-LD block in its `<head>` with title, URL, description, image, artist, album, and audio. Set `url` in `site.json` to your domain for fully qualified URLs.
+
+**Tokens available in `track.html`:**
+
+| Token | Value |
+|---|---|
+| `{{TRACK_TITLE}}` | `track` field, or `name` if absent |
+| `{{TRACK_CAT}}` | `cat` |
+| `{{TRACK_DESC}}` | `desc` |
+| `{{TRACK_IMAGE}}` | `image` filename |
+| `{{TRACK_SLUG}}` | `slug` |
+| `{{TRACK_META}}` | `artist · album` |
+| `<!--TRACK_HERO-->` | Full-width hero image (if `image` is set) |
+| `<!--TRACK_PLAYER-->` | Inline audio player (if `audio` is set) |
+| `<!--TRACK_SCRIPTS-->` | Inline player JS extracted from `site/index.html` |
+| `{{TRACK_CONTENT}}` | Rendered markdown from `site/content/tracks/<slug>.md` |
+| `{{TRACK_SCHEMA}}` | `MusicRecording` JSON-LD block |
 
 ## Admin panel
 

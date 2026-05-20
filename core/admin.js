@@ -422,6 +422,7 @@ function openTileModal(id) {
     }
     document.getElementById('tile-modal').classList.remove('hidden');
     checkSectionVisibility();
+    syncSlugHref();
 }
 
 function saveTile(e) {
@@ -659,6 +660,19 @@ function showTab(name) {
     });
     if (name === 'tiles')    renderTiles();
     if (name === 'statuses') renderStatuses();
+}
+
+function syncSlugHref() {
+    const slug   = document.getElementById('f-slug').value.trim();
+    const hrefEl = document.getElementById('f-href');
+    if (slug) {
+        hrefEl.value    = `tracks/${slug}/`;
+        hrefEl.readOnly = true;
+        hrefEl.classList.add('input-locked');
+    } else {
+        hrefEl.readOnly = false;
+        hrefEl.classList.remove('input-locked');
+    }
 }
 
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }

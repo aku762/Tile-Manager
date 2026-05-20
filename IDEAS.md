@@ -8,7 +8,7 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 **Shipped:** Share button (↗) in the tile footer on any tile that has a `slug` (audio) or `href` (non-audio). Uses `navigator.share()` on mobile for the native share sheet; falls back to clipboard copy with a ✓ confirmation on desktop. Audio share URL is constructed as `location.href.split('#')[0] + '#' + slug` at click time so it works in any environment.
 
-**When slugs become real URLs** (e.g. `/tracks/green-arrow/`), the share URL construction in `shareTrack()` in `site/index.html` needs to change — currently it builds a hash URL from `data-slug`. At that point `data-slug` may need to become `data-url` carrying the full path, or the function needs to know which tiles have real pages vs. hash anchors.
+**Now that slugs are real URLs** (`/tracks/slug/`), the share URL construction in `shareTrack()` in `site/index.html` still builds a hash URL from `data-slug`. This should be updated — `data-slug` could become `data-url` carrying the full path, or the function could detect slug tiles and share the track page URL instead of the hash.
 
 ---
 
@@ -46,7 +46,7 @@ A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin,
 
 ### JSON-LD structured data
 
-Inject a `<script type="application/ld+json">` block at build time for audio pages — tells search engines these are `MusicRecording` entities, not random MP3 links. Feeds into the auto-generated subpages idea (see *Tile types and detail pages*) where each track gets its own SEO-friendly URL. Hash routing is phase 1; generated `/tracks/slug/` pages are phase 2.
+**Shipped:** `MusicRecording` JSON-LD injected into every generated track page at build time — title, URL, description, image, `byArtist`, `inAlbum`, `audio`. Requires `url` in `site.json` for fully qualified URLs.
 
 ---
 

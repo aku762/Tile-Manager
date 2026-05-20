@@ -14,7 +14,7 @@ echo.
 
 for %%F in (*.png *.jpg *.jpeg) do (
     echo Processing: %%F
-    magick "%%F" -resize 900x -quality 82 "%OUT%\%%~nF.webp"
+    magick "%%F" -resize 1200x -quality 82 "%OUT%\%%~nF.webp"
 )
 
 echo.
