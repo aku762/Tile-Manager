@@ -341,12 +341,6 @@ body {
 
 /* dot and status label colors are set via inline styles from tiles.json statuses */
 
-.tile-footer-right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
 .tile-domain {
     font-size: 0.6rem;
     color: rgba(12,157,222,0.25);
@@ -358,12 +352,13 @@ body {
     border: none;
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
     padding: 0;
+    margin-bottom: 4px;
     opacity: 0.4;
     transition: opacity 0.15s;
-    line-height: 1;
-    flex-shrink: 0;
+    display: block;
 }
 
 .share-btn:hover { opacity: 1; }

@@ -50,16 +50,14 @@ function buildTile(tile, statusMap) {
     return `
         <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}${!showImg && audioBar ? `\n            ${audioBar}` : ''}
             <div class="tile-cat">${tile.cat}</div>
-            <div class="tile-name">${favicon}${text(tile.name)}</div>
+            <div class="tile-name">${favicon}${text(tile.name)}</div>${tile.slug ? `\n            <button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="shareTrack(this)">↗ SHARE</button>` : tile.href ? `\n            <button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="shareTrack(this)">↗ SHARE</button>` : ''}
             <div class="tile-desc">${tile.desc}</div>
             <div class="tile-footer">
                 <div class="status">
                     <div class="dot" style="background:${s.color}"></div>
                     <span style="color:${s.color};opacity:0.85">${s.label}</span>
                 </div>
-                <div class="tile-footer-right">
-                    <div class="tile-domain">${tile.domain || ''}</div>${tile.slug ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="shareTrack(this)">↗</button>` : tile.href ? `<button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="shareTrack(this)">↗</button>` : ''}
-                </div>
+                <div class="tile-domain">${tile.domain || ''}</div>
             </div>
         </${tag}>`;
 }
