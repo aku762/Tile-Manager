@@ -8,6 +8,7 @@
 - Set `schemaType` (e.g. `"MusicGroup"`) in `site.json` to enable. Leave empty and nothing is injected.
 - `sameAs` array in `site.json` feeds into the schema — list official external profile URLs (Spotify, SoundCloud, MusicBrainz, etc.) to link your entity to Google's knowledge graph.
 - `app.js` resolves the token to an empty string on local preview — schema is build-only.
+- `genre` (array) and `foundingLocation` (string → `Place` object) added as optional `site.json` fields — both read by the schema generator. Google uses these to disambiguate artists.
 
 ---
 

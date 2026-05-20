@@ -138,7 +138,9 @@ function processTemplate(template, site, data, statusMap) {
         };
         if (site.description) schema.description = site.description;
         if (site.og)          schema.image        = site.url ? `${site.url}/${site.og}` : site.og;
-        if (Array.isArray(site.sameAs) && site.sameAs.length) schema.sameAs = site.sameAs;
+        if (Array.isArray(site.sameAs) && site.sameAs.length)   schema.sameAs           = site.sameAs;
+        if (Array.isArray(site.genre)  && site.genre.length)    schema.genre            = site.genre;
+        if (site.foundingLocation)                               schema.foundingLocation = { '@type': 'Place', 'name': site.foundingLocation };
         siteSchema = `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n    </script>`;
     }
 

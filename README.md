@@ -78,6 +78,8 @@ Tokens in any `site/*.html` file are substituted at build time and resolved at r
 |---|---|---|
 | `schemaType` | string | Schema.org type to inject (e.g. `"MusicGroup"`, `"Person"`, `"Organization"`). Leave empty to disable. |
 | `sameAs` | array | External profile URLs — links your entity to Google's knowledge graph (Spotify, SoundCloud, MusicBrainz, etc.) |
+| `genre` | array | Genre tags (e.g. `["Electronic", "Trance"]`) — helps Google disambiguate the artist entity. |
+| `foundingLocation` | string | City/region (e.g. `"Minneapolis, Minnesota"`) — serialized as a `Place` object in the schema. |
 
 ## Section tags
 
