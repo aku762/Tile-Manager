@@ -14,6 +14,36 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ---
 
+### Albums
+
+A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin, modeled after the Sections tab.
+
+**Data model:**
+- `album` on a tile becomes a foreign key reference to an album `id` (same pattern as `section`). Tiles that reference an album ID appear on that album's generated page automatically.
+- The album object holds: `id`, `title`, `artist`, `description`, `cover` (image filename), `releaseDate`, and a `tracks` array.
+- `tracks` is an ordered list that can contain either a tile `id` reference OR a free-text entry `{ "name": "...", "artist": "..." }` — needed for DJ mixes where most tracks aren't your own productions and won't have tiles.
+
+**Admin — Albums tab:**
+- Create/edit/delete albums with a modal (title, artist, description, cover, release date)
+- Tracklist builder: pick from existing tiles via a searchable checkbox list, supplement with free-text input rows for non-tile tracks
+- Drag to reorder the tracklist
+- Export writes the `albums` array to `tiles.json`
+
+**Build — two album page types:**
+- **Original album** (all tracks have tiles) — renders full tile cards with player, artwork, description, share button. Essentially a section page scoped to that album. Same tile layout the homepage uses.
+- **Mix / compilation** — renders a simple ordered tracklist. Tile-referenced tracks get a player and link; free-text entries are listed plainly. Typically has one full-mix audio tile at the top.
+- Both types get `MusicAlbum` schema injected at build time. `MusicRecording` entries inside can carry `sameAs` pointing to Spotify/MusicBrainz for tracks that exist there.
+
+**Google rich results:**
+- `MusicAlbum` schema triggers the album card treatment in search (tracklist, artist, artwork).
+- `MusicPlaylist` is semantically correct for a DJ's front page catalogue but Google doesn't have a rich result template for it — use `MusicAlbum` for release pages to get the visual treatment.
+- Per-track pages (`/tracks/slug/`) are needed for individual tracks to rank — album pages alone won't surface individual track searches.
+- `sameAs` on `MusicRecording` entries links your schema to Google's Knowledge Graph entries for those tracks.
+
+**Note:** the `album` string field on tiles today is only used for the Media Session lock screen card. When this ships, it becomes a reference ID. Migration: match existing string values to album IDs on first export.
+
+---
+
 ### JSON-LD structured data
 
 Inject a `<script type="application/ld+json">` block at build time for audio pages — tells search engines these are `MusicRecording` entities, not random MP3 links. Feeds into the auto-generated subpages idea (see *Tile types and detail pages*) where each track gets its own SEO-friendly URL. Hash routing is phase 1; generated `/tracks/slug/` pages are phase 2.
