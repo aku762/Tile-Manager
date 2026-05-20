@@ -159,6 +159,7 @@ async function loadTiles() {
         }
     }
     if (typeof initHashRouting === 'function') initHashRouting();
+    if (typeof initDurations  === 'function') initDurations();
 }
 
 async function loadSite() {

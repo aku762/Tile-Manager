@@ -161,6 +161,23 @@
     }
     initHashRouting();
 
+    function initDurations() {
+        const seen = new Set();
+        document.querySelectorAll('.tile-audio').forEach(wrap => {
+            if (seen.has(wrap.dataset.src)) return;
+            seen.add(wrap.dataset.src);
+            const probe = new Audio();
+            probe.preload = 'metadata';
+            probe.onloadedmetadata = function() {
+                const dur = '0:00 / ' + _fmtTime(probe.duration);
+                document.querySelectorAll('.tile-audio[data-src="' + CSS.escape(wrap.dataset.src) + '"] .audio-time')
+                    .forEach(el => el.textContent = dur);
+            };
+            probe.src = wrap.dataset.src;
+        });
+    }
+    initDurations();
+
     function audioSeek(e, bar) {
         if (!_aud || !_aud.duration) return;
         const rect = bar.getBoundingClientRect();
