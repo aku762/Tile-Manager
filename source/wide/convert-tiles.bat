@@ -1,11 +1,11 @@
 @echo off
 setlocal
 
-REM Go to the folder where this BAT file lives: source\tiles
+REM Go to the folder where this BAT file lives: source\wide
 cd /d "%~dp0"
 
-REM Output folder relative to source\tiles
-set "OUT=..\..\images\wide"
+REM Output folder relative to source\wide
+set "OUT=..\..\site\images\wide"
 
 if not exist "%OUT%" mkdir "%OUT%"
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-05-19 (5)
+
+### Source folder restructure and per-format batch converters
+
+- Moved `site/source/` to project root as `source/` — it was never part of the served or built site, so it doesn't belong under `site/`.
+- Renamed `source/tiles/` → `source/wide/` to match the image folder convention.
+- Each image format now has its own subfolder with a dedicated `convert-tiles.bat`:
+  - `source/wide/` → `site/images/wide/` — 900px wide WebP (unchanged behavior)
+  - `source/square/` → `site/images/square/` — 512×512 WebP, center-cropped
+  - `source/portrait/` → `site/images/portrait/` — 1080×1920 WebP, center-cropped
+- All bat files output directly into the correct `site/images/` subfolder and create it if missing.
+
+---
+
 ## 2026-05-19 (4)
 
 ### Copy tile (yes, finally)
