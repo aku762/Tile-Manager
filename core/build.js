@@ -154,6 +154,101 @@ function processTemplate(template, site, data, statusMap) {
     return template;
 }
 
+function renderInline(s) {
+    return String(s ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+}
+
+function renderMarkdown(md) {
+    if (!md || !md.trim()) return '';
+    md = md.replace(/^---[\s\S]*?---\s*\n/, '');
+    return md.trim().split(/\n\n+/).map(p => {
+        p = p.trim();
+        if (!p) return '';
+        if (p.startsWith('### ')) return `<h4>${renderInline(p.slice(4))}</h4>`;
+        if (p.startsWith('## '))  return `<h3>${renderInline(p.slice(3))}</h3>`;
+        if (p.startsWith('# '))   return `<h2>${renderInline(p.slice(2))}</h2>`;
+        return `<p>${p.split('\n').map(renderInline).join('<br>')}</p>`;
+    }).filter(Boolean).join('\n');
+}
+
+function buildTrackPages(data, site, statusMap) {
+    const templatePath = path.join(SITE, 'templates', 'track.html');
+    if (!fs.existsSync(templatePath)) return 0;
+    const templateSrc = fs.readFileSync(templatePath, 'utf8');
+
+    // Extract inline script block from site/index.html
+    const indexSrc        = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
+    const localPreviewIdx = indexSrc.indexOf('<!-- local-preview:');
+    const scriptEnd       = indexSrc.lastIndexOf('</script>', localPreviewIdx);
+    const scriptStart     = indexSrc.lastIndexOf('<script>', scriptEnd);
+    const scriptBlock     = scriptStart >= 0 ? indexSrc.slice(scriptStart, scriptEnd + '</script>'.length) : '';
+
+    const slugTiles = data.tiles.filter(t => t.slug && t.visible !== false);
+    let count = 0;
+
+    for (const tile of slugTiles) {
+        let tmpl = templateSrc;
+
+        // SITE tokens
+        const siteTokens = {
+            '{{SITE_TITLE}}':   site.title   ?? '',
+            '{{SITE_URL}}':     site.url     ?? '',
+            '{{SITE_ICON}}':    site.icon    ?? '',
+            '{{SITE_FOOTER}}':  site.footer  ?? '',
+        };
+        for (const [token, value] of Object.entries(siteTokens)) {
+            tmpl = tmpl.split(token).join(value);
+        }
+
+        // TRACK tokens
+        const trackTitle = tile.track || tile.name || '';
+        const metaParts  = [tile.artist, tile.album].filter(Boolean);
+        const trackTokens = {
+            '{{TRACK_TITLE}}':  trackTitle,
+            '{{TRACK_CAT}}':    tile.cat   || '',
+            '{{TRACK_DESC}}':   tile.desc  || '',
+            '{{TRACK_IMAGE}}':  tile.image || '',
+            '{{TRACK_SLUG}}':   tile.slug  || '',
+            '{{TRACK_META}}':   metaParts.join(' · '),
+        };
+        for (const [token, value] of Object.entries(trackTokens)) {
+            tmpl = tmpl.split(token).join(value);
+        }
+
+        // Hero
+        const heroHtml = tile.image
+            ? `<div class="track-hero"><img src="/images/wide/${attr(tile.image)}" alt="${attr(trackTitle)}" decoding="async"></div>`
+            : '';
+        tmpl = tmpl.replace('<!--TRACK_HERO-->', heroHtml);
+
+        // Player
+        const playerHtml = tile.audio
+            ? `<div class="tile-audio" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug)}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+            : '';
+        tmpl = tmpl.replace('<!--TRACK_PLAYER-->', playerHtml);
+
+        // Markdown content
+        const mdPath    = path.join(SITE, 'content', 'tracks', `${tile.slug}.md`);
+        const mdContent = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf8') : '';
+        const rendered  = renderMarkdown(mdContent);
+        tmpl = tmpl.replace('{{TRACK_CONTENT}}', rendered ? `<div class="track-content">${rendered}</div>` : '');
+
+        // Inline scripts
+        tmpl = tmpl.replace('<!--TRACK_SCRIPTS-->', scriptBlock);
+
+        const outDir = path.join(DIST, 'tracks', tile.slug);
+        fs.mkdirSync(outDir, { recursive: true });
+        fs.writeFileSync(path.join(outDir, 'index.html'), tmpl, 'utf8');
+        count++;
+    }
+
+    return count;
+}
+
 function copyDir(src, dest) {
     fs.mkdirSync(dest, { recursive: true });
     for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
@@ -192,4 +287,5 @@ fs.copyFileSync(path.join(CORE, 'admin.css'),  path.join(DIST, 'admin.css'));
 fs.copyFileSync(path.join(CORE, 'admin.js'),   path.join(DIST, 'admin.js'));
 fs.copyFileSync(path.join(CORE, 'app.js'),     path.join(DIST, 'app.js'));
 
-console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections`);
+const trackCount = buildTrackPages(data, site, statusMap);
+console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections${trackCount ? `, ${trackCount} track pages` : ''}`);

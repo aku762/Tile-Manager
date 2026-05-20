@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-05-19 (7)
+
+### Per-track generated pages
+
+Build now generates a static HTML page for every tile that has a `slug` field, output to `dist/tracks/<slug>/index.html` (serves as `/tracks/<slug>/`).
+
+- **`site/templates/track.html`** — new template file. Uses `{{TRACK_TITLE}}`, `{{TRACK_CAT}}`, `{{TRACK_DESC}}`, `{{TRACK_IMAGE}}`, `{{TRACK_SLUG}}`, `{{TRACK_META}}` tokens plus comment tags `<!--TRACK_HERO-->`, `<!--TRACK_PLAYER-->`, `<!--TRACK_SCRIPTS-->` replaced at build time. Full OG/Twitter meta with `og:type music.song`.
+- **`core/build.js`** — added `renderInline()`, `renderMarkdown()`, and `buildTrackPages()`. Track pages inherit the audio player JS by extracting the inline `<script>` block from `site/index.html` at build time (no duplication). Markdown content loaded from `site/content/tracks/<slug>.md` if present.
+- **`site/style.css`** — track page CSS: `.track-back-bar`, `.track-hero` (full-width image), `.track-main` (900px max-width), `.track-player-wrap` (styled audio bar), `.track-details`, `.track-title` (fluid clamp), `.track-content` typography.
+- Build log now reports track page count: `Built dist/ — X tiles across Y sections, Z track pages`.
+
+---
+
 ## 2026-05-19 (6)
 
 ### Share button

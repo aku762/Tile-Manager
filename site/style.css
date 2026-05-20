@@ -372,6 +372,115 @@ body {
     text-shadow: 0 0 18px rgba(12,157,222,1), 0 0 6px rgba(12,157,222,1);
 }
 
+/* ── TRACK PAGE ── */
+.track-back-bar {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(12,157,222,0.1);
+}
+
+.track-back {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.track-back:hover { color: var(--blue); }
+
+.track-hero {
+    width: 100%;
+    line-height: 0;
+}
+
+.track-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.track-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.track-player-wrap {
+    margin-bottom: 2rem;
+}
+
+.track-player-wrap .tile-audio {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(12,157,222,0.06);
+    border: 1px solid rgba(12,157,222,0.15);
+    gap: 10px;
+}
+
+.track-player-wrap .audio-btn { font-size: 0.85rem; width: 20px; }
+.track-player-wrap .audio-time { font-size: 0.6rem; }
+
+.track-details { margin-bottom: 2rem; }
+
+.track-cat {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.track-title {
+    font-family: var(--sans);
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.track-meta {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+.track-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.track-content {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--text);
+    border-top: 1px solid rgba(12,157,222,0.1);
+    padding-top: 2rem;
+    margin-top: 2rem;
+}
+
+.track-content h2 {
+    font-family: var(--sans);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.track-content h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 1.2rem 0 0.4rem;
+}
+
+.track-content p { margin-bottom: 1rem; }
+.track-content a { color: var(--blue); text-decoration: none; }
+.track-content a:hover { text-decoration: underline; }
+.track-content strong { font-weight: 700; }
+.track-content em { color: var(--muted); font-style: italic; }
+
 /* hidden tiles when filtered */
 .tile[data-hidden="true"] {
     display: none;

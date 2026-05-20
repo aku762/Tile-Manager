@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TRACK_TITLE}} — {{SITE_TITLE}}</title>
+    <meta name="description" content="{{TRACK_DESC}}">
+    <meta property="og:type" content="music.song">
+    <meta property="og:title" content="{{TRACK_TITLE}}">
+    <meta property="og:description" content="{{TRACK_DESC}}">
+    <meta property="og:image" content="{{SITE_URL}}/images/wide/{{TRACK_IMAGE}}">
+    <meta property="og:url" content="{{SITE_URL}}/tracks/{{TRACK_SLUG}}/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{TRACK_TITLE}}">
+    <meta name="twitter:description" content="{{TRACK_DESC}}">
+    <meta name="twitter:image" content="{{SITE_URL}}/images/wide/{{TRACK_IMAGE}}">
+    <link rel="icon" href="/{{SITE_ICON}}">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="page">
+
+    <div class="track-back-bar">
+        <a href="/" class="track-back">← {{SITE_TITLE}}</a>
+    </div>
+
+    <!--TRACK_HERO-->
+
+    <div class="track-main">
+
+        <div class="track-player-wrap">
+            <!--TRACK_PLAYER-->
+        </div>
+
+        <div class="track-details">
+            <div class="track-cat">{{TRACK_CAT}}</div>
+            <div class="track-title">{{TRACK_TITLE}}</div>
+            <div class="track-meta">{{TRACK_META}}</div>
+            <div class="track-desc">{{TRACK_DESC}}</div>
+        </div>
+
+        {{TRACK_CONTENT}}
+
+    </div>
+
+    <div id="footer">{{SITE_FOOTER}}</div>
+
+</div>
+
+<!--TRACK_SCRIPTS-->
+
+</body>
+</html>
