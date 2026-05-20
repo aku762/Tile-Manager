@@ -347,22 +347,30 @@ body {
     letter-spacing: 0.08em;
 }
 
+@keyframes share-pulse {
+    0%, 100% { text-shadow: 0 0 4px rgba(12,157,222,0.3); opacity: 0.5; }
+    50%       { text-shadow: 0 0 14px rgba(12,157,222,0.9), 0 0 4px rgba(12,157,222,1); opacity: 1; }
+}
+
 .share-btn {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--blue);
     cursor: pointer;
     font-size: inherit;
     font-family: inherit;
     font-weight: inherit;
     padding: 0;
     margin-left: auto;
-    opacity: 0.35;
-    transition: opacity 0.15s;
     flex-shrink: 0;
+    animation: share-pulse 2.5s ease-in-out infinite;
 }
 
-.share-btn:hover { opacity: 1; }
+.share-btn:hover {
+    animation: none;
+    opacity: 1;
+    text-shadow: 0 0 18px rgba(12,157,222,1), 0 0 6px rgba(12,157,222,1);
+}
 
 /* hidden tiles when filtered */
 .tile[data-hidden="true"] {
