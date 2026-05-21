@@ -2,6 +2,12 @@
 
 ## 2026-05-21
 
+### Markdown image support
+
+`![alt](url)` syntax now renders as an `<img>` tag in track page markdown content. Use full URLs for hosted images. Pattern is matched before the link pattern since the syntax overlaps.
+
+---
+
 ### Remove mute button
 
 Mute is a system-level concern — every device, OS, browser, and keyboard already handles it. Adding a 24th mute button to the UI was noise. Removed from tile player, track page player, and dead `audioMute()` function cleaned up.
