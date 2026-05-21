@@ -28,9 +28,10 @@ function buildFilters(statuses) {
 
 function buildTile(tile, statusMap) {
     const s    = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
-    const tag  = tile.href ? 'a' : 'div';
-    const link = tile.href
-        ? ` href="${attr(tile.href)}"${tile.slug ? '' : ' target="_blank" rel="noopener"'}`
+    // Slug tiles are never <a> — image and audio controls own the click surface
+    const tag  = (!tile.slug && tile.href) ? 'a' : 'div';
+    const link = (!tile.slug && tile.href)
+        ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
         : '';
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
@@ -45,19 +46,29 @@ function buildTile(tile, statusMap) {
         ? `<img class="tile-favicon" src="https://www.google.com/s2/favicons?domain=${attr(tile.domain.split('·')[0].trim())}&amp;sz=64" alt="" loading="lazy"> `
         : '';
 
+    const shareBtn = tile.slug
+        ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`
+        : tile.href
+        ? `<button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`
+        : '';
+
+    const domainSlot = tile.slug
+        ? `<a class="tile-more" href="tracks/${attr(tile.slug)}/">${tile.domain || 'MORE'} →</a>`
+        : `<div class="tile-domain">${tile.domain || ''}</div>`;
+
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
 
     return `
         <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}${!showImg && audioBar ? `\n            ${audioBar}` : ''}
             <div class="tile-cat">${tile.cat}</div>
-            <div class="tile-name">${favicon}${text(tile.name)}${tile.slug ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="shareTrack(this)">↗</button>` : tile.href ? `<button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="shareTrack(this)">↗</button>` : ''}</div>
+            <div class="tile-name">${favicon}${text(tile.name)}${shareBtn}</div>
             <div class="tile-desc">${tile.desc}</div>
             <div class="tile-footer">
                 <div class="status">
                     <div class="dot" style="background:${s.color}"></div>
                     <span style="color:${s.color};opacity:0.85">${s.label}</span>
                 </div>
-                <div class="tile-domain">${tile.domain || ''}</div>
+                ${domainSlot}
             </div>
         </${tag}>`;
 }

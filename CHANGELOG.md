@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-05-20 (3)
+
+### Slug tile UX — click surface separation
+
+Slug tiles (audio + track page) previously wrapped the entire tile in an `<a>`, causing image taps, audio controls, and the share button to fight with page navigation.
+
+- Slug tiles now render as `<div>` — no accidental navigation from image taps or audio controls
+- `MORE →` link added to the tile footer (lower-right) pointing to the track page. If `domain` is set on the tile it shows as `DOMAIN →`; otherwise `MORE →`. Styled with the same blue pulse as the share button.
+- Share button moved inline immediately after the tile name — reads as `TITLE ↗` with no right-justification gap
+- Share button now calls `event.stopPropagation()` so it can't bubble to a parent `<a>` on link tiles
+- Share URL for slug tiles updated from hash (`#slug`) to the real track page URL (`/tracks/slug/`)
+
+---
+
 ## 2026-05-20 (2)
 
 ### Site-level schema token

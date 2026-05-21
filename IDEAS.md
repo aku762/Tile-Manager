@@ -8,7 +8,7 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 **Shipped:** Share button (↗) in the tile footer on any tile that has a `slug` (audio) or `href` (non-audio). Uses `navigator.share()` on mobile for the native share sheet; falls back to clipboard copy with a ✓ confirmation on desktop. Audio share URL is constructed as `location.href.split('#')[0] + '#' + slug` at click time so it works in any environment.
 
-**Now that slugs are real URLs** (`/tracks/slug/`), the share URL construction in `shareTrack()` in `site/index.html` still builds a hash URL from `data-slug`. This should be updated — `data-slug` could become `data-url` carrying the full path, or the function could detect slug tiles and share the track page URL instead of the hash.
+**Shipped:** Share URL for slug tiles now points to the real track page (`/tracks/slug/`). Slug tiles render as `<div>` with a `MORE →` footer link — the share button is inline after the tile name and the whole-tile `<a>` is gone.
 
 ---
 

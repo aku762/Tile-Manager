@@ -13,10 +13,10 @@ function getCommentNodes(root) {
 
 function renderTile(tile, statusMap) {
     const s  = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
-    const el = document.createElement(tile.href ? 'a' : 'div');
+    const el = document.createElement((!tile.slug && tile.href) ? 'a' : 'div');
     el.className      = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
     el.dataset.status = tile.status;
-    if (tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
+    if (!tile.slug && tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
     const audioHTML = tile.audio
@@ -54,15 +54,15 @@ function renderTile(tile, statusMap) {
         nameDiv.appendChild(fav);
     }
     nameDiv.appendChild(document.createTextNode(tile.name));
-    if (tile.slug) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="shareTrack(this)">↗</button>`);
-    else if (tile.href) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="shareTrack(this)">↗</button>`);
+    if (tile.slug) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`);
+    else if (tile.href) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`);
     el.appendChild(nameDiv);
 
     el.insertAdjacentHTML('beforeend',
         `<div class="tile-desc">${tile.desc}</div>` +
         `<div class="tile-footer">` +
           `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
-          `<div class="tile-domain">${tile.domain || ''}</div>` +
+          (tile.slug ? `<a class="tile-more" href="tracks/${tile.slug}/">${tile.domain || 'MORE'} →</a>` : `<div class="tile-domain">${tile.domain || ''}</div>`) +
         `</div>`
     );
     return el;

@@ -157,7 +157,7 @@ This lets you build multi-page sites — place different section tags on differe
 | `track` | string | Track title shown on the OS lock screen. Defaults to `name` if omitted. |
 | `artist` | string | Artist name for the lock screen media card. |
 | `album` | string | Album name for the lock screen media card. |
-| `slug` | string | URL-safe identifier (e.g. `minimal-effort`). Generates a static page at `dist/tracks/slug/` and auto-sets the tile link to that URL. Also updates the URL to `site.com/#slug` on play for hash routing. |
+| `slug` | string | URL-safe identifier (e.g. `minimal-effort`). Generates a static track page at `dist/tracks/slug/`. Tile renders as a non-linking `div` — a `MORE →` link in the footer navigates to the page. Share button (↗) after the tile name copies/shares the track page URL. Also updates the browser URL to `site.com/#slug` on play. |
 
 Statuses are user-defined colored classifiers — add, edit, and delete them from the **Statuses** tab in the admin panel. The filter bar on the public site is generated from whatever statuses exist in `tiles.json`.
 
@@ -211,6 +211,10 @@ On supported browsers, the OS lock screen and Control Center show a full media c
 ### Hash routing
 
 Set a `slug` on any audio tile and the URL updates to `site.com/#slug` whenever that track plays. Sharing that URL scrolls to the tile and starts playback automatically. Works on any page without a build step.
+
+### Slug tile click behavior
+
+Slug tiles render as a non-linking `div` — the image area plays/pauses audio, and a `MORE →` link in the tile footer navigates to the generated track page. The share button (↗) sits inline after the tile name and shares the track page URL. This keeps the three interactions — play, navigate, share — distinct and non-overlapping.
 
 ## Track pages
 

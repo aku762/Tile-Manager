@@ -361,12 +361,26 @@ body {
     font-family: inherit;
     font-weight: inherit;
     padding: 0;
-    margin-left: auto;
     flex-shrink: 0;
     animation: share-pulse 2.5s ease-in-out infinite;
 }
 
 .share-btn:hover {
+    animation: none;
+    opacity: 1;
+    text-shadow: 0 0 18px rgba(12,157,222,1), 0 0 6px rgba(12,157,222,1);
+}
+
+.tile-more {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    text-decoration: none;
+    opacity: 0.5;
+    animation: share-pulse 2.5s ease-in-out infinite;
+}
+
+.tile-more:hover {
     animation: none;
     opacity: 1;
     text-shadow: 0 0 18px rgba(12,157,222,1), 0 0 6px rgba(12,157,222,1);
