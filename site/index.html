@@ -196,9 +196,7 @@
     }
 
     function shareTrack(btn) {
-        const url = btn.dataset.slug
-            ? location.origin + '/tracks/' + btn.dataset.slug + '/'
-            : btn.dataset.href;
+        const url = location.origin + '/#' + btn.dataset.slug;
         const title = btn.dataset.title || document.title;
         if (navigator.share) {
             navigator.share({ title, url }).catch(() => {});

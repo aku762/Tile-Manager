@@ -48,8 +48,6 @@ function buildTile(tile, statusMap) {
 
     const shareBtn = tile.slug
         ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`
-        : tile.href
-        ? `<button class="share-btn" data-href="${attr(tile.href)}" data-title="${attr(tile.name)}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`
         : '';
 
     const domainSlot = tile.slug

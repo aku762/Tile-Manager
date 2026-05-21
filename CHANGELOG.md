@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-21
+
+### Share button — slug-only, always shares homepage hash
+
+- Share button (↗) now only appears on tiles with a slug — slug is the signal that a tile has a shareable page
+- Share URL always points to `site.com/#slug` so recipients land on the homepage at that tile, not an out-link or subpage
+- Removed share button from non-slug link tiles — the domain label is sufficient as a destination cue
+
+---
+
 ## 2026-05-20 (3)
 
 ### Slug tile UX — click surface separation

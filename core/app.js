@@ -55,7 +55,6 @@ function renderTile(tile, statusMap) {
     }
     nameDiv.appendChild(document.createTextNode(tile.name));
     if (tile.slug) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-slug="${tile.slug}" data-title="${tile.track || tile.name}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`);
-    else if (tile.href) nameDiv.insertAdjacentHTML('beforeend', `<button class="share-btn" data-href="${tile.href}" data-title="${tile.name}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`);
     el.appendChild(nameDiv);
 
     el.insertAdjacentHTML('beforeend',
