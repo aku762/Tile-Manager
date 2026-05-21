@@ -2,6 +2,12 @@
 
 ## 2026-05-21
 
+### Remove mute button
+
+Mute is a system-level concern — every device, OS, browser, and keyboard already handles it. Adding a 24th mute button to the UI was noise. Removed from tile player, track page player, and dead `audioMute()` function cleaned up.
+
+---
+
 ### Share button — slug-only, always shares homepage hash
 
 - Share button (↗) now only appears on tiles with a slug — slug is the signal that a tile has a shareable page
