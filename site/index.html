@@ -189,11 +189,6 @@
         _aud.currentTime = ((e.clientX - rect.left) / rect.width) * _aud.duration;
     }
 
-    function audioMute(btn) {
-        if (!_aud) return;
-        _aud.muted = !_aud.muted;
-        btn.textContent = _aud.muted ? '🔇' : '🔊';
-    }
 
     function shareTrack(btn) {
         const url = location.origin + '/#' + btn.dataset.slug;

@@ -36,7 +36,7 @@ function buildTile(tile, statusMap) {
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
     const audioBar = tile.audio
-        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug || '')}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+        ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug || '')}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span></div>`
         : '';
     const imgWrap = showImg
         ? `\n            <div class="tile-img-wrap${tile.audio ? ' tile-img-audio' : ''}"${tile.audio ? ' onclick="audioImgPlay(event,this)"' : ''}>${tile.image ? `<img src="images/wide/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}${audioBar}</div>`
@@ -268,7 +268,7 @@ function buildTrackPages(data, site, statusMap) {
 
         // Player
         const playerHtml = tile.audio
-            ? `<div class="tile-audio" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug)}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span><button class="audio-btn" onclick="audioMute(this)">🔊</button></div>`
+            ? `<div class="tile-audio" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug)}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span></div>`
             : '';
         tmpl = tmpl.replace('<!--TRACK_PLAYER-->', playerHtml);
 
