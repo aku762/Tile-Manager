@@ -24,28 +24,32 @@
 
 <div id="page">
 
-    <div class="track-back-bar">
-        <a href="/" class="track-back">← {{SITE_TITLE}}</a>
-    </div>
+    <div id="main">
 
-    <!--TRACK_HERO-->
-
-    <div class="track-main">
-
-        <div class="track-player-wrap">
-            <!--TRACK_PLAYER-->
+        <div class="track-back-bar">
+            <a href="/" class="track-back">← {{SITE_TITLE}}</a>
         </div>
 
-        <div class="track-details">
-            <div class="track-cat">{{TRACK_CAT}}</div>
-            <div class="track-title">{{TRACK_TITLE}}</div>
-            <div class="track-meta">{{TRACK_META}}</div>
-            <div class="track-desc">{{TRACK_DESC}}</div>
+        <!--TRACK_HERO-->
+
+        <div class="track-main">
+
+            <div class="track-player-wrap">
+                <!--TRACK_PLAYER-->
+            </div>
+
+            <div class="track-details">
+                <div class="track-cat">{{TRACK_CAT}}</div>
+                <div class="track-title">{{TRACK_TITLE}}</div>
+                <div class="track-meta">{{TRACK_META}}</div>
+                <div class="track-desc">{{TRACK_DESC}}</div>
+            </div>
+
+            {{TRACK_CONTENT}}
+
         </div>
 
-        {{TRACK_CONTENT}}
-
-    </div>
+    </div><!-- /main -->
 
     <div id="footer">{{SITE_FOOTER}}</div>
 

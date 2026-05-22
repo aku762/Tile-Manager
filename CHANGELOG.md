@@ -2,6 +2,19 @@
 
 ## 2026-05-22
 
+### SPA navigation extended to track pages
+
+Audio now persists when navigating to and from track pages (MORE links and back). Previously the router skipped any URL deeper than the root (`tracks/slug/` was a hard navigation that killed playback).
+
+Three changes to `player.js`:
+- Removed the depth restriction that blocked SPA navigation to `tracks/` URLs
+- Moved `history.pushState` to before the DOM swap so relative image/audio URLs in new content resolve against the correct location
+- `window._siteRoot` is now recalculated on each SPA navigation (based on URL depth) so player bar thumbnails stay correct
+
+Track template gets `<div id="main">` wrapping the swappable content, which also activates the SPA click and popstate listeners when a track page is loaded directly. Site `#hero` (logo/tagline) is hidden when entering a track page and restored on return.
+
+---
+
 ### Extract audio/player code to player.js
 
 All audio, player bar, and SPA routing code moved from an inline `<script>` block in `site/index.html` into a standalone `site/player.js`. The file is copied to `dist/` at build time and loaded via `<script src="player.js">` on root pages and `<script src="../../player.js">` on track pages.

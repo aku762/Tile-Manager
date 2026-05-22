@@ -231,17 +231,24 @@ async function navigate(href, push) {
         const doc     = new DOMParser().parseFromString(html, 'text/html');
         const newMain = doc.getElementById('main');
         if (!newMain) { location.href = href; return; }
+        // Push state before DOM swap so relative URLs in new content resolve against the new location
+        if (push) history.pushState({ spa: true }, '', href);
+        // Update _siteRoot for player bar image paths ('' at root, '../../' at depth 2, etc.)
+        const depth = new URL(href, location.origin).pathname.replace(/\/$/, '').split('/').filter(Boolean).length;
+        window._siteRoot = depth > 0 ? Array(depth).fill('..').join('/') + '/' : '';
         currentMain.replaceWith(newMain);
         document.title = doc.title;
         window.scrollTo(0, 0);
         // Stale tile refs cleared; _aud keeps playing into the bar
         _audBtn = null; _audWrap = null;
+        // Hide site hero on track pages, show it on root pages
+        const hero = document.getElementById('hero');
+        if (hero) hero.hidden = !!newMain.querySelector('.track-back-bar');
         // Nav active state
         const dest = new URL(href, location.origin).pathname;
         document.querySelectorAll('nav a[href], #nav-links a[href]').forEach(a => {
             try { a.toggleAttribute('aria-current', new URL(a.href, location.origin).pathname === dest); } catch {}
         });
-        if (push) history.pushState({ spa: true }, '', href);
         initDurations();
         // Note: intentionally NOT calling initHashRouting here.
         // The hash in the URL is a playback bookmark written by history.replaceState,
@@ -259,8 +266,6 @@ if (document.getElementById('main')) {
             const url = new URL(a.href, location.origin);
             if (url.origin !== location.origin) return;
             if (url.pathname === location.pathname && url.hash) return;
-            // Only SPA-navigate root-level pages; deeper paths (tracks/) navigate normally
-            if (url.pathname.split('/').filter(Boolean).length > 1) return;
             e.preventDefault();
             navigate(a.href);
         } catch {}
