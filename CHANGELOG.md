@@ -2,6 +2,16 @@
 
 ## 2026-05-22
 
+### Persistent bottom player bar + SPA routing
+
+The audio player is now a fixed bar at the bottom of the screen — thumbnail, track name, artist, play/pause, scrubber, time. It slides up on first play and stays visible while navigating between pages.
+
+Internal page navigation (nav links, same-directory `.html` pages) is intercepted and handled via `fetch` + `#main` swap — the page updates without a reload so audio never interrupts. Back and forward buttons work normally via `history.pushState` / `popstate`. Deep links (`tracks/slug/`) fall through to normal navigation since they have a different page structure.
+
+The tile inline players still work as before. After a page swap, the tile play button refs are cleared (their DOM nodes are gone) but `_aud` keeps playing and the bar stays live.
+
+---
+
 ### iOS PWA meta tags
 
 Four Apple-specific tags added to `site/index.html`:

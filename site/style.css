@@ -604,7 +604,7 @@ body.has-player { padding-bottom: 64px; }
 
 #player-time {
     font-family: var(--mono);
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     color: var(--muted);
     flex-shrink: 0;
     white-space: nowrap;
