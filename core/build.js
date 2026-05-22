@@ -58,7 +58,9 @@ function buildTile(tile, statusMap) {
         : '';
 
     const domainSlot = tile.slug
-        ? `<a class="tile-more" href="tracks/${attr(tile.slug)}/">${tile.domain || 'MORE'} →</a>`
+        ? hasAudio
+            ? `<a class="tile-more" href="tracks/${attr(tile.slug)}/">${tile.domain || 'MORE'} →</a>`
+            : `<span class="tile-more">${tile.domain || 'MORE'} →</span>`
         : `<div class="tile-domain">${tile.domain || ''}</div>`;
 
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;

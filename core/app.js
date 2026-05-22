@@ -64,7 +64,7 @@ function renderTile(tile, statusMap) {
         `<div class="tile-desc">${tile.desc}</div>` +
         `<div class="tile-footer">` +
           `<div class="status"><div class="dot" style="background:${s.color}"></div><span style="color:${s.color};opacity:0.85">${s.label}</span></div>` +
-          (tile.slug ? `<a class="tile-more" href="tracks/${tile.slug}/">${tile.domain || 'MORE'} →</a>` : `<div class="tile-domain">${tile.domain || ''}</div>`) +
+          (tile.slug ? (hasAudio ? `<a class="tile-more" href="tracks/${tile.slug}/">${tile.domain || 'MORE'} →</a>` : `<span class="tile-more">${tile.domain || 'MORE'} →</span>`) : `<div class="tile-domain">${tile.domain || ''}</div>`) +
         `</div>`
     );
     return el;
