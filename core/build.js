@@ -203,13 +203,6 @@ function buildTrackPages(data, site, statusMap) {
     if (!fs.existsSync(templatePath)) return 0;
     const templateSrc = fs.readFileSync(templatePath, 'utf8');
 
-    // Extract inline script block from site/index.html
-    const indexSrc        = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
-    const localPreviewIdx = indexSrc.indexOf('<!-- local-preview:');
-    const scriptEnd       = indexSrc.lastIndexOf('</script>', localPreviewIdx);
-    const scriptStart     = indexSrc.lastIndexOf('<script>', scriptEnd);
-    const scriptBlock     = scriptStart >= 0 ? indexSrc.slice(scriptStart, scriptEnd + '</script>'.length) : '';
-
     const slugTiles = data.tiles.filter(t => t.slug && t.visible !== false);
     let count = 0;
 
@@ -274,9 +267,6 @@ function buildTrackPages(data, site, statusMap) {
         const rendered  = renderMarkdown(mdContent);
         tmpl = tmpl.replace('{{TRACK_CONTENT}}', rendered ? `<div class="track-content">${rendered}</div>` : '');
 
-        // Inline scripts
-        tmpl = tmpl.replace('<!--TRACK_SCRIPTS-->', scriptBlock);
-
         const outDir = path.join(DIST, 'tracks', tile.slug);
         fs.mkdirSync(outDir, { recursive: true });
         fs.writeFileSync(path.join(outDir, 'index.html'), tmpl, 'utf8');
@@ -314,6 +304,7 @@ for (const file of htmlFiles) {
 
 // ── Copy assets ──────────────────────────────────────────────────────────
 fs.copyFileSync(path.join(SITE, 'style.css'),  path.join(DIST, 'style.css'));
+fs.copyFileSync(path.join(SITE, 'player.js'),  path.join(DIST, 'player.js'));
 fs.copyFileSync(path.join(SITE, 'tiles.json'), path.join(DIST, 'tiles.json'));
 const siteImages = path.join(SITE, 'images');
 if (fs.existsSync(siteImages)) copyDir(siteImages, path.join(DIST, 'images'));
