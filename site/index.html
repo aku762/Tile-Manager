@@ -73,7 +73,7 @@
         return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     }
 
-    // Deduplicate by data-src (featured tiles appear in both <!--FEATURED--> and <!--SECTIONS-->)
+    // Deduplicate by data-src (featured tiles appear in both the featured and sections blocks)
     // dir: +1 = next, -1 = previous
     function _audioGetAdjacent(dir) {
         if (!_audWrap) return null;
