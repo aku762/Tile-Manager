@@ -2,6 +2,18 @@
 
 ## 2026-05-22
 
+### iOS PWA meta tags
+
+Four Apple-specific tags added to `site/index.html`:
+- `apple-touch-icon` — homescreen icon iOS uses (points at `site.icon`; 180×180 ideal)
+- `apple-mobile-web-app-capable` — enables full-screen standalone mode when launched from homescreen
+- `apple-mobile-web-app-title` — label under the icon, resolves to `shortName` in `site.json` (or first word of title)
+- `apple-mobile-web-app-status-bar-style: black-translucent` — status bar overlays the page so the dark background bleeds to the top edge
+
+`{{SITE_SHORT_NAME}}` token added to `build.js` and `app.js`.
+
+---
+
 ### Web App Manifest — PWA installability
 
 Build now generates `dist/manifest.json` from `site.json`. With HTTPS and this manifest in place, Chrome/Edge show an install prompt and iOS Safari supports Add to Homescreen — the site runs in standalone mode with no browser chrome, its own splash screen, and an app icon.
