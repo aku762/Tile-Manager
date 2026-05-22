@@ -330,4 +330,24 @@ fs.copyFileSync(path.join(CORE, 'admin.js'),   path.join(DIST, 'admin.js'));
 fs.copyFileSync(path.join(CORE, 'app.js'),     path.join(DIST, 'app.js'));
 
 const trackCount = buildTrackPages(data, site, statusMap);
-console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections${trackCount ? `, ${trackCount} track pages` : ''}`);
+
+// ── Sitemap ──────────────────────────────────────────────────────────────
+if (site.url) {
+    const base    = site.url.replace(/\/$/, '');
+    const today   = new Date().toISOString().slice(0, 10);
+    const slugs   = data.tiles.filter(t => t.slug && t.visible !== false).map(t => t.slug);
+    const pages   = htmlFiles.filter(f => f !== 'admin.html').map(f => f === 'index.html' ? '' : f.replace(/\.html$/, '/'));
+
+    const urls = [
+        ...pages.map(p => ({ loc: `${base}/${p}`, priority: p === '' ? '1.0' : '0.7' })),
+        ...slugs.map(s => ({ loc: `${base}/tracks/${s}/`, priority: '0.8' })),
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${
+        urls.map(u => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${u.priority}</priority>\n  </url>`).join('\n')
+    }\n</urlset>`;
+
+    fs.writeFileSync(path.join(DIST, 'sitemap.xml'), xml, 'utf8');
+}
+
+console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections${trackCount ? `, ${trackCount} track pages` : ''}${site.url ? ', sitemap.xml' : ''}`);

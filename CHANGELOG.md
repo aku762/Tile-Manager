@@ -2,6 +2,12 @@
 
 ## 2026-05-21
 
+### Sitemap generation
+
+`dist/sitemap.xml` is now generated at build time when `url` is set in `site.json`. Includes the homepage and all visible HTML pages at `priority 0.7`, and all slug-based track pages at `priority 0.8`. Uses today's date as `<lastmod>`. Skipped silently if `site.url` is empty.
+
+---
+
 ### Markdown image support
 
 `![alt](url)` syntax now renders as an `<img>` tag in track page markdown content. Use full URLs for hosted images. Pattern is matched before the link pattern since the syntax overlaps.
