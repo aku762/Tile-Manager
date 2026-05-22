@@ -136,6 +136,8 @@ Then any page can use `<!--GROUP:projects-->` instead of listing sections indivi
 
 **Backwards compatible:** `<!--SECTIONS-->`, `<!--SECTION:ID-->`, `<!--FEATURED-->` all still work. Groups are additive.
 
+**Where this gets powerful:** groups effectively allow multiple independent "favorites" or "highlights" collections — not just one featured section. A `<!--GROUP:live-favorites-->` on one page and `<!--GROUP:studio-picks-->` on another, each pulling a different hand-curated mix of sections. And because subpages do recursive tag scanning, you can drop a `<!--GROUP:id-->` directly inside a story or event MD template — the rendered page gets exactly those tiles and nothing else. Curated tile sets embedded in longform content, no CMS needed.
+
 ---
 
 ## Pages
@@ -200,6 +202,8 @@ On mobile, rather than one long vertical scroll of all sections, each section sc
 
 **Implementation:** a `"scroll": "horizontal"` flag on a section in `tiles.json`. CSS changes for that section's `.tile-grid` to `display: flex; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory`. Tiles get `scroll-snap-align: start`. On desktop, same grid layout as now. On mobile, horizontal scroll with snap.
 
+**Row count:** default is 1 row (single strip). A `"rows": 2` flag on the section (or as a tag parameter — `<!--SECTION:id:rows=2-->`) would wrap tiles into a 2-row grid before the horizontal scroll. Good for sections with many tiles where a single strip would be too wide. Implementation: CSS grid with `grid-template-rows: repeat(N, auto)` + `auto-flow: column` so tiles fill columns instead of rows. Keep it configurable rather than hardcoded.
+
 **No new JS needed** — CSS scroll snap handles the UX. The tile-stacking system would need to be disabled for horizontal sections (no `.tile-stack` wrappers when `scroll: horizontal`).
 
 **Relationship to separate pages:** horizontal sections and separate pages solve the same problem from different angles. Separate pages are better for SEO and deep-linking. Horizontal sections are better for browsing and discovery. They're not mutually exclusive — separate pages can still exist, and the front page uses horizontal sections for quick navigation.
@@ -213,6 +217,22 @@ A `<!--RANDOM:section-id:count-->` comment tag that `app.js` replaces at runtime
 **Practical version:** `<!--RANDOM:tracks:3-->` drops in 3 random track tiles from the tracks section. Count defaults to 1 if omitted. Respects `visible` flags.
 
 **Slot machine variant:** the flashier version of the same primitive — 3 columns that spin and lock. Same data, different animation. Could ship as `<!--SLOT_MACHINE-->` separately or as a flag on the same tag. Aesthetic: slot machine columns with favicons instead of cherries. Spin to re-roll.
+
+---
+
+## Single tile tag + stable tile IDs
+
+A `<!--TILE:identifier-->` tag that renders one specific tile anywhere — inside a story page, a section template, or the homepage. Useful for featuring a single track or event inline with other content.
+
+**The ID stability problem:** tile `id` values are currently reassigned sequentially on every export (`1`, `2`, `3`...). This means `id` encodes order, not identity — if tiles are reordered, all IDs shift and any hardcoded `<!--TILE:5-->` tag silently renders the wrong tile. This needs to be fixed before `<!--TILE:id-->` is useful.
+
+**Two-part fix:**
+
+1. **Stable IDs** — stop reassigning IDs on export. A tile's ID should be the value it was born with and never change. Array position in `tiles.json` already encodes display order, so IDs don't need to. This is a breaking change for existing exports but straightforward: on first export after the update, existing IDs are preserved rather than renumbered. Going forward, new tiles get a timestamp-based ID (already how the admin creates them) and it sticks.
+
+2. **Slug-based lookup** — `<!--TILE:my-slug-->` as an alternative to ID-based lookup. Slugs are user-defined, stable, and meaningful. Works immediately for any tile that has one without touching the ID system. Good enough for most use cases, implement this first.
+
+**Combined:** `<!--TILE:my-slug-->` for slug tiles now; `<!--TILE:stable-id-->` once IDs are fixed for non-slug tiles.
 
 ---
 
