@@ -174,6 +174,7 @@ function processTemplate(template, site, data, statusMap) {
         '{{SITE_FOOTER}}':      site.footer      ?? '',
         '{{SITE_SCHEMA}}':      siteSchema,
         '{{SITE_THEME_COLOR}}': site.themeColor  ?? '#0d0f12',
+        '{{SITE_SHORT_NAME}}':  site.shortName   || (site.title ?? '').split(' ')[0] || '',
     };
     for (const [token, value] of Object.entries(tokens)) {
         template = template.split(token).join(value);

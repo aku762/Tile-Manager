@@ -181,6 +181,7 @@ async function loadSite() {
         '{{SITE_FOOTER}}':      site.footer      ?? '',
         '{{SITE_SCHEMA}}':      '',
         '{{SITE_THEME_COLOR}}': site.themeColor ?? '#0d0f12',
+        '{{SITE_SHORT_NAME}}':  site.shortName  || (site.title ?? '').split(' ')[0] || '',
     };
     function sub(str) {
         for (const [k, v] of Object.entries(TOKENS)) str = str.split(k).join(v);
