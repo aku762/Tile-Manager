@@ -13,10 +13,13 @@ function getCommentNodes(root) {
 
 function renderTile(tile, statusMap) {
     const s  = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
-    const el = document.createElement((!tile.slug && tile.href) ? 'a' : 'div');
+    const hasAudio    = !!tile.audio;
+    const slugNoAudio = tile.slug && !hasAudio;
+    const el = document.createElement((!tile.slug && tile.href) || slugNoAudio ? 'a' : 'div');
     el.className      = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
     el.dataset.status = tile.status;
-    if (!tile.slug && tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
+    if (slugNoAudio)             { el.href = `tracks/${tile.slug}/`; }
+    else if (!tile.slug && tile.href) { el.href = tile.href; el.target = '_blank'; el.rel = 'noopener'; }
 
     const showImg = tile.showImage && !(tile.expand && !tile.image);
     const audioHTML = tile.audio

@@ -29,9 +29,15 @@ function buildFilters(statuses) {
 
 function buildTile(tile, statusMap) {
     const s    = statusMap[tile.status] || { label: tile.status.toUpperCase(), color: '#9aa8b3' };
-    // Slug tiles are never <a> — image and audio controls own the click surface
-    const tag  = (!tile.slug && tile.href) ? 'a' : 'div';
-    const link = (!tile.slug && tile.href)
+    // Slug + audio: <div> — controls own the surface, MORE → navigates
+    // Slug + no audio: <a> to track page, whole tile clickable
+    // href only: <a> external link
+    const hasAudio   = !!tile.audio;
+    const slugNoAudio = tile.slug && !hasAudio;
+    const tag  = (!tile.slug && tile.href) || slugNoAudio ? 'a' : 'div';
+    const link = slugNoAudio
+        ? ` href="tracks/${attr(tile.slug)}/"`
+        : (!tile.slug && tile.href)
         ? ` href="${attr(tile.href)}" target="_blank" rel="noopener"`
         : '';
 

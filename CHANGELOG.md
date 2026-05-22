@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-22
+
+### Slug tiles without audio are fully clickable
+
+Event/show/content tiles that have a slug but no audio now render as a full `<a>` to their track page — the whole tile is the click target. The `MORE →` footer link remains as a signal that there's more content. Only tiles with both audio and a slug stay as `<div>` (audio controls own the surface).
+
+---
+
 ## 2026-05-21
 
 ### Switch to marked for markdown rendering
