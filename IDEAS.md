@@ -158,39 +158,61 @@ A `pages` array in `tiles.json` and a `site/pages/` folder. Each file in `site/p
 
 ---
 
-## Tile types and detail pages
+## Story / blog tiles
 
-Currently all tiles are links (`href`). A `type` field on the tile would unlock richer behaviors — the tile card stays the same but the action on click changes.
+**Partially shipped:** the slug + MD file system already handles event/show/blog-post tiles — add a slug, drop a `.md` file in `site/content/tracks/`, and a full page builds automatically. The whole tile is clickable, `MORE →` signals there's content.
 
-**Proposed types:**
-- `link` — current default, opens `href` in a new tab
-- `modal` — opens a detail overlay in-page (image gallery, description, metadata)
-- `video` — modal with an embedded video player
-- `audio` — modal with an audio player
-- `page` — auto-generates a full HTML detail page for this tile at build time
+**What's still missing:**
 
-**Auto-generated detail pages (`type: "page"`):** `build.js` looks for a `<tilename>.md` file alongside the tile image in `site/source/tiles/`. If found, it renders a detail page (e.g. `dist/tiles/my-project.html`) from the tile's data and the markdown content. The tile card links to that generated page instead of an external URL. This feeds directly into the Pages system — detail pages are just another output of the build.
+- **Style differentiation.** Right now a blog-post tile looks identical to an audio tile. A `type: "story"` field (or just the absence of `audio`) could render the tile without a border — closer to a card or article preview. Or a softer border, a different background tint. The point is the viewer should sense "this is content to read" vs "this is a link or a track."
 
-**Asset convention:**
-```
-site/source/tiles/
-  my-project.webp     ← tile image
-  my-project.md       ← detail page content (optional)
-```
+- **Admin workflow.** Currently you add a story tile the same way as any tile — through the tile modal. A dedicated **Stories tab** (or **Posts tab**) in the admin would be cleaner: title, date, image, slug, description, and a text area for the intro. The MD file would be auto-generated from the form rather than hand-written. For now the current workflow is acceptable.
 
-**Recursive tiles:** a detail page can itself contain `<!--SECTIONS-->` tags, rendering its own set of tiles. click a tile, land on a page, that page has more tiles. navigate a tree of content just by clicking, the whole way down. the data model already supports it — detail pages are just pages, and pages can have any tags. infinite depth, same build primitive.
+- **File-based discovery.** An alternative to JSON-driven stories: `build.js` scans `site/content/posts/*.md`, reads frontmatter (title, date, image, slug), and auto-generates both the tile and the detail page without any `tiles.json` entry. Lower overhead for frequent publishing. Tradeoff: no admin UI, no section assignment, no status.
 
-*Tiles all the way down.*
-
-**Why this matters:** it turns tile-manager into a lightweight content system — portfolio pieces, project writeups, audio/video showcases — all sourced from JSON + markdown + assets, no CMS needed.
+**Recursive depth:** a detail page can contain `<!--SECTIONS-->` tags, rendering its own tile grid. Tiles all the way down. The build primitive already supports this — detail pages are just pages.
 
 ---
 
-## Slot Machine
+## Icon tiles / navigation buttons
 
-A `<!--SLOT_MACHINE-->` tag that drops in a special widget: 3 tiles spin and lock on random picks from your library. A "feeling lucky" discovery feature for when you have a large tile collection and don't know what to open next.
+Small square tiles for mobile-first section navigation — think iPhone homescreen icons. The idea is a row of 4 (max) at the top of a page, each representing a section or page, with an image and optional one-line label. They stack to multiple rows if there are more than 4.
 
-Aesthetic: slot machine columns with favicons instead of cherries. Spin button to re-roll. Could also work as a tile type in the grid.
+**Why this instead of a hamburger menu:** menus are hidden and require a tap to reveal. Icon tiles are always visible, glanceable, and immediately actionable. On a site split across multiple pages (picks, tracks, mixes, shows, links), these become the primary nav.
+
+**Implementation options:**
+
+1. **CSS-only, driven by `tiles.json`** — a new tile `type: "icon"` or `size: "icon"` renders with a square aspect ratio, image fills the cell, label is one short line below. No new data structure. Section/page link goes in `href`. This is the lowest-friction path.
+
+2. **`site.json` nav array** — a `nav` array in `site.json` with `{ label, href, image }` entries. A `<!--NAV-->` tag renders the icon row. Cleanly separated from tile data since nav is site-level, not content-level.
+
+3. **Sections as nav** — automatically generate an icon row from the section list, linking each to a per-section page. Only works once the Pages system exists.
+
+**Option 1 is the right starting point** — reuses the existing tile pipeline, no new admin needed, just a CSS class and a new grid layout. Build the nav array idea later if the separation matters.
+
+---
+
+## Horizontal scrolling sections
+
+On mobile, rather than one long vertical scroll of all sections, each section scrolls left-to-right. The page has a short vertical list of section headers; tapping/scrolling within a section moves horizontally through its tiles.
+
+**The problem it solves:** with 50 tiles across 5 sections on one page, the viewer scrolls past section markers and loses context. Horizontal sections give each section a defined lane — you know where you are at all times.
+
+**Implementation:** a `"scroll": "horizontal"` flag on a section in `tiles.json`. CSS changes for that section's `.tile-grid` to `display: flex; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory`. Tiles get `scroll-snap-align: start`. On desktop, same grid layout as now. On mobile, horizontal scroll with snap.
+
+**No new JS needed** — CSS scroll snap handles the UX. The tile-stacking system would need to be disabled for horizontal sections (no `.tile-stack` wrappers when `scroll: horizontal`).
+
+**Relationship to separate pages:** horizontal sections and separate pages solve the same problem from different angles. Separate pages are better for SEO and deep-linking. Horizontal sections are better for browsing and discovery. They're not mutually exclusive — separate pages can still exist, and the front page uses horizontal sections for quick navigation.
+
+---
+
+## Random picks widget
+
+A `<!--RANDOM:section-id:count-->` comment tag that `app.js` replaces at runtime with N randomly selected tiles from the given section. Since `app.js` already runs in the browser and has `tiles.json`, this needs no build step — just a new tag handler. Useful for a front page "picks" block that changes every visit without manual curation.
+
+**Practical version:** `<!--RANDOM:tracks:3-->` drops in 3 random track tiles from the tracks section. Count defaults to 1 if omitted. Respects `visible` flags.
+
+**Slot machine variant:** the flashier version of the same primitive — 3 columns that spin and lock. Same data, different animation. Could ship as `<!--SLOT_MACHINE-->` separately or as a flag on the same tag. Aesthetic: slot machine columns with favicons instead of cherries. Spin to re-roll.
 
 ---
 
