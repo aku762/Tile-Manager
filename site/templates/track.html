@@ -16,6 +16,8 @@
     <meta name="twitter:image" content="{{SITE_URL}}/images/wide/{{TRACK_IMAGE}}">
     {{TRACK_SCHEMA}}
     <link rel="icon" href="../../{{SITE_ICON}}">
+    <link rel="apple-touch-icon" href="../../{{SITE_ICON}}">
+    <link rel="manifest" href="../../manifest.json">
     <link rel="stylesheet" href="../../style.css">
 </head>
 <body>
@@ -49,7 +51,21 @@
 
 </div>
 
-<!--TRACK_SCRIPTS-->
+<div id="player-bar">
+    <img id="player-img" src="" alt="">
+    <div id="player-info">
+        <div id="player-track"></div>
+        <div id="player-artist"></div>
+    </div>
+    <button id="player-btn" onclick="playerToggle()">▶</button>
+    <div id="player-progress" onclick="playerSeek(event,this)">
+        <div id="player-prog"></div>
+    </div>
+    <span id="player-time">0:00</span>
+</div>
+
+<script>window._siteRoot = '../../';</script>
+<script src="../../player.js"></script>
 
 </body>
 </html>

@@ -2,6 +2,16 @@
 
 ## 2026-05-22
 
+### Extract audio/player code to player.js
+
+All audio, player bar, and SPA routing code moved from an inline `<script>` block in `site/index.html` into a standalone `site/player.js`. The file is copied to `dist/` at build time and loaded via `<script src="player.js">` on root pages and `<script src="../../player.js">` on track pages.
+
+`window._siteRoot` (set inline before the script tag) tells the player where to resolve image paths — `''` on root pages, `'../../'` on track pages.
+
+Track page template (`site/templates/track.html`) now includes the player bar HTML and loads the shared `player.js` directly; `build.js` no longer extracts an inline script block from `index.html`.
+
+---
+
 ### Persistent bottom player bar + SPA routing
 
 The audio player is now a fixed bar at the bottom of the screen — thumbnail, track name, artist, play/pause, scrubber, time. It slides up on first play and stays visible while navigating between pages.
