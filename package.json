@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "build": "node core/build.js"
+  },
+  "dependencies": {
+    "marked": "^18.0.4"
   }
 }

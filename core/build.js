@@ -1,7 +1,8 @@
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const fs     = require('fs');
+const path   = require('path');
+const marked = require('marked');
 
 const ROOT = path.resolve(__dirname, '..');
 const SITE = path.join(ROOT, 'site');
@@ -181,26 +182,10 @@ function processTemplate(template, site, data, statusMap) {
     return template;
 }
 
-function renderInline(s) {
-    return String(s ?? '')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;height:auto">')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
-}
-
 function renderMarkdown(md) {
     if (!md || !md.trim()) return '';
     md = md.replace(/^---[\s\S]*?---\s*\n/, '');
-    return md.trim().split(/\n\n+/).map(p => {
-        p = p.trim();
-        if (!p) return '';
-        if (p.startsWith('### ')) return `<h4>${renderInline(p.slice(4))}</h4>`;
-        if (p.startsWith('## '))  return `<h3>${renderInline(p.slice(3))}</h3>`;
-        if (p.startsWith('# '))   return `<h2>${renderInline(p.slice(2))}</h2>`;
-        return `<p>${p.split('\n').map(renderInline).join('<br>')}</p>`;
-    }).filter(Boolean).join('\n');
+    return marked.parse(md.trim());
 }
 
 function buildTrackPages(data, site, statusMap) {
