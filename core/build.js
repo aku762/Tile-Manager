@@ -130,7 +130,7 @@ function buildFeatured(sections, tiles, statusMap) {
 
 // <!--SECTION:ID--> — one specific section by ID
 function buildSingleSection(id, sections, tiles, statusMap) {
-    const sec = sections.find(s => String(s.id) === String(id) && s.visible !== false);
+    const sec = sections.find(s => String(s.id) === String(id));
     if (!sec) return '';
     if (sec.featured) return buildFeatured(sections, tiles, statusMap);
     const secTileData = tiles.filter(t => String(t.section) === String(id) && t.visible !== false);
@@ -173,6 +173,7 @@ function processTemplate(template, site, data, statusMap) {
         '{{SITE_ICON}}':        site.icon        ?? '',
         '{{SITE_FOOTER}}':      site.footer      ?? '',
         '{{SITE_SCHEMA}}':      siteSchema,
+        '{{SITE_THEME_COLOR}}': site.themeColor  ?? '#0d0f12',
     };
     for (const [token, value] of Object.entries(tokens)) {
         template = template.split(token).join(value);
@@ -343,4 +344,20 @@ if (site.url) {
     fs.writeFileSync(path.join(DIST, 'sitemap.xml'), xml, 'utf8');
 }
 
-console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections${trackCount ? `, ${trackCount} track pages` : ''}${site.url ? ', sitemap.xml' : ''}`);
+// ── Web App Manifest ─────────────────────────────────────────────────────
+const manifest = {
+    name:             site.title       ?? '',
+    short_name:       site.shortName   || (site.title ?? '').split(' ')[0] || '',
+    description:      site.description ?? '',
+    start_url:        '/',
+    display:          'standalone',
+    background_color: site.themeColor  ?? '#0d0f12',
+    theme_color:      site.themeColor  ?? '#0d0f12',
+    icons: [],
+};
+if (site.icon) {
+    manifest.icons.push({ src: site.icon, sizes: 'any', type: 'image/png', purpose: 'any maskable' });
+}
+fs.writeFileSync(path.join(DIST, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf8');
+
+console.log(`Built dist/ — ${data.tiles.length} tiles across ${data.sections.length} sections${trackCount ? `, ${trackCount} track pages` : ''}${site.url ? ', sitemap.xml' : ''}, manifest.json`);

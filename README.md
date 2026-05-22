@@ -80,6 +80,8 @@ Tokens in any `site/*.html` file are substituted at build time and resolved at r
 | `sameAs` | array | External profile URLs — links your entity to Google's knowledge graph (Spotify, SoundCloud, MusicBrainz, etc.) |
 | `genre` | array | Genre tags (e.g. `["Electronic", "Trance"]`) — helps Google disambiguate the artist entity. |
 | `foundingLocation` | string | City/region (e.g. `"Minneapolis, Minnesota"`) — serialized as a `Place` object in the schema. |
+| `shortName` | string | Short app name for the PWA manifest homescreen icon (defaults to the first word of `title`). |
+| `themeColor` | string | Browser chrome tint color and PWA manifest theme/background color (default `#0d0f12`). |
 
 ## Section tags
 
@@ -90,7 +92,7 @@ HTML comment tags control where content is injected. Place them anywhere in any 
 | `<!--FILTERS-->` | Status filter buttons |
 | `<!--SECTIONS-->` | All visible non-featured sections |
 | `<!--FEATURED-->` | The featured section (tiles sorted by featured order) |
-| `<!--SECTION:ID-->` | One specific section by its ID |
+| `<!--SECTION:ID-->` | One specific section by its ID — renders even if the section is hidden from `<!--SECTIONS-->` |
 
 This lets you build multi-page sites — place different section tags on different HTML files and each page gets exactly the content you want. `app.js` handles the same tags at runtime for local preview, so it works file-independently on any page in `site/`.
 

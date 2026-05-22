@@ -194,19 +194,30 @@ Small square tiles for mobile-first section navigation — think iPhone homescre
 
 ---
 
-## Horizontal scrolling sections
+## Section layout types (horizontal scrolling)
 
-On mobile, rather than one long vertical scroll of all sections, each section scrolls left-to-right. The page has a short vertical list of section headers; tapping/scrolling within a section moves horizontally through its tiles.
+Sections carry their own layout type. Instead of template-level hacks, the section object in `tiles.json` declares how it renders — and `build.js` / `app.js` both honor it automatically everywhere the section appears.
 
-**The problem it solves:** with 50 tiles across 5 sections on one page, the viewer scrolls past section markers and loses context. Horizontal sections give each section a defined lane — you know where you are at all times.
+**Data model addition:**
+```json
+{ "id": "3", "title": "TRACKS", "layout": "horizontal", "rows": 2 }
+```
+- `layout`: `"vertical"` (default, current behavior) or `"horizontal"` (left-right scroll with snap)
+- `rows`: number of tile rows in a horizontal strip. Default `1`. Only meaningful when `layout: "horizontal"`.
 
-**Implementation:** a `"scroll": "horizontal"` flag on a section in `tiles.json`. CSS changes for that section's `.tile-grid` to `display: flex; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory`. Tiles get `scroll-snap-align: start`. On desktop, same grid layout as now. On mobile, horizontal scroll with snap.
+**Admin — sections editor:** when creating or editing a section, a **Layout** dropdown appears: `VERTICAL` / `HORIZONTAL`. Choosing horizontal shows a **Rows** number input (default 1). This lives in the section modal alongside the existing title field. No new tab needed.
 
-**Row count:** default is 1 row (single strip). A `"rows": 2` flag on the section (or as a tag parameter — `<!--SECTION:id:rows=2-->`) would wrap tiles into a 2-row grid before the horizontal scroll. Good for sections with many tiles where a single strip would be too wide. Implementation: CSS grid with `grid-template-rows: repeat(N, auto)` + `auto-flow: column` so tiles fill columns instead of rows. Keep it configurable rather than hardcoded.
+**Build/render behavior:**
+- Vertical sections: exactly as today, no change to existing output
+- Horizontal sections: `.tile-grid` gets `data-layout="horizontal" data-rows="N"` attributes. CSS handles the rest — `display: grid; grid-template-rows: repeat(N, auto); grid-auto-flow: column; overflow-x: auto; scroll-snap-type: x mandatory`. Tiles get `scroll-snap-align: start`. Tile stacking (`.tile-stack`) is suppressed for horizontal sections since stacks break column flow.
 
-**No new JS needed** — CSS scroll snap handles the UX. The tile-stacking system would need to be disabled for horizontal sections (no `.tile-stack` wrappers when `scroll: horizontal`).
+**Why this is the right primitive for a single-page app:**
 
-**Relationship to separate pages:** horizontal sections and separate pages solve the same problem from different angles. Separate pages are better for SEO and deep-linking. Horizontal sections are better for browsing and discovery. They're not mutually exclusive — separate pages can still exist, and the front page uses horizontal sections for quick navigation.
+A single `index.html` with just `<!--SECTIONS-->` becomes fully controllable. Five sections — picks (vertical featured), tracks (horizontal 2-row), mixes (horizontal 1-row), shows (vertical), links (vertical) — renders as a complete one-page app with distinct navigation zones. No separate pages needed for the browsing experience. Separate pages still exist for SEO and deep-linking, but the homepage tells the whole story.
+
+The section type lives in the data, not the template. Changing a section from vertical to horizontal in the admin and re-exporting updates every page it appears on simultaneously.
+
+**Relationship to separate pages:** not mutually exclusive. Horizontal sections are for browsing and discovery on the front page. Separate pages are for SEO, shareable URLs, and deeper content. Both can coexist — the front page uses horizontal sections, and each section also has a dedicated page for search indexing.
 
 ---
 
@@ -254,6 +265,57 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 
 ---
 
+
+## Web platform APIs
+
+### PWA / Web App Manifest
+
+A `manifest.json` file generated at build time from `site.json`. With `"display": "standalone"` the browser chrome disappears — no address bar, no tabs — and the site installs to the homescreen like a native app. iOS/Android both support it. Chrome on desktop does too.
+
+**What build generates:**
+- `dist/manifest.json` — `name`, `short_name`, `description`, `start_url`, `display: "standalone"`, `background_color`, `theme_color`, icons array (pointing at `site.icon` and/or dedicated PWA icon sizes)
+- `<link rel="manifest" href="manifest.json">` injected into `site/index.html` at build time via a `{{SITE_MANIFEST}}` token (or just hardcoded since it's always present)
+
+**What `site.json` needs:** optionally `themeColor` (default `#0d0f12`) and `shortName` (default: first word of `title`). Everything else is already there.
+
+**Install prompt:** Chrome shows an install banner automatically once manifest + HTTPS + service worker are all present. No code needed for the prompt itself.
+
+---
+
+### Service Worker + offline cache
+
+A generated `sw.js` registered on page load. Caches the HTML, CSS, JS, and all tile images on first visit so the site works offline — or on a flaky connection on the way to the gig.
+
+**Two cache strategies:**
+- **Shell (cache-first):** `index.html`, `style.css`, `app.js`, `tiles.json` — always serve from cache, refresh in background
+- **Audio (network-first with fallback):** audio files are large; try network first, fall back to cached version if offline. Cache on first play.
+
+**What build generates:** `dist/sw.js` with a cache version string derived from the build date. A new build invalidates the old cache automatically.
+
+**Registration:** one `<script>` tag in `index.html` — `navigator.serviceWorker.register('sw.js')`. Stripped in local preview like `app.js`.
+
+---
+
+### Screen Wake Lock
+
+One call: `navigator.wakeLock.request('screen')` when audio starts, release when it pauses or ends. Prevents the screen from dimming mid-set while the lock screen controls are active. Already have the hooks in `audioPlay()`.
+
+**Implementation:** 3–4 lines in `audioPlay()` and `_aud.onended`. Acquire on play, release on pause/end/tab-hidden. Re-acquire on `visibilitychange` (required by the spec — wake lock is released automatically when tab goes to background).
+
+---
+
+### Persistent nav bar
+
+CSS `position: fixed` with `backdrop-filter: blur` — same frosted glass as the track page back bar. On mobile, bottom-fixed tab bar is more thumb-friendly than top nav (iPhone pattern). On desktop, top bar.
+
+**Content options:**
+1. **Logo + filters** — move the existing filter buttons into a sticky bar so they're always accessible while scrolling
+2. **Logo + section jumps** — link to each section by anchor; sections get `id` attributes at build time from their slugs
+3. **Bottom tab bar** — icons for Home / Tracks / Mixes / Shows, each a link to a page or anchor. Driven by the `nav` array idea in [[Icon tiles / navigation buttons]].
+
+**Lowest-friction start:** just make `#filters` sticky. One CSS change, no data model needed.
+
+---
 
 ## Derivative projects
 

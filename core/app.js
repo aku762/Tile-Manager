@@ -149,7 +149,7 @@ async function loadTiles() {
 
         } else if (tag.startsWith('SECTION:')) {
             const id  = tag.slice('SECTION:'.length);
-            const sec = sections.find(s => String(s.id) === id && s.visible !== false);
+            const sec = sections.find(s => String(s.id) === id);
             if (sec) {
                 const secTiles = sec.featured
                     ? tiles.filter(t => t.visible !== false && t.featured > 0).sort((a, b) => a.featured - b.featured)
@@ -180,6 +180,7 @@ async function loadSite() {
         '{{SITE_ICON}}':        site.icon        ?? '',
         '{{SITE_FOOTER}}':      site.footer      ?? '',
         '{{SITE_SCHEMA}}':      '',
+        '{{SITE_THEME_COLOR}}': site.themeColor ?? '#0d0f12',
     };
     function sub(str) {
         for (const [k, v] of Object.entries(TOKENS)) str = str.split(k).join(v);

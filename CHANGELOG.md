@@ -2,6 +2,24 @@
 
 ## 2026-05-22
 
+### Web App Manifest — PWA installability
+
+Build now generates `dist/manifest.json` from `site.json`. With HTTPS and this manifest in place, Chrome/Edge show an install prompt and iOS Safari supports Add to Homescreen — the site runs in standalone mode with no browser chrome, its own splash screen, and an app icon.
+
+**What's generated:** `name`, `short_name` (first word of title, or override with `shortName` in `site.json`), `description`, `start_url: "/"`, `display: "standalone"`, `background_color`/`theme_color` (default `#0d0f12`, override with `themeColor` in `site.json`), and an `icons` entry from `site.icon`.
+
+**`<head>` additions:** `<link rel="manifest">` and `<meta name="theme-color">` added to `site/index.html`. Theme color sets the browser chrome tint on Android while on the regular web.
+
+For a proper install badge, provide a 192×192 or 512×512 PNG as your site icon. The `sizes: "any"` fallback works but dedicated PWA-sized icons get better treatment on some platforms.
+
+---
+
+### `<!--SECTION:ID-->` bypasses section visibility
+
+Explicitly targeting a section with `<!--SECTION:ID-->` now renders it regardless of its `visible` flag. `<!--SECTIONS-->` still only outputs visible sections. This makes "hidden" mean "off the front page" rather than "off the site" — hide a section to keep it out of the bulk render, then pull it into a dedicated subpage with `<!--SECTION:ID-->`.
+
+---
+
 ### Slug tiles without audio are fully clickable
 
 Event/show/content tiles that have a slug but no audio now render as a full `<a>` to their track page — the whole tile is the click target. The `MORE →` footer link remains as a signal that there's more content. Only tiles with both audio and a slug stay as `<div>` (audio controls own the surface).
