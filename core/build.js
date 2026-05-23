@@ -159,11 +159,12 @@ function processTemplate(template, site, data, statusMap) {
         const schema = {
             '@context': 'https://schema.org',
             '@type':    site.schemaType,
-            'name':     site.title ?? '',
+            'name':     site.artistName || '',
             'url':      site.url   ?? '',
         };
         if (site.description) schema.description = site.description;
         if (site.og)          schema.image        = site.url ? `${site.url}/${site.og}` : site.og;
+        if (site.logo)        schema.logo         = site.url ? `${site.url}/${site.logo}` : site.logo;
         if (Array.isArray(site.sameAs) && site.sameAs.length)         schema.sameAs         = site.sameAs;
         if (Array.isArray(site.alternateName) && site.alternateName.length) schema.alternateName = site.alternateName;
         if (Array.isArray(site.genre)  && site.genre.length)          schema.genre          = site.genre;
