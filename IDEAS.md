@@ -12,8 +12,6 @@ Unordered backlog of future directions. Not commitments — just things worth re
 
 ---
 
----
-
 ### Albums
 
 A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin, modeled after the Sections tab.
@@ -50,6 +48,41 @@ A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin,
 
 ---
 
+### Track schema: genre and BPM fields
+
+The `MusicRecording` schema on track pages is currently missing `genre` and `musicArrangement` / tempo properties. Google uses these for richer track cards in search.
+
+**What to add to tile JSON:**
+- `genre` — string (e.g. `"Breaks"`, `"Hip-Hop"`, `"Drum & Bass"`). Already used in tile display; needs to be a first-class field rather than just part of `cat`.
+- `bpm` — integer. Used in `MusicRecording` as the `tempo` property.
+
+**Touch points:**
+1. **`tiles.json`** — add `genre` and `bpm` to tile objects
+2. **Admin tile modal** — add Genre (text input) and BPM (number input) fields in the add/edit modal
+3. **`build.js` track schema** — emit `"genre": tile.genre` and `"tempo": tile.bpm` into the `MusicRecording` JSON-LD when present. Also pass `genre` into `byArtist` at the `MusicGroup` level if it's not already there.
+
+Note: `tile.cat` currently blends genre with format (e.g. "AUDIO / MP3"). Once `genre` is a dedicated field it can be cleaner — cat stays as the display label, genre is the pure schema value.
+
+---
+
+### Site schema: `alternateName` for artist aliases
+
+The main page `MusicGroup` (or configured) schema in `build.js` doesn't emit `alternateName`. For a DJ who records under multiple names or whose legal name differs from their stage name, this is a missed Knowledge Graph signal — Google can link search queries for both names to the same entity.
+
+**What to add to `site.json`:**
+```json
+"alternateName": ["Stage Name", "Another Alias"]
+```
+
+**What `build.js` emits:**
+```json
+"alternateName": ["Stage Name", "Another Alias"]
+```
+
+One-liner addition alongside the existing `sameAs` emission. Also worth auditing: the `sameAs` array should include the artist's Spotify artist page, MusicBrainz entry, Wikipedia article, and official social profiles — these are the links that cement the Knowledge Graph connection.
+
+---
+
 ## Three tile image formats: wide, portrait, square
 
 **Shipped:** `images/wide/`, `images/square/`, `images/portrait/` folder convention. Wide is used for tile display; square is tried first for Media Session artwork, wide as fallback. Same filename across all three.
@@ -69,22 +102,6 @@ Three canonical image shapes to design assets for:
 **Portrait** is the bigger layout project. On desktop, taller tiles break grid rhythm when mixed with wide neighbors — probably `object-fit: cover` + `object-position: top` with `align-self: start`. On mobile it's the natural format — image fills the viewport width, audio player overlay at the bottom if set.
 
 **Implementation idea:** an `imageFormat` field on the tile (`"wide"` default, `"portrait"`, `"square"`). The CSS aspect-ratio and grid behavior switch based on a `data-format` attribute. `object-position` could also be a tile field (`"top"`, `"center"`, `"bottom"`) for fine control over how the subject sits in the crop.
-
----
-
-## Featured tile duplication
-
-Tiles with a `featured` order appear in both `<!--FEATURED-->` and their normal section via `<!--SECTIONS-->`. On pages with few tiles this is immediately noticeable — the same tile shows up twice. For audio auto-advance it means every track plays twice before stopping.
-
-With section tags, the duplication is less of a problem in practice — you can use `<!--SECTION:ID-->` to place exactly the tiles you want without `<!--SECTIONS-->` pulling everything in. So this is mostly an issue on simple single-page layouts.
-
-**Reframe:** "featured" is really just "pinned to top" — it's a position in the page, not a separate editorial concept. The tile still lives in its section; the featured block just surfaces it higher. That framing suggests the right fix isn't hiding tiles from sections, but making it easy to build a page where the pin and the section don't both appear at the same time.
-
-**Options being considered:**
-
-- **`showInSection` boolean on the featured section** (or `duplicateInSections: false`) — opt-out flag that suppresses featured tiles from their normal section when the featured block is present on the same page.
-- **Scoped auto-advance** — audio auto-advance stays within the section the user started playing from, rather than walking all `.tile-audio` elements on the page. Naturally avoids cross-section duplicates.
-- **No change** — use section tags to compose the page so the same tile never appears twice. Only a real problem on small catch-all pages.
 
 ---
 
