@@ -70,14 +70,16 @@ Tokens in any `site/*.html` file are substituted at build time and resolved at r
 | `{{SITE_OG}}` | `og` |
 | `{{SITE_ICON}}` | `icon` |
 | `{{SITE_FOOTER}}` | `footer` (supports HTML) |
-| `{{SITE_SCHEMA}}` | JSON-LD block generated from `schemaType` + `sameAs` — empty string if `schemaType` is not set |
+| `{{SITE_SCHEMA}}` | JSON-LD block generated from schema fields in `site.json` — empty string if `schemaType` is not set |
 
 **Schema fields in `site.json`:**
 
 | Field | Type | Description |
 |---|---|---|
 | `schemaType` | string | Schema.org type to inject (e.g. `"MusicGroup"`, `"Person"`, `"Organization"`). Leave empty to disable. |
-| `sameAs` | array | External profile URLs — links your entity to Google's knowledge graph (Spotify, SoundCloud, MusicBrainz, etc.) |
+| `artistName` | string | The entity name emitted as `schema.name`. Separate from `title` so site branding and schema identity can differ. |
+| `sameAs` | array | External profile URLs — links your entity to Google's Knowledge Graph (Spotify, MusicBrainz, Wikipedia, etc.) |
+| `alternateName` | array | Aliases and stage names (e.g. `["DJ Typhoon", "Tony T"]`) — helps Google link searches for all variants to the same entity. |
 | `genre` | array | Genre tags (e.g. `["Electronic", "Trance"]`) — helps Google disambiguate the artist entity. |
 | `foundingLocation` | string | City/region (e.g. `"Minneapolis, Minnesota"`) — serialized as a `Place` object in the schema. |
 | `shortName` | string | Short app name for the PWA manifest homescreen icon (defaults to the first word of `title`). |
@@ -240,7 +242,6 @@ Any tile with a `slug` field gets a static page generated at `dist/tracks/<slug>
 | `{{TRACK_META}}` | `artist · album` |
 | `<!--TRACK_HERO-->` | Full-width hero image (if `image` is set) |
 | `<!--TRACK_PLAYER-->` | Inline audio player (if `audio` is set) |
-| `<!--TRACK_SCRIPTS-->` | Inline player JS extracted from `site/index.html` |
 | `{{TRACK_CONTENT}}` | Rendered markdown from `site/content/tracks/<slug>.md` |
 | `{{TRACK_SCHEMA}}` | `MusicRecording` JSON-LD block |
 

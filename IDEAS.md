@@ -2,13 +2,7 @@
 
 Unordered backlog of future directions. Not commitments — just things worth remembering.
 
----
-
-### Share button
-
-**Shipped:** Share button (↗) in the tile footer on any tile that has a `slug` (audio) or `href` (non-audio). Uses `navigator.share()` on mobile for the native share sheet; falls back to clipboard copy with a ✓ confirmation on desktop. Audio share URL is constructed as `location.href.split('#')[0] + '#' + slug` at click time so it works in any environment.
-
-**Shipped:** Share URL for slug tiles now points to the real track page (`/tracks/slug/`). Slug tiles render as `<div>` with a `MORE →` footer link — the share button is inline after the tile name and the whole-tile `<a>` is gone.
+Shipped items live in [SHIPPED.md](SHIPPED.md).
 
 ---
 
@@ -42,15 +36,9 @@ A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin,
 
 ---
 
-### JSON-LD structured data
-
-**Shipped:** `MusicRecording` JSON-LD injected into every generated track page at build time — title, URL, description, image, `byArtist`, `inAlbum`, `audio`. Requires `url` in `site.json` for fully qualified URLs.
-
----
-
 ### Track schema: genre and BPM fields
 
-The `MusicRecording` schema on track pages is currently missing `genre` and `musicArrangement` / tempo properties. Google uses these for richer track cards in search.
+The `MusicRecording` schema on track pages is currently missing `genre` and tempo properties. Google uses these for richer track cards in search.
 
 **What to add to tile JSON:**
 - `genre` — string (e.g. `"Breaks"`, `"Hip-Hop"`, `"Drum & Bass"`). Already used in tile display; needs to be a first-class field rather than just part of `cat`.
@@ -65,43 +53,13 @@ Note: `tile.cat` currently blends genre with format (e.g. "AUDIO / MP3"). Once `
 
 ---
 
-### Site schema: `alternateName` for artist aliases
+### Portrait tile display
 
-The main page `MusicGroup` (or configured) schema in `build.js` doesn't emit `alternateName`. For a DJ who records under multiple names or whose legal name differs from their stage name, this is a missed Knowledge Graph signal — Google can link search queries for both names to the same entity.
-
-**What to add to `site.json`:**
-```json
-"alternateName": ["Stage Name", "Another Alias"]
-```
-
-**What `build.js` emits:**
-```json
-"alternateName": ["Stage Name", "Another Alias"]
-```
-
-One-liner addition alongside the existing `sameAs` emission. Also worth auditing: the `sameAs` array should include the artist's Spotify artist page, MusicBrainz entry, Wikipedia article, and official social profiles — these are the links that cement the Knowledge Graph connection.
-
----
-
-## Three tile image formats: wide, portrait, square
-
-**Shipped:** `images/wide/`, `images/square/`, `images/portrait/` folder convention. Wide is used for tile display; square is tried first for Media Session artwork, wide as fallback. Same filename across all three.
-
-**Still to do:** portrait tile display — CSS aspect ratio and grid behavior for portrait-oriented images. See ideas above under *Vertical / portrait tile images* (now superseded by this entry).
-
-Three canonical image shapes to design assets for:
-
-| Format | Ratio | Use case |
-|---|---|---|
-| Wide | 1200×630 (current default) | Standard web tile, OG image, desktop-first layouts |
-| Portrait | 9×16 or 3×4 | Mobile-first, full-bleed on single-column |
-| Square | 1×1 (512×512 recommended) | Media Session API lock screen artwork, also works as a tile |
-
-**Square is the immediate need** — Media Session API artwork on iOS/Android needs a square image. Best added as a second output from `convert-tiles.bat` alongside the wide: crop to 512×512, drop in `images/artwork/`, reference via `"artwork": "track.webp"` on the tile.
-
-**Portrait** is the bigger layout project. On desktop, taller tiles break grid rhythm when mixed with wide neighbors — probably `object-fit: cover` + `object-position: top` with `align-self: start`. On mobile it's the natural format — image fills the viewport width, audio player overlay at the bottom if set.
+Wide and square formats are shipped. This is the remaining layout work for portrait-oriented images.
 
 **Implementation idea:** an `imageFormat` field on the tile (`"wide"` default, `"portrait"`, `"square"`). The CSS aspect-ratio and grid behavior switch based on a `data-format` attribute. `object-position` could also be a tile field (`"top"`, `"center"`, `"bottom"`) for fine control over how the subject sits in the crop.
+
+On desktop, taller tiles break grid rhythm when mixed with wide neighbors — probably `object-fit: cover` + `object-position: top` with `align-self: start`. On mobile it's the natural format — image fills the viewport width, audio player overlay at the bottom if set.
 
 ---
 
@@ -264,47 +222,34 @@ A `<!--TILE:identifier-->` tag that renders one specific tile anywhere — insid
 
 ---
 
-## Admin: inline tile preview
+## Admin improvements
+
+### Inline tile preview
 
 Show a small visual preview of the tile card (image, name, status dot) inside the admin tile list row, rather than just text fields. Makes it easier to spot the right tile when you have many.
 
 ---
 
-## Admin: bulk actions
+### Bulk actions
 
 Select multiple tiles via checkboxes and apply an action to all of them at once — hide, show, change section, change status, delete.
 
 ---
 
-## Search / filter in admin
+### Search / filter
 
 A text input in the admin toolbar that filters the tile list by name, description, or domain in real time. Useful once tile count gets large.
 
 ---
 
-
 ## Web platform APIs
-
-### PWA / Web App Manifest
-
-A `manifest.json` file generated at build time from `site.json`. With `"display": "standalone"` the browser chrome disappears — no address bar, no tabs — and the site installs to the homescreen like a native app. iOS/Android both support it. Chrome on desktop does too.
-
-**What build generates:**
-- `dist/manifest.json` — `name`, `short_name`, `description`, `start_url`, `display: "standalone"`, `background_color`, `theme_color`, icons array (pointing at `site.icon` and/or dedicated PWA icon sizes)
-- `<link rel="manifest" href="manifest.json">` injected into `site/index.html` at build time via a `{{SITE_MANIFEST}}` token (or just hardcoded since it's always present)
-
-**What `site.json` needs:** optionally `themeColor` (default `#0d0f12`) and `shortName` (default: first word of `title`). Everything else is already there.
-
-**Install prompt:** Chrome shows an install banner automatically once manifest + HTTPS + service worker are all present. No code needed for the prompt itself.
-
----
 
 ### Service Worker + offline cache
 
 A generated `sw.js` registered on page load. Caches the HTML, CSS, JS, and all tile images on first visit so the site works offline — or on a flaky connection on the way to the gig.
 
 **Two cache strategies:**
-- **Shell (cache-first):** `index.html`, `style.css`, `app.js`, `tiles.json` — always serve from cache, refresh in background
+- **Shell (cache-first):** `index.html`, `style.css`, `player.js`, `tiles.json` — always serve from cache, refresh in background
 - **Audio (network-first with fallback):** audio files are large; try network first, fall back to cached version if offline. Cache on first play.
 
 **What build generates:** `dist/sw.js` with a cache version string derived from the build date. A new build invalidates the old cache automatically.
@@ -318,6 +263,8 @@ A generated `sw.js` registered on page load. Caches the HTML, CSS, JS, and all t
 One call: `navigator.wakeLock.request('screen')` when audio starts, release when it pauses or ends. Prevents the screen from dimming mid-set while the lock screen controls are active. Already have the hooks in `audioPlay()`.
 
 **Implementation:** 3–4 lines in `audioPlay()` and `_aud.onended`. Acquire on play, release on pause/end/tab-hidden. Re-acquire on `visibilitychange` (required by the spec — wake lock is released automatically when tab goes to background).
+
+Note: this is a full-screen video player feature in practice. Audio keeps playing after screen lock via Media Session anyway. Most useful for a future now-playing modal that fills the screen.
 
 ---
 

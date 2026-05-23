@@ -2,6 +2,16 @@
 
 ## 2026-05-23
 
+### Site schema: artistName, alternateName, logo
+
+Three additions to the `MusicGroup` (or configured type) schema generated in `{{SITE_SCHEMA}}`:
+
+- **`artistName`** — new `site.json` field that controls `schema.name` directly. Previously the schema name came from `title` with no way to decouple them. Leave blank to emit an empty name (no silent fallback).
+- **`alternateName`** — array of aliases/stage names. Emits `schema.alternateName` for Knowledge Graph disambiguation.
+- **`logo`** — `site.logo` was already a `site.json` field but was never emitted into the schema. Now maps to `schema.logo` using the same `site.url + '/' + site.logo` pattern as `schema.image`.
+
+---
+
 ### SEO improvements to tile output
 
 Three changes to `buildTile()` in `build.js`:
