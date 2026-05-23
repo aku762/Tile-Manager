@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-05-23
+
+### SEO improvements to tile output
+
+Three changes to `buildTile()` in `build.js`:
+
+- **Image alt text** is now keyword-dense: `"Track Name — Category — Artist"` instead of just the name
+- **Tile name is now a crawlable link** for audio tiles (`<a class="tile-name-link">`) — gives search engines the actual track title as anchor text pointing to the track page. Styled to look like plain text (no underline until hover). Doesn't apply to no-audio tiles whose whole tile is already an `<a>`.
+- **MORE link gets a `title` attribute** with the track title for additional context
+
+---
+
 ## 2026-05-22
 
 ### SPA navigation extended to track pages

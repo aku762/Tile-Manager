@@ -45,8 +45,9 @@ function buildTile(tile, statusMap) {
     const audioBar = tile.audio
         ? `<div class="tile-audio${showImg ? ' tile-audio-overlay' : ''}" data-src="${attr(tile.audio)}" data-name="${attr(tile.name)}" data-track="${attr(tile.track || '')}" data-slug="${attr(tile.slug || '')}" data-artist="${attr(tile.artist || '')}" data-album="${attr(tile.album || '')}" data-image="${attr(tile.image || '')}"><button class="audio-btn" onclick="audioPlay(this)">▶</button><div class="audio-bar" onclick="audioSeek(event,this)"><div class="audio-prog"></div></div><span class="audio-time">0:00</span></div>`
         : '';
+    const imgAlt = attr([tile.track || tile.name, tile.cat, tile.artist].filter(Boolean).join(' — '));
     const imgWrap = showImg
-        ? `\n            <div class="tile-img-wrap${tile.audio ? ' tile-img-audio' : ''}"${tile.audio ? ' onclick="audioImgPlay(event,this)"' : ''}>${tile.image ? `<img src="images/wide/${attr(tile.image)}" alt="${attr(tile.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}${audioBar}</div>`
+        ? `\n            <div class="tile-img-wrap${tile.audio ? ' tile-img-audio' : ''}"${tile.audio ? ' onclick="audioImgPlay(event,this)"' : ''}>${tile.image ? `<img src="images/wide/${attr(tile.image)}" alt="${imgAlt}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}${audioBar}</div>`
         : '';
 
     const favicon = tile.domain
@@ -57,18 +58,25 @@ function buildTile(tile, statusMap) {
         ? `<button class="share-btn" data-slug="${attr(tile.slug)}" data-title="${attr(tile.track || tile.name)}" onclick="event.stopPropagation();shareTrack(this)">↗</button>`
         : '';
 
+    const trackLabel = attr(tile.track || tile.name);
     const domainSlot = tile.slug
         ? hasAudio
-            ? `<a class="tile-more" href="tracks/${attr(tile.slug)}/">${tile.domain || 'MORE'} →</a>`
+            ? `<a class="tile-more" href="tracks/${attr(tile.slug)}/" title="${trackLabel}">${tile.domain || 'MORE'} →</a>`
             : `<span class="tile-more">${tile.domain || 'MORE'} →</span>`
         : `<div class="tile-domain">${tile.domain || ''}</div>`;
+
+    // For audio+slug tiles the tile tag is a <div>, so we can safely add a name link
+    // without creating nested anchors (slugNoAudio tiles ARE the <a> already)
+    const nameText = (hasAudio && tile.slug)
+        ? `<a class="tile-name-link" href="tracks/${attr(tile.slug)}/">${text(tile.track || tile.name)}</a>`
+        : text(tile.name);
 
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
 
     return `
         <${tag} class="${tileClass}" data-status="${attr(tile.status)}"${link}>${imgWrap}${!showImg && audioBar ? `\n            ${audioBar}` : ''}
             <div class="tile-cat">${tile.cat}</div>
-            <div class="tile-name">${favicon}${text(tile.name)}${shareBtn}</div>
+            <div class="tile-name">${favicon}${nameText}${shareBtn}</div>
             <div class="tile-desc">${tile.desc}</div>
             <div class="tile-footer">
                 <div class="status">
