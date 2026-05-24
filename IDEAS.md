@@ -21,6 +21,34 @@ Option 1 + 2 together is the right fix. `navigate()` already has access to the c
 
 ---
 
+### Player bar goes dead after track ends on a track page
+
+On the home page, when a track ends `_audioGetAdjacent(1)` finds the next `.tile-audio` in the DOM and auto-advances. On a track page there's typically only one `.tile-audio` — no next track exists, so `_aud`, `_audBtn`, and `_audWrap` are all nulled out. The player bar stays visible but clicking play does nothing because the player has forgotten what it was playing.
+
+**Fix:** when a track ends with no next track, don't fully null out state. Keep enough metadata to restart — either hold `_audWrap` and just set `_aud = null`, or store the last-played src/metadata separately. Clicking the bar's play button should restart the last track from the beginning, not silently fail.
+
+---
+
+### Track page player out of sync with currently-playing bar
+
+Two related sub-issues that stem from the same root cause: `navigate()` nulls `_audWrap` and `_audBtn` on every page swap, losing the link between the playing audio and any tile element in the new DOM.
+
+**Sub-issue A — navigate to a track page while its track is already playing:**
+Start playing a track from a home page tile. SPA-navigate to that track's detail page (click MORE). The track page has its own `.tile-audio` for the same audio src, but `_audWrap` was cleared during the swap. The track page player shows ▶ (not playing) while the bar shows ⏸ (playing). Clicking the track page play button starts a second `Audio` object for the same src — two streams playing simultaneously.
+
+**Sub-issue B — start playing from the track page, then navigate back:**
+Start a track on the track page, navigate back to the home page. The home page tile for that track also shows ▶ while the bar shows ⏸. Same desync in reverse.
+
+**Root cause:** the DOM reference (`_audWrap`) is page-specific. When the DOM swaps, the reference is dead.
+
+**Fix approach:** after every `navigate()` DOM swap, scan the new `#main` for a `.tile-audio` whose `data-src` matches `_aud.src` (if audio is currently playing). If found, re-attach `_audWrap` and `_audBtn` to those elements and update their button text to `⏸`. This "rehydrates" the player state into the new page's DOM without restarting audio.
+
+This is achievable but requires that `_aud.src` is comparable to `data-src` values — relative paths vs absolute URLs may need normalization (e.g. `new URL(src, location.origin).href` on both sides).
+
+**The harder variant — cross-page adjacency:** once `_audWrap` is rehydrated, `_audioGetAdjacent` works again and auto-advance picks up from the new page's tile list. This means "what plays next" changes depending on which page you're on when a track ends. That may or may not be desirable — on a track detail page with one tile, you'd want it to stop rather than suddenly advance into a different page's queue.
+
+---
+
 ### Section ID collision breaks tile assignments on new section
 
 Section IDs are sequential integers reassigned on every export based on array position. Adding a new section in the middle of the list shifts all IDs below it — any tiles already assigned to those sections silently move to the wrong section.
