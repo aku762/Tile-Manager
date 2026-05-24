@@ -6,6 +6,36 @@ Shipped items live in [SHIPPED.md](SHIPPED.md).
 
 ---
 
+## Bugs / Issues
+
+### Track page back link always goes to index
+
+The `← Site Name` link in `track.html` is hardcoded to `href="/"`. If the user navigated from `/mixes.html` and clicked MORE, the back link should return them to `/mixes.html`, not the homepage.
+
+**Fix options:**
+1. **SPA-side patch** — in `navigate()`, after swapping `#main`, find `.track-back` in the new content and update its `href` to the URL that was current before the pushState. Works perfectly for SPA navigations. Store the pre-navigation URL in a variable before calling `pushState`.
+2. **Direct-load fallback** — for hard-loaded track pages, check `document.referrer`. If it's same-origin, use it; otherwise fall back to `/`. Combined with option 1, this covers both entry paths.
+3. **`history.back()`** — simplest for SPA case, but breaks on direct loads and doesn't let the browser show a meaningful destination in the status bar on hover.
+
+Option 1 + 2 together is the right fix. `navigate()` already has access to the current URL before pushing state — it just needs to write it to the back link's `href` after the DOM swap.
+
+---
+
+### Section ID collision breaks tile assignments on new section
+
+Section IDs are sequential integers reassigned on every export based on array position. Adding a new section in the middle of the list shifts all IDs below it — any tiles already assigned to those sections silently move to the wrong section.
+
+**Root cause:** ID encodes order. Array position in `tiles.json` already determines display order, so IDs shouldn't need to.
+
+**Fix:**
+1. **Stable section IDs** — same fix needed for tiles (see [[Single tile tag + stable tile IDs]]). IDs should be assigned once at creation and never reassigned. New sections get a timestamp-based or user-defined ID. Display order comes from array position, not ID value.
+2. **`order` field** — explicit integer for controlling display order, independent of ID. Lets IDs be arbitrary stable strings.
+3. **Accept section name in tile `section` field** — tiles currently reference sections by ID string. Also accepting the section's `title` as a lookup value would let you write `"section": "TRACKS"` instead of `"section": "3"`, which survives any ID renumbering. Case-insensitive match, ID takes priority if both match.
+
+The stable ID fix is the real solution — once IDs are stable, the name-lookup is a convenience rather than a workaround.
+
+---
+
 ### Albums
 
 A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin, modeled after the Sections tab.
