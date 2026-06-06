@@ -6,7 +6,77 @@ Shipped items live in [SHIPPED.md](SHIPPED.md).
 
 ---
 
-## Bugs / Issues
+## Tile types
+
+### First-class tile `type` field + type-driven admin modal
+
+Right now a tile's behavior is inferred from which fields are present — audio field → player, href field → link, slug → track page. This works but breaks down as soon as a tile needs to combine behaviors (e.g. a track that's also for sale) or when a new behavior needs its own display mode. A `type` field makes the intent explicit and drives both rendering and the admin form.
+
+**Proposed types:**
+
+| Type | Behavior | Key fields |
+|---|---|---|
+| `link` | Whole tile is `<a>`, opens URL | `href` |
+| `audio` | Inline player, no track page | `audio`, `artist`, `album` |
+| `track` | Audio + slug → generates `/tracks/slug/` detail page | `audio`, `slug`, `artist`, `album` |
+| `buy` | Price display + PayPal buy/cart button | `price`, `currency`, `paypalId` or `paypalUrl` |
+| `info` | Display only, no interaction (default) | — |
+
+Types are not mutually exclusive at the data level — you could have `type: "buy"` on a tile that also has an `audio` field (a preview clip + buy button). The type controls the **primary rendering mode**, not which fields are stored.
+
+**Admin modal — type selector:**
+
+A dropdown or radio group at the top of the add/edit modal. Selecting a type shows/hides field groups below:
+
+- **All types:** section, cat, name, desc, status, image, showImage, expand
+- **`link`:** domain, href
+- **`audio` / `track`:** audio file, track title, artist, album; `track` also shows slug
+- **`buy`:** price, currency, PayPal fields (see below)
+
+Switching type collapses irrelevant groups but preserves the data — changing from `track` back to `audio` doesn't wipe the slug, it just stops rendering it. This avoids accidental data loss when experimenting.
+
+**Backwards compatibility:** tiles with no `type` field keep rendering exactly as today (inferred from fields present). The type field is additive — existing `tiles.json` files don't break.
+
+---
+
+### Buy / for-sale tiles (PayPal integration)
+
+Needed for vibezisland.store and any tile-manager site selling physical or digital goods. The tile renders a price and a payment button instead of (or alongside) a play button.
+
+**Data fields on the tile:**
+```json
+{
+  "type": "buy",
+  "price": "24.99",
+  "currency": "USD",
+  "paypalId": "ABCDEF123",
+  "buyMode": "buynow"
+}
+```
+
+- `price` / `currency` — display only; PayPal button handles the actual amount
+- `paypalId` — the hosted button ID from PayPal's button generator (simplest integration, no SDK)
+- `buyMode` — `"buynow"` (direct checkout) or `"cart"` (add to cart, keep browsing)
+
+**Two integration approaches:**
+
+1. **Hosted buttons (simplest)** — generate buttons in PayPal's dashboard, copy the button ID. Build renders a standard PayPal form that POSTs to `paypal.com/cgi-bin/webscr`. No JS SDK, no client-side code, works everywhere. Drawback: old API, button style is whatever PayPal provides.
+
+2. **PayPal JS SDK (modern)** — load `sdk.js?client-id=...` in the page, render Smart Payment Buttons into a `<div>`. Better UX (in-page checkout flow), customizable appearance. Requires a `client-id` in `site.json` and a small JS snippet per tile. More setup but more control.
+
+**Recommended path:** start with hosted buttons — zero config beyond a PayPal account and the button ID. If the UX needs improvement, layer in the SDK later. Both can coexist on the same page.
+
+**Admin fields for buy tiles:**
+- Price (text, display only — e.g. `"$24.99"`)
+- PayPal Button ID (text — from PayPal's My Saved Buttons)
+- Mode: Buy Now / Add to Cart (radio)
+
+**`site.json` additions:**
+- `paypalEmail` or `paypalClientId` — site-level PayPal identity so individual tiles don't each need to embed credentials
+
+**Build output:** a PayPal form rendered inside the tile instead of (or below) the audio player. CSS class `tile-buy` for styling the price display and button area.
+
+---
 
 ### Track page back link always goes to index
 
