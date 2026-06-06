@@ -6,6 +6,38 @@ Shipped items live in [SHIPPED.md](SHIPPED.md).
 
 ---
 
+## Smart URL enrichment (admin auto-fill from links)
+
+Paste a URL into the admin tile modal and have it auto-populate the form. The domain determines which enrichment path runs. This eliminates manual copy-paste of titles, prices, images, and metadata when adding tiles for items you're selling or tracks you're referencing.
+
+**How it works in the admin:**
+A URL field sits at the top of the add tile modal. On paste (or a "Fetch" button), the admin detects the domain and calls the appropriate handler. Matched fields fill in below; unmatched fields stay blank for manual entry. The URL is saved to `tile.href` as usual.
+
+**Discogs** — clean API, no proxy needed:
+- Parse release ID from `discogs.com/release/12345-...` or `discogs.com/master/12345`
+- `GET api.discogs.com/releases/{id}` with a `User-Agent` header — works directly from the browser
+- Fills: name (title), artist, cat (label/genre), desc (tracklist or notes), image (cover)
+- Returns genre, style, year, tracklist, label — more than enough to populate a tile
+- Rate limit: 60/min unauthenticated, higher with a Discogs personal token stored in admin settings
+
+**eBay** — requires a proxy for auth:
+- Parse item ID from `ebay.com/itm/123456789`
+- eBay Browse API requires OAuth — client secret can't be in the browser
+- Solution: a Cloudflare Worker holds the eBay app credentials, receives `?itemId=...`, returns sanitized tile data
+- Fills: name (listing title), price, image (first listing photo), desc (item condition/specifics)
+- The same Worker pattern already planned for the GitHub push feature (see [[Export direct to GitHub repo]])
+
+**Other platforms worth adding:**
+- **Bandcamp** — no official API, but their page embeds JSON-LD (`MusicAlbum` / `MusicRecording`) that can be scraped client-side via a CORS proxy or Worker
+- **Spotify** — public API with client credentials flow; could fill artist/album/track metadata for reference tiles. Same proxy pattern as eBay.
+- **Generic oEmbed** — many platforms (YouTube, SoundCloud, Vimeo) support the oEmbed standard at a predictable endpoint. A single fallback handler covers all of them for title + thumbnail.
+
+**Fallback:** if no enrichment handler matches the domain, just pre-fill `href` and extract the domain for the `domain` field. User fills the rest manually as today.
+
+**Admin settings:** a small "Integrations" panel in the admin where you can save a Discogs personal token and any API keys. Stored in localStorage alongside the existing admin state.
+
+---
+
 ## Tile types
 
 ### First-class tile `type` field + type-driven admin modal
