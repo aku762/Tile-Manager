@@ -18,7 +18,7 @@ The music features (track pages, MusicGroup/MusicRecording schema, Media Session
 |---|---|
 | DJ / producer | Track pages, audio player, MusicGroup schema, Media Session, lock screen art |
 | Band / label | Same as above + Albums, MusicAlbum schema |
-| Record store / seller | Buy tiles, Discogs enrichment, eBay enrichment, for-sale catalog |
+| General resale (vibezisland.store) | eBay link tiles → PayPal buy tiles, eBay URL enrichment, sold/available status |
 | Podcast | Audio tiles (no track pages needed), episode slugs for SEO |
 | General store | Buy tiles, PayPal, image tiles, link tiles |
 | Portfolio / links page | Link tiles, story tiles, section layout |
