@@ -8,7 +8,7 @@
   <img src="site/images/logo.png" alt="Tile Manager" height="160">
 </p>
 
-A JSON-driven static homepage generator. Edit tiles in a drag-and-drop admin panel, export `tiles.json`, and deploy a pre-rendered site to Cloudflare Pages in one build step.
+A JSON-driven static catalog builder. Manage tiles — tracks, products, links, posts, events — in a drag-and-drop admin panel, export `tiles.json`, and deploy a pre-rendered site to Cloudflare Pages in one build step. Music-first but domain-agnostic: audio players, track pages, and Schema.org structured data are opt-in features layered on the same tile pipeline.
 
 ## How it works
 

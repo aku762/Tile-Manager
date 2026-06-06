@@ -6,6 +6,30 @@ Shipped items live in [SHIPPED.md](SHIPPED.md).
 
 ---
 
+## Project direction — Catalog Manager
+
+The project is evolving toward something best described as a **catalog manager**: a tool for publishing any kind of organized collection as a static site. The name "tile-manager" describes the implementation; "Catalog Manager" describes what it's actually for.
+
+The music features (track pages, MusicGroup/MusicRecording schema, Media Session API, lock screen artwork, BPM/genre fields) are the most developed expression of the system — but they're all additive. A site that doesn't use them ignores them. The underlying tile → section → build pipeline is already domain-agnostic.
+
+**Use cases the system already handles or is heading toward:**
+
+| Site type | Relevant features |
+|---|---|
+| DJ / producer | Track pages, audio player, MusicGroup schema, Media Session, lock screen art |
+| Band / label | Same as above + Albums, MusicAlbum schema |
+| Record store / seller | Buy tiles, Discogs enrichment, eBay enrichment, for-sale catalog |
+| Podcast | Audio tiles (no track pages needed), episode slugs for SEO |
+| General store | Buy tiles, PayPal, image tiles, link tiles |
+| Portfolio / links page | Link tiles, story tiles, section layout |
+| Event / show calendar | Story tiles, date fields, slug pages |
+
+**Design principle going forward:** music-specific features are opt-in via configuration (`schemaType`, `type: "track"`, etc.). A non-music site never sees them if it doesn't use them. The admin should eventually reflect this — onboarding asks what kind of site you're building and surfaces the relevant field groups.
+
+**The tile type system** (see [[Tile types]]) is the key enabler of this. Once `type` is a first-class field, any combination of content — audio, video, product, post, link — is expressible without special-casing in the build. The catalog is whatever you put in it.
+
+---
+
 ## Smart URL enrichment (admin auto-fill from links)
 
 Paste a URL into the admin tile modal and have it auto-populate the form. The domain determines which enrichment path runs. This eliminates manual copy-paste of titles, prices, images, and metadata when adding tiles for items you're selling or tracks you're referencing.
