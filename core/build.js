@@ -658,6 +658,9 @@ for (const file of htmlFiles) {
 
 // ── Copy assets ──────────────────────────────────────────────────────────
 fs.copyFileSync(path.join(SITE, 'style.css'),  path.join(DIST, 'style.css'));
+for (const f of fs.readdirSync(SITE).filter(f => f.endsWith('.css') && f !== 'style.css')) {
+    fs.copyFileSync(path.join(SITE, f), path.join(DIST, f));
+}
 fs.copyFileSync(path.join(SITE, 'player.js'),  path.join(DIST, 'player.js'));
 fs.copyFileSync(path.join(SITE, 'tiles.json'), path.join(DIST, 'tiles.json'));
 const siteImages = path.join(SITE, 'images');
