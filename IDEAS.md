@@ -30,6 +30,96 @@ The music features (track pages, MusicGroup/MusicRecording schema, Media Session
 
 ---
 
+## ⚡ Architectural direction — catalog.json separates music from tiles
+
+**This is the foundational next step. Everything music-related should be built against this model, not the current one.**
+
+### The root problem
+
+Tiles and tracks got conflated from the start. A tile is a display unit — section, category, name, description, image, status, link. A track is a catalog entry — audio file, slug, artist, album, genre, BPM, schema data, media session metadata. Right now a tile does both jobs, and every music-related problem in the system flows from that:
+
+- The admin tile modal is bloated with fields irrelevant to non-music tiles
+- The playlist is DOM-driven (walks `.tile-audio` elements on the page) so it breaks on navigation
+- Track pages are generated from tiles, meaning every track that needs a page needs a tile
+- Schema fields (`artist`, `album`, `genre`, `bpm`) live on the wrong object
+- A DJ mix tracklist of 40 songs would require 40 tiles — most of which shouldn't be tiles at all
+- Non-music sites using tile-manager have tiles polluted with music fields that mean nothing for them
+
+### The fix: catalog.json
+
+Split into two separate files with one optional connection between them:
+
+```
+catalog.json  ←  all audio/track data
+tiles.json    ←  all display/layout data (tiles stay simple)
+```
+
+**`catalog.json` schema:**
+```json
+{
+  "tracks": [
+    {
+      "id": "track-001",
+      "slug": "gustavus-adolphus-live",
+      "title": "Live at Gustavus Adolphus",
+      "artist": "DJ Typhoon",
+      "album": "Live Sets",
+      "genre": "Breaks",
+      "bpm": 132,
+      "audio": "audio/gustavus-live.mp3",
+      "image": "gustavus-live.webp",
+      "desc": "Live set recorded at Gustavus Adolphus College.",
+      "visible": true
+    }
+  ]
+}
+```
+
+**Tile with catalog reference:**
+```json
+{
+  "id": "123",
+  "section": "2",
+  "cat": "LIVE SET",
+  "name": "Live at Gustavus Adolphus",
+  "desc": "...",
+  "status": "active",
+  "showImage": true,
+  "image": "gustavus-live.webp",
+  "catalogRef": "track-001"
+}
+```
+
+A tile with `catalogRef` gets a play button. The audio data, schema, and track page all come from the catalog entry. A catalog entry with no tile still gets a track page and appears in the global playlist — it just has no tile on the front page.
+
+### What this fixes
+
+- **Global playlist** — built from `catalog.json` track order, completely independent of DOM and page navigation. Auto-advance, looping, and prev/next all work correctly across page changes.
+- **Track pages** — generated from catalog entries, not tiles. A 40-song mix tracklist gets 40 track pages with zero tiles.
+- **Tile modal** — loses every music field (`audio`, `track`, `artist`, `album`, `slug`). Gains one optional "Catalog item" dropdown. Non-music sites never see music fields.
+- **Schema** — `MusicRecording` JSON-LD generated from catalog entries directly, where the data actually lives.
+- **Non-music sites** — no `catalog.json` means zero music overhead, completely clean tiles.
+- **Player simplification** — tiles no longer need inline progress bars or timestamps. A tile play button just says "start this catalog entry." The bottom bar is the only real player. Per-tile scrubbers go away.
+
+### What the admin gains
+
+A **Catalog tab** — separate from Tiles. Add/edit/delete catalog entries: title, artist, album, genre, BPM, audio file, image, slug, description. The same drag-to-reorder interface as Tiles. This is also where track page generation is controlled.
+
+The tile modal's media section collapses to a single "Catalog item" dropdown populated from catalog entries.
+
+### Migration path for existing music sites
+
+Existing tiles with `audio`, `artist`, `album`, `slug` fields need their music data moved to `catalog.json` entries. The migration is a one-time export transform: for each tile with an `audio` field, create a catalog entry and replace the tile's audio fields with a `catalogRef`. The admin could offer a "Migrate to catalog" button that does this automatically.
+
+### Relationship to other ideas
+
+- **[[Tile types]]** — `type` field still makes sense on tiles for buy/link/story/info rendering. Music tiles become `type: "audio"` with a `catalogRef` rather than inline audio data.
+- **[[Albums]]** — albums belong in `catalog.json` alongside tracks, not in `tiles.json`.
+- **[[Track schema: genre and BPM fields]]** — these fields now live on catalog entries, not tiles. The admin modal for this is the Catalog tab, not the tile modal.
+- **[[Player bar goes dead]]** and **[[Track page player out of sync]]** bugs — both are fixed naturally by the data-driven playlist. The player reads catalog order, not DOM order.
+
+---
+
 ## Smart URL enrichment (admin auto-fill from links)
 
 Paste a URL into the admin tile modal and have it auto-populate the form. The domain determines which enrichment path runs. This eliminates manual copy-paste of titles, prices, images, and metadata when adding tiles for items you're selling or tracks you're referencing.
