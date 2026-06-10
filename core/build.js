@@ -22,8 +22,9 @@ function text(val) {
 }
 
 function tileHref(tile) {
-    if (!tile.slug) return null;
-    if (tile.type === 'buy')  return `buy/${tile.slug}/`;
+    if (tile._paypalHref)    return tile._paypalHref;
+    if (!tile.slug)          return null;
+    if (tile.type === 'buy') return `buy/${tile.slug}/`;
     if (tile.type === 'info') return `${tile.slug}/`;
     return `tracks/${tile.slug}/`;
 }
@@ -44,7 +45,7 @@ function buildTile(tile, statusMap) {
 
     const tag  = (isExternal || slugNoAudio || (isCatalog && tile.href)) ? 'a' : 'div';
     const link = slugNoAudio
-        ? ` href="${attr(slugHref)}"`
+        ? ` href="${attr(slugHref)}"${tile._paypalHref ? ' target="_blank" rel="noopener"' : ''}`
         : isCatalog && tile.href
         ? ` href="${attr(tile.href)}"`
         : isExternal
@@ -86,7 +87,7 @@ function buildTile(tile, statusMap) {
         : text(tile.name);
 
     const priceSlot = (tile.type === 'buy' && tile.price)
-        ? `<div class="tile-buy-btn">${text(tile.price)}</div>`
+        ? `<div class="tile-buy-btn">BUY NOW ${text(tile.price)}</div>`
         : '';
 
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
@@ -626,6 +627,17 @@ const jingleById = {};
 const jinglesArr = (playlistsData && Array.isArray(playlistsData.jingles)) ? playlistsData.jingles : [];
 for (const j of jinglesArr) {
     if (j.id) jingleById[j.id] = j;
+}
+
+// Stamp PayPal checkout URLs onto buy tiles so the tile links direct to PayPal
+if (site.paypalEmail) {
+    for (const tile of (data.tiles || [])) {
+        if (tile.type !== 'buy' || !tile.price) continue;
+        const amount = tile.price.replace(/[^0-9.]/g, '');
+        if (!amount) continue;
+        const qs = `cmd=_xclick&business=${encodeURIComponent(site.paypalEmail)}&item_name=${encodeURIComponent(tile.name || '')}&amount=${encodeURIComponent(amount)}&currency_code=USD&no_shipping=2`;
+        tile._paypalHref = `https://www.paypal.com/cgi-bin/webscr?${qs}`;
+    }
 }
 
 // Build catalog lookup keyed by slug
