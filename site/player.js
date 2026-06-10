@@ -45,9 +45,8 @@ function _playerBarShow(track) {
     if (imgEl)  imgEl.classList.toggle('player-img-linked', linked);
     if (info)  info.classList.toggle('player-info-linked', linked);
 
-    // Read _siteRoot at click time — not at setup time — so SPA navigation doesn't stale the base path
-    if (imgEl)  imgEl.onclick  = linked ? () => navigate((window._siteRoot || '') + 'tracks/' + slug + '/') : null;
-    if (info)  info.onclick   = linked ? () => navigate((window._siteRoot || '') + 'tracks/' + slug + '/') : null;
+    if (imgEl)  imgEl.onclick  = linked ? () => navigate('/tracks/' + slug + '/') : null;
+    if (info)  info.onclick   = linked ? () => navigate('/tracks/' + slug + '/') : null;
 }
 
 function playerToggle() {
