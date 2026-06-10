@@ -639,13 +639,22 @@ body {
     border-color: rgba(57,255,132,0.7);
 }
 
-/* ── BUY TILE PRICE ── */
-.tile-price {
-    font-size: 0.68rem;
+/* ── BUY TILE BUTTON ── */
+.tile-buy-btn {
+    font-size: 0.62rem;
     font-weight: 700;
-    color: rgba(57,255,132,0.85);
     letter-spacing: 0.08em;
     white-space: nowrap;
+    color: rgba(57,255,132,0.95);
+    background: rgba(57,255,132,0.1);
+    border: 1px solid rgba(57,255,132,0.3);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+}
+
+.tile:hover .tile-buy-btn {
+    background: rgba(57,255,132,0.18);
+    border-color: rgba(57,255,132,0.55);
 }
 
 /* hidden tiles when filtered */

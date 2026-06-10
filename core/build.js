@@ -86,7 +86,7 @@ function buildTile(tile, statusMap) {
         : text(tile.name);
 
     const priceSlot = (tile.type === 'buy' && tile.price)
-        ? `<div class="tile-price">${text(tile.price)}</div>`
+        ? `<div class="tile-buy-btn">${text(tile.price)}</div>`
         : '';
 
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
