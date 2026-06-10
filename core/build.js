@@ -487,21 +487,13 @@ function buildBuyPages(data, site, catalogScript) {
         if (galleryPaths.length === 1) {
             heroHtml = `<div class="track-hero"><img src="${galleryPaths[0]}" alt="${attr(tile.name || '')}" decoding="async"></div>`;
         } else if (galleryPaths.length > 1) {
-            const imgList = JSON.stringify(galleryPaths);
-            heroHtml = `<div class="buy-gallery" id="buy-gallery">` +
+            const imgList = JSON.stringify(galleryPaths).replace(/'/g, '&#39;');
+            heroHtml = `<div class="buy-gallery" id="buy-gallery" data-images='${imgList}'>` +
                 `<img id="buy-gallery-img" src="${galleryPaths[0]}" alt="${attr(tile.name || '')}" decoding="async">` +
                 `<button class="buy-gallery-btn buy-gallery-prev" aria-label="Previous">&#8249;</button>` +
                 `<button class="buy-gallery-btn buy-gallery-next" aria-label="Next">&#8250;</button>` +
                 `<div class="buy-gallery-count">1 / ${galleryPaths.length}</div>` +
-                `</div>` +
-                `<script>(function(){var imgs=${imgList},i=0,el=document.getElementById('buy-gallery-img'),ct=document.querySelector('.buy-gallery-count');` +
-                `function show(n){i=(n+imgs.length)%imgs.length;el.src=imgs[i];if(ct)ct.textContent=(i+1)+' / '+imgs.length;}` +
-                `document.querySelector('.buy-gallery-prev').onclick=function(){show(i-1);};` +
-                `document.querySelector('.buy-gallery-next').onclick=function(){show(i+1);};` +
-                `var tx=0,g=document.getElementById('buy-gallery');` +
-                `g.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});` +
-                `g.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)show(dx<0?i+1:i-1);},{passive:true});` +
-                `})();<\/script>`;
+                `</div>`;
         }
         tmpl = tmpl.replace('<!--BUY_HERO-->', heroHtml);
 

@@ -358,6 +358,7 @@ async function navigate(href, push) {
             try { a.toggleAttribute('aria-current', new URL(a.href, location.origin).pathname === dest); } catch {}
         });
         initDurations();
+        initBuyGallery();
     } catch {
         location.href = href;
     }
@@ -400,6 +401,32 @@ function initAutoPlay() {
     if (tracks && tracks.length) setTimeout(() => playCatalogTrack(tracks[0]), 600);
 }
 
+function initBuyGallery() {
+    const g = document.getElementById('buy-gallery');
+    if (!g) return;
+    const imgs = JSON.parse(g.dataset.images || '[]');
+    if (imgs.length < 2) return;
+    let i = 0;
+    const el = g.querySelector('img');
+    const ct = g.querySelector('.buy-gallery-count');
+    function show(n) {
+        i = (n + imgs.length) % imgs.length;
+        el.src = imgs[i];
+        if (ct) ct.textContent = (i + 1) + ' / ' + imgs.length;
+    }
+    const prev = g.querySelector('.buy-gallery-prev');
+    const next = g.querySelector('.buy-gallery-next');
+    if (prev) prev.onclick = function() { show(i - 1); };
+    if (next) next.onclick = function() { show(i + 1); };
+    let tx = 0;
+    g.addEventListener('touchstart', function(e) { tx = e.touches[0].clientX; }, { passive: true });
+    g.addEventListener('touchend', function(e) {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 40) show(dx < 0 ? i + 1 : i - 1);
+    }, { passive: true });
+}
+
 initHashRouting();
 initDurations();
 initAutoPlay();
+initBuyGallery();
