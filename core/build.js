@@ -22,7 +22,6 @@ function text(val) {
 }
 
 function tileHref(tile) {
-    if (tile._paypalHref)    return tile._paypalHref;
     if (!tile.slug)          return null;
     if (tile.type === 'buy') return `buy/${tile.slug}/`;
     if (tile.type === 'info') return `${tile.slug}/`;
@@ -45,7 +44,7 @@ function buildTile(tile, statusMap) {
 
     const tag  = (isExternal || slugNoAudio || (isCatalog && tile.href)) ? 'a' : 'div';
     const link = slugNoAudio
-        ? ` href="${attr(slugHref)}"${tile._paypalHref ? ' target="_blank" rel="noopener"' : ''}`
+        ? ` href="${attr(slugHref)}"`
         : isCatalog && tile.href
         ? ` href="${attr(tile.href)}"`
         : isExternal
@@ -87,7 +86,9 @@ function buildTile(tile, statusMap) {
         : text(tile.name);
 
     const priceSlot = (tile.type === 'buy' && tile.price)
-        ? `<div class="tile-buy-btn">BUY NOW ${text(tile.price)}</div>`
+        ? tile._paypalHref
+            ? `<div class="tile-buy-btn" onclick="event.preventDefault();event.stopPropagation();window.open('${attr(tile._paypalHref)}','_blank')">BUY NOW ${text(tile.price)}</div>`
+            : `<div class="tile-buy-btn">BUY NOW ${text(tile.price)}</div>`
         : '';
 
     const tileClass = `tile${!tile.showImage && !tile.expand ? ' tile-compact' : ''}${tile.expand ? ' tile-expand' : ''}`;
