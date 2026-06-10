@@ -408,9 +408,11 @@ A `<!--TILE:identifier-->` tag that renders one specific tile anywhere — insid
 
 ## Admin improvements
 
-### Inline tile preview
+### Inline tile preview / card grid view
 
-Show a small visual preview of the tile card (image, name, status dot) inside the admin tile list row, rather than just text fields. Makes it easier to spot the right tile when you have many.
+A toggle in the admin between the current drag-to-reorder list view and a card grid that renders tiles the way they appear on the site. Makes it easy to check layout, image cropping, and text without building and opening a browser tab. Also useful as a simpler "list row enhancement" — just image thumbnail + name + status dot in each row as a lighter version of the same idea.
+
+**Note on app.js:** the local preview hydration approach (`app.js` + Live Server on `site/`) is deliberately not being extended. The build is fast enough (seconds) that `npm run build` + previewing `dist/` is the better local workflow. New features only need to be implemented once in `build.js`. The admin card view below is the replacement for "see what your tiles look like" without a full preview.
 
 ---
 
