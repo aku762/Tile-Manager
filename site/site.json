@@ -14,5 +14,8 @@
   "genre": [],
   "foundingLocation": "",
   "shortName": "",
-  "themeColor": "#0d0f12"
+  "themeColor": "#0d0f12",
+  "player": {
+    "autoShow": false
+  }
 }

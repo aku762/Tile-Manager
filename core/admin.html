@@ -22,6 +22,7 @@
     <button id="tab-tiles-btn"    class="tab-btn active" onclick="showTab('tiles')">TILES</button>
     <button id="tab-sections-btn" class="tab-btn"        onclick="showTab('sections')">SECTIONS</button>
     <button id="tab-statuses-btn" class="tab-btn"        onclick="showTab('statuses')">STATUSES</button>
+    <button id="tab-catalog-btn"  class="tab-btn"        onclick="showTab('catalog')">CATALOG</button>
 </div>
 
 <!-- ── TILES PANEL ── -->
@@ -71,6 +72,110 @@
     <div id="statuses-list"></div>
 </div>
 
+<!-- ── CATALOG PANEL ── -->
+<div id="tab-catalog" class="tab-panel hidden">
+    <div class="catalog-sub-nav">
+        <button id="catalog-sub-playlists-btn" class="tab-btn active" onclick="showCatalogSubTab('playlists')">PLAYLISTS</button>
+        <button id="catalog-sub-jingles-btn"   class="tab-btn"        onclick="showCatalogSubTab('jingles')">JINGLES</button>
+        <button id="catalog-sub-tracks-btn"    class="tab-btn"        onclick="showCatalogSubTab('tracks')">TRACKS</button>
+        <button id="catalog-sub-releases-btn"  class="tab-btn"        onclick="showCatalogSubTab('releases')">RELEASES</button>
+        <button id="catalog-sub-labels-btn"    class="tab-btn"        onclick="showCatalogSubTab('labels')">LABELS</button>
+        <button id="catalog-sub-artists-btn"   class="tab-btn"        onclick="showCatalogSubTab('artists')">ARTISTS</button>
+    </div>
+    <div id="catalog-sub-tracks" class="catalog-sub-panel hidden">
+        <div class="toolbar">
+            <button class="btn btn-add"    onclick="openCatalogTrackModal(null)">+ ADD TRACK</button>
+            <button class="btn btn-import" onclick="importCatalog()">IMPORT CATALOG</button>
+            <button class="btn btn-export" onclick="exportCatalog()">EXPORT CATALOG</button>
+            <button class="btn btn-copy"   onclick="copyCatalog()">COPY CATALOG</button>
+        </div>
+        <table id="catalog-tracks-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>TITLE</th>
+                    <th>ARTIST</th>
+                    <th>ALBUM</th>
+                    <th>CAT</th>
+                    <th>AUDIO</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="catalog-tracks-tbody"></tbody>
+        </table>
+    </div>
+    <div id="catalog-sub-playlists" class="catalog-sub-panel">
+        <div class="toolbar">
+            <button class="btn btn-add"    onclick="openPlaylistModal(null)">+ ADD PLAYLIST</button>
+            <button class="btn btn-import" onclick="importPlaylists()">IMPORT</button>
+            <button class="btn btn-export" onclick="exportPlaylists()">EXPORT</button>
+            <button class="btn btn-copy"   onclick="copyPlaylists()">COPY</button>
+        </div>
+        <div class="playlist-editor">
+            <div id="pl-list-panel" class="pl-list-panel"></div>
+            <div id="pl-detail-panel" class="pl-detail-panel">
+                <span class="stub-msg">Select a playlist to manage its tracks.</span>
+            </div>
+        </div>
+    </div>
+    <div id="catalog-sub-jingles" class="catalog-sub-panel hidden">
+        <div class="toolbar">
+            <button class="btn btn-add" onclick="openJingleModal(null)">+ ADD JINGLE</button>
+        </div>
+        <table id="jingles-table">
+            <thead>
+                <tr>
+                    <th>TITLE</th>
+                    <th>AUDIO</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="jingles-tbody"></tbody>
+        </table>
+    </div>
+    <div id="catalog-sub-releases" class="catalog-sub-panel hidden">
+        <div class="toolbar">
+            <button class="btn btn-add" onclick="openReleaseModal(null)">+ ADD RELEASE</button>
+        </div>
+        <div class="playlist-editor">
+            <div id="rel-list-panel" class="pl-list-panel"></div>
+            <div id="rel-detail-panel" class="pl-detail-panel">
+                <span class="stub-msg">Select a release to manage its tracks.</span>
+            </div>
+        </div>
+    </div>
+    <div id="catalog-sub-labels" class="catalog-sub-panel hidden">
+        <div class="toolbar">
+            <button class="btn btn-add" onclick="openLabelModal(null)">+ ADD LABEL</button>
+        </div>
+        <table id="labels-table">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>ID</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="labels-tbody"></tbody>
+        </table>
+    </div>
+    <div id="catalog-sub-artists" class="catalog-sub-panel hidden">
+        <div class="toolbar">
+            <button class="btn btn-add" onclick="openArtistModal(null)">+ ADD ARTIST</button>
+        </div>
+        <table id="artists-table">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>ID</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="artists-tbody"></tbody>
+        </table>
+    </div>
+</div>
+
 <!-- ── TILE MODAL ── -->
 <div id="tile-modal" class="modal-overlay hidden">
     <div class="modal-box">
@@ -80,6 +185,15 @@
         </div>
         <form id="tile-form" onsubmit="saveTile(event)">
             <input type="hidden" id="f-id">
+            <div class="form-row">
+                <label>TYPE</label>
+                <select id="f-type" onchange="checkTileType()">
+                    <option value="link">LINK — external URL</option>
+                    <option value="catalog">CATALOG — music tile</option>
+                    <option value="buy">BUY — local sale page</option>
+                    <option value="info">INFO — blog / event page</option>
+                </select>
+            </div>
             <div class="form-row">
                 <label>SECTION</label>
                 <select id="f-section" required onchange="checkSectionVisibility()"></select>
@@ -113,40 +227,37 @@
                     <input id="f-href" type="text" placeholder="https://...">
                 </div>
             </div>
-            <div class="form-row form-row-checks">
-                <label class="check-label"><input type="checkbox" id="f-expand"> Expand tile — standalone cell, no stacking, no gradient</label>
-            </div>
-            <div class="form-sep"></div>
-            <div class="form-row">
-                <label>IMAGE FILE</label>
-                <input id="f-image" type="text" placeholder="filename.webp">
-                <span class="hint">Same filename in images/wide/, images/square/, images/portrait/ — drop whichever you have</span>
-            </div>
-            <div class="form-row">
-                <label>AUDIO FILE / URL</label>
-                <input id="f-audio" type="text" placeholder="audio/mix.mp3 or https://...">
-                <span class="hint">Relative path or full URL — mp3, ogg, wav</span>
-            </div>
-            <div class="form-row-2">
+            <div id="f-group-catalogref" class="hidden">
                 <div class="form-row">
-                    <label>TRACK TITLE</label>
-                    <input id="f-track" type="text" placeholder="Minimal Effort">
-                    <span class="hint">Lock screen — defaults to tile name</span>
+                    <label>CATALOG ENTRY</label>
+                    <select id="f-catalogref" onchange="syncCatalogRef()">
+                        <option value="">— pick a catalog entry —</option>
+                    </select>
+                    <span class="hint">Links this tile to the catalog entry's page — sets URL automatically</span>
                 </div>
+            </div>
+            <div id="f-group-slug">
                 <div class="form-row">
                     <label>SLUG</label>
                     <input id="f-slug" type="text" placeholder="minimal-effort" oninput="syncSlugHref()">
-                    <span class="hint">Builds a track page — link is set automatically to tracks/slug/</span>
+                    <span id="f-slug-hint" class="hint">Builds a track page — link is set automatically to tracks/slug/</span>
                 </div>
             </div>
-            <div class="form-row-2">
+            <div id="f-group-price" class="hidden">
                 <div class="form-row">
-                    <label>ARTIST</label>
-                    <input id="f-artist" type="text" placeholder="DJ Typhoon">
+                    <label>PRICE</label>
+                    <input id="f-price" type="text" placeholder="$29.99">
                 </div>
+            </div>
+            <div id="f-group-link-extras">
+                <div class="form-row form-row-checks">
+                    <label class="check-label"><input type="checkbox" id="f-expand"> Expand tile — standalone cell, no stacking, no gradient</label>
+                </div>
+                <div class="form-sep"></div>
                 <div class="form-row">
-                    <label>ALBUM</label>
-                    <input id="f-album" type="text" placeholder="Unreleased 2024">
+                    <label>IMAGE FILE</label>
+                    <input id="f-image" type="text" placeholder="filename.webp">
+                    <span class="hint">Same filename in images/wide/, images/square/, images/portrait/ — drop whichever you have</span>
                 </div>
             </div>
             <div class="form-actions">
@@ -233,8 +344,247 @@
     </div>
 </div>
 
-<!-- hidden file input for import -->
-<input type="file" id="file-input" accept=".json" class="hidden" onchange="handleImport(event)">
+<!-- ── CATALOG TRACK MODAL ── -->
+<div id="catalog-track-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="ct-modal-title">ADD TRACK</span>
+            <button onclick="closeModal('catalog-track-modal')">✕</button>
+        </div>
+        <form id="catalog-track-form" onsubmit="saveCatalogTrack(event)">
+            <input type="hidden" id="ct-orig-slug">
+            <div class="form-row">
+                <label>SLUG</label>
+                <input id="ct-slug" type="text" required placeholder="medusas-escape">
+                <span class="hint">URL key — lowercase, hyphens only</span>
+            </div>
+            <div class="form-row">
+                <label>TITLE</label>
+                <input id="ct-title" type="text" placeholder="Medusa's Escape (2006 Mix)">
+            </div>
+            <div class="form-row">
+                <label>ARTIST</label>
+                <select id="ct-artist">
+                    <option value="">— none —</option>
+                </select>
+            </div>
+            <div class="form-row-3">
+                <div class="form-row">
+                    <label>BPM</label>
+                    <input id="ct-bpm" type="number" placeholder="138" min="1" max="300">
+                </div>
+                <div class="form-row">
+                    <label>KEY</label>
+                    <input id="ct-key" type="text" placeholder="8A / Am">
+                </div>
+                <div class="form-row">
+                    <label>DURATION</label>
+                    <input id="ct-duration" type="text" placeholder="6:42">
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>ALBUM</label>
+                    <select id="ct-album">
+                        <option value="">— none —</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>CAT / GENRE TAG</label>
+                    <input id="ct-cat" type="text" placeholder="TRANCE">
+                </div>
+            </div>
+            <div class="form-row">
+                <label>DESCRIPTION</label>
+                <textarea id="ct-desc" rows="2" placeholder="Short description..."></textarea>
+            </div>
+            <div class="form-row">
+                <label>AUDIO URL / PATH</label>
+                <input id="ct-audio" type="text" placeholder="https://... or audio/mix.mp3">
+                <span class="hint">Leave blank = catalog-only (no player)</span>
+            </div>
+            <div class="form-row">
+                <label>IMAGE FILE</label>
+                <input id="ct-image" type="text" placeholder="medusasescape.webp">
+            </div>
+            <div class="form-row form-row-checks">
+                <label class="check-label"><input type="checkbox" id="ct-visible" checked> Visible in catalog</label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE TRACK</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('catalog-track-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── PLAYLIST MODAL ── -->
+<div id="playlist-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="pl-modal-title">ADD PLAYLIST</span>
+            <button onclick="closeModal('playlist-modal')">✕</button>
+        </div>
+        <form id="playlist-form" onsubmit="savePlaylist(event)">
+            <input type="hidden" id="pl-orig-id">
+            <div class="form-row">
+                <label>PLAYLIST NAME</label>
+                <input id="pl-title" type="text" required placeholder="New Tracks">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('playlist-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── LABEL MODAL ── -->
+<div id="label-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="lbl-modal-title">ADD LABEL</span>
+            <button onclick="closeModal('label-modal')">✕</button>
+        </div>
+        <form id="label-form" onsubmit="saveLabelFn(event)">
+            <input type="hidden" id="lbl-orig-id">
+            <div class="form-row">
+                <label>NAME</label>
+                <input id="lbl-name" type="text" required placeholder="Smart-Aleck Recordings">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE LABEL</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('label-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── ARTIST MODAL ── -->
+<div id="artist-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="ar-modal-title">ADD ARTIST</span>
+            <button onclick="closeModal('artist-modal')">✕</button>
+        </div>
+        <form id="artist-form" onsubmit="saveArtist(event)">
+            <input type="hidden" id="ar-orig-id">
+            <div class="form-row">
+                <label>NAME</label>
+                <input id="ar-name" type="text" required placeholder="DJ Typhoon">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE ARTIST</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('artist-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── RELEASE MODAL ── -->
+<div id="release-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="rel-modal-title">ADD RELEASE</span>
+            <button onclick="closeModal('release-modal')">✕</button>
+        </div>
+        <form id="release-form" onsubmit="saveRelease(event)">
+            <input type="hidden" id="rel-orig-id">
+            <div class="form-row">
+                <label>TITLE</label>
+                <input id="rel-title" type="text" required placeholder="Medusa's Escape EP">
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>ARTIST</label>
+                    <select id="rel-artist">
+                        <option value="">— none —</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>LABEL</label>
+                    <select id="rel-label">
+                        <option value="">— none —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>TYPE</label>
+                    <select id="rel-type">
+                        <option value="">— none —</option>
+                        <option value="LP">LP</option>
+                        <option value="EP">EP</option>
+                        <option value="Single">Single</option>
+                        <option value="Mix">Mix</option>
+                        <option value="Compilation">Compilation</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>CAT / GENRE</label>
+                    <input id="rel-cat" type="text" placeholder="TRANCE">
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row">
+                    <label>RELEASE DATE</label>
+                    <input id="rel-release-date" type="text" placeholder="2006-03-15">
+                </div>
+                <div class="form-row">
+                    <label>CATALOG NO.</label>
+                    <input id="rel-catalog-number" type="text" placeholder="SAR-001">
+                </div>
+            </div>
+            <div class="form-row">
+                <label>IMAGE FILE</label>
+                <input id="rel-image" type="text" placeholder="medusasescape.webp">
+            </div>
+            <div class="form-row">
+                <label>DESCRIPTION</label>
+                <textarea id="rel-desc" rows="2" placeholder="Short description..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE RELEASE</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('release-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── JINGLE MODAL ── -->
+<div id="jingle-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="jg-modal-title">ADD JINGLE</span>
+            <button onclick="closeModal('jingle-modal')">✕</button>
+        </div>
+        <form id="jingle-form" onsubmit="saveJingle(event)">
+            <input type="hidden" id="jg-orig-id">
+            <div class="form-row">
+                <label>ID</label>
+                <input id="jg-id" type="text" required placeholder="end-release">
+                <span class="hint">Lowercase, hyphens only — referenced in playlists</span>
+            </div>
+            <div class="form-row">
+                <label>TITLE</label>
+                <input id="jg-title" type="text" required placeholder="Thanks for listening">
+            </div>
+            <div class="form-row">
+                <label>AUDIO URL / PATH</label>
+                <input id="jg-audio" type="text" required placeholder="jingles/end-release.mp3">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">SAVE JINGLE</button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal('jingle-modal')">CANCEL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- hidden file inputs for import -->
+<input type="file" id="file-input"           accept=".json" class="hidden" onchange="handleImport(event)">
+<input type="file" id="catalog-file-input"   accept=".json" class="hidden" onchange="handleCatalogImport(event)">
+<input type="file" id="playlists-file-input" accept=".json" class="hidden" onchange="handlePlaylistsImport(event)">
 
 <div id="toast"></div>
 

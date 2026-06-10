@@ -1,0 +1,44 @@
+{
+  "artists": [
+    {
+      "id": "dj-typhoon",
+      "name": "DJ Typhoon"
+    }
+  ],
+  "labels": [
+    {
+      "id": "smart-aleck-recordings",
+      "name": "Smart-Aleck Recordings"
+    }
+  ],
+  "releases": [
+    {
+      "id": "medusa-s-escape-single",
+      "title": "Medusa's Escape",
+      "artist": "DJ Typhoon",
+      "year": "2004",
+      "cat": "TRANCE",
+      "image": "medusas-escape.webp",
+      "tracks": [
+        "medusas-escape"
+      ],
+      "label": "Smart-Aleck Recordings",
+      "type": "Single",
+      "release_date": "2004-06-01",
+      "catalog_number": "",
+      "desc": ""
+    }
+  ],
+  "tracks": [
+    {
+      "slug": "medusas-escape",
+      "title": "Medusa's Escape (2006 Mix)",
+      "artist": "DJ Typhoon",
+      "album": "Medusa's Escape",
+      "cat": "TRANCE",
+      "desc": "The 2006 remix of DJ Typhoon's classic trance mashup banger.",
+      "audio": "https://media.djtyphoon.com/tracks/DJ_Typhoon_Medusa's_Escape_2006_Mix.mp3",
+      "image": "medusasescape.webp"
+    }
+  ]
+}
