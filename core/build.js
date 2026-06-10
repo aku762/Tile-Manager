@@ -73,6 +73,8 @@ function buildTile(tile, statusMap) {
     const effectiveHref = slugHref || (isCatalog ? tile.href : null);
     const domainSlot  = isCatalog && tile.catalogRef
         ? `<button class="tile-play-btn" data-catalog="${attr(tile.catalogRef)}" onclick="event.stopPropagation();event.preventDefault();var c=window._catalog;c&&c[this.dataset.catalog]&&playCatalogTrack(c[this.dataset.catalog])" title="Play">▶</button>`
+        : tile.type === 'buy'
+        ? ''
         : effectiveHref
         ? hasAudio
             ? `<a class="tile-more" href="${attr(effectiveHref)}" title="${trackLabel}">${tile.domain || 'MORE'} →</a>`
