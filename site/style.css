@@ -562,6 +562,58 @@ body {
     margin: 0.5rem 0 1rem;
 }
 
+/* ── BUY IMAGE GALLERY ── */
+.buy-gallery {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 1.5rem auto 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+    line-height: 0;
+}
+
+.buy-gallery img {
+    width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+}
+
+.buy-gallery-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.45);
+    color: var(--blue);
+    border: none;
+    font-size: 2.5rem;
+    line-height: 1;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.buy-gallery-btn:hover {
+    background: rgba(12,157,222,0.25);
+    color: #fff;
+}
+
+.buy-gallery-prev { left: 0; border-radius: 0 6px 6px 0; }
+.buy-gallery-next { right: 0; border-radius: 6px 0 0 6px; }
+
+.buy-gallery-count {
+    position: absolute;
+    bottom: 0.6rem;
+    right: 0.8rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+}
+
 /* ── BUY TILE PRICE ── */
 .tile-price {
     font-size: 0.68rem;

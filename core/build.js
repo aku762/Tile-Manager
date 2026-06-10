@@ -469,9 +469,40 @@ function buildBuyPages(data, site, catalogScript) {
         if (tile.price) schema.offers = { '@type': 'Offer', 'price': tile.price.replace(/[^0-9.]/g, ''), 'priceCurrency': 'USD' };
         tmpl = tmpl.replace('{{BUY_SCHEMA}}', `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n    </script>`);
 
-        const heroHtml = tile.image
-            ? `<div class="track-hero"><img src="../../images/wide/${attr(tile.image)}" alt="${attr(tile.name || '')}" decoding="async"></div>`
-            : '';
+        // Scan site/buy/<slug>/ for gallery images
+        const imgExts    = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+        const buyImgDir  = path.join(SITE, 'buy', tile.slug);
+        let galleryFiles = [];
+        if (fs.existsSync(buyImgDir)) {
+            galleryFiles = fs.readdirSync(buyImgDir)
+                .filter(f => imgExts.has(path.extname(f).toLowerCase()))
+                .sort();
+        }
+        // Fall back to tile.image if no directory images
+        const galleryPaths = galleryFiles.length
+            ? galleryFiles.map(f => `../../buy/${tile.slug}/${attr(f)}`)
+            : tile.image ? [`../../images/wide/${attr(tile.image)}`] : [];
+
+        let heroHtml = '';
+        if (galleryPaths.length === 1) {
+            heroHtml = `<div class="track-hero"><img src="${galleryPaths[0]}" alt="${attr(tile.name || '')}" decoding="async"></div>`;
+        } else if (galleryPaths.length > 1) {
+            const imgList = JSON.stringify(galleryPaths);
+            heroHtml = `<div class="buy-gallery" id="buy-gallery">` +
+                `<img id="buy-gallery-img" src="${galleryPaths[0]}" alt="${attr(tile.name || '')}" decoding="async">` +
+                `<button class="buy-gallery-btn buy-gallery-prev" aria-label="Previous">&#8249;</button>` +
+                `<button class="buy-gallery-btn buy-gallery-next" aria-label="Next">&#8250;</button>` +
+                `<div class="buy-gallery-count">1 / ${galleryPaths.length}</div>` +
+                `</div>` +
+                `<script>(function(){var imgs=${imgList},i=0,el=document.getElementById('buy-gallery-img'),ct=document.querySelector('.buy-gallery-count');` +
+                `function show(n){i=(n+imgs.length)%imgs.length;el.src=imgs[i];if(ct)ct.textContent=(i+1)+' / '+imgs.length;}` +
+                `document.querySelector('.buy-gallery-prev').onclick=function(){show(i-1);};` +
+                `document.querySelector('.buy-gallery-next').onclick=function(){show(i+1);};` +
+                `var tx=0,g=document.getElementById('buy-gallery');` +
+                `g.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});` +
+                `g.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)show(dx<0?i+1:i-1);},{passive:true});` +
+                `})();<\/script>`;
+        }
         tmpl = tmpl.replace('<!--BUY_HERO-->', heroHtml);
 
         const mdPath    = path.join(SITE, 'content', 'buy', `${tile.slug}.md`);
@@ -483,6 +514,10 @@ function buildBuyPages(data, site, catalogScript) {
 
         const outDir = path.join(DIST, 'buy', tile.slug);
         fs.mkdirSync(outDir, { recursive: true });
+        // Copy gallery images alongside index.html
+        for (const f of galleryFiles) {
+            fs.copyFileSync(path.join(buyImgDir, f), path.join(outDir, f));
+        }
         fs.writeFileSync(path.join(outDir, 'index.html'), tmpl, 'utf8');
         count++;
     }
