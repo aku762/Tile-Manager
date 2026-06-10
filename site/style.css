@@ -614,6 +614,31 @@ body {
     color: rgba(255,255,255,0.5);
 }
 
+/* ── BUY CTA BUTTON ── */
+.buy-cta {
+    margin: 1.25rem 0 0.5rem;
+}
+
+.buy-btn {
+    display: inline-block;
+    background: rgba(57,255,132,0.12);
+    color: rgba(57,255,132,0.95);
+    border: 1px solid rgba(57,255,132,0.35);
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.buy-btn:hover {
+    background: rgba(57,255,132,0.22);
+    border-color: rgba(57,255,132,0.7);
+}
+
 /* ── BUY TILE PRICE ── */
 .tile-price {
     font-size: 0.68rem;

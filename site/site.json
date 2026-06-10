@@ -15,6 +15,7 @@
   "foundingLocation": "",
   "shortName": "",
   "themeColor": "#0d0f12",
+  "paypalEmail": "",
   "player": {
     "autoShow": false
   }

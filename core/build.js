@@ -447,12 +447,27 @@ function buildBuyPages(data, site, catalogScript) {
             tmpl = tmpl.split(token).join(value);
         }
 
+        const paypalEmail  = site.paypalEmail || '';
+        const priceAmount  = (tile.price || '').replace(/[^0-9.]/g, '');
+        const buyCta = (paypalEmail && priceAmount)
+            ? `<form class="buy-cta" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">` +
+              `<input type="hidden" name="cmd" value="_xclick">` +
+              `<input type="hidden" name="business" value="${attr(paypalEmail)}">` +
+              `<input type="hidden" name="item_name" value="${attr(tile.name || '')}">` +
+              `<input type="hidden" name="amount" value="${priceAmount}">` +
+              `<input type="hidden" name="currency_code" value="USD">` +
+              `<input type="hidden" name="no_shipping" value="2">` +
+              `<button type="submit" class="buy-btn">Buy Now — ${text(tile.price)}</button>` +
+              `</form>`
+            : '';
+
         const buyTokens = {
             '{{BUY_TITLE}}': tile.name  || '',
             '{{BUY_CAT}}':   tile.cat   || '',
             '{{BUY_DESC}}':  tile.desc  || '',
             '{{BUY_PRICE}}': tile.price || '',
             '{{BUY_SLUG}}':  tile.slug  || '',
+            '{{BUY_CTA}}':   buyCta,
         };
         for (const [token, value] of Object.entries(buyTokens)) {
             tmpl = tmpl.split(token).join(value);
