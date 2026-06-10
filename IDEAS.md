@@ -17,353 +17,89 @@ The music features (track pages, MusicGroup/MusicRecording schema, Media Session
 | Site type | Relevant features |
 |---|---|
 | DJ / producer | Track pages, audio player, MusicGroup schema, Media Session, lock screen art |
-| Band / label | Same as above + Albums, MusicAlbum schema |
-| General resale (vibezisland.store) | eBay link tiles → PayPal buy tiles, eBay URL enrichment, sold/available status |
+| Band / label | Same as above + Releases, MusicAlbum schema |
+| General resale site | Buy tiles, sold/available status |
 | Podcast | Audio tiles (no track pages needed), episode slugs for SEO |
-| General store | Buy tiles, PayPal, image tiles, link tiles |
-| Portfolio / links page | Link tiles, story tiles, section layout |
-| Event / show calendar | Story tiles, date fields, slug pages |
+| General store | Buy tiles, image tiles, link tiles |
+| Portfolio / links page | Link tiles, info tiles, section layout |
+| Event / show calendar | Info tiles, date fields, slug pages |
 
-**Design principle going forward:** music-specific features are opt-in via configuration (`schemaType`, `type: "track"`, etc.). A non-music site never sees them if it doesn't use them. The admin should eventually reflect this — onboarding asks what kind of site you're building and surfaces the relevant field groups.
-
-**The tile type system** (see [[Tile types]]) is the key enabler of this. Once `type` is a first-class field, any combination of content — audio, video, product, post, link — is expressible without special-casing in the build. The catalog is whatever you put in it.
+**Design principle going forward:** music-specific features are opt-in via configuration. A non-music site never sees them. The admin should eventually reflect this — onboarding asks what kind of site you're building and surfaces the relevant field groups.
 
 ---
 
-## ⚡ Architectural direction — catalog.json separates music from tiles
+## Buy / for-sale tiles — PayPal integration
 
-**This is the foundational next step. Everything music-related should be built against this model, not the current one.**
+The `buy` tile type and page generation are shipped. What's still missing is payment integration.
 
-### The root problem
-
-Tiles and tracks got conflated from the start. A tile is a display unit — section, category, name, description, image, status, link. A track is a catalog entry — audio file, slug, artist, album, genre, BPM, schema data, media session metadata. Right now a tile does both jobs, and every music-related problem in the system flows from that:
-
-- The admin tile modal is bloated with fields irrelevant to non-music tiles
-- The playlist is DOM-driven (walks `.tile-audio` elements on the page) so it breaks on navigation
-- Track pages are generated from tiles, meaning every track that needs a page needs a tile
-- Schema fields (`artist`, `album`, `genre`, `bpm`) live on the wrong object
-- A DJ mix tracklist of 40 songs would require 40 tiles — most of which shouldn't be tiles at all
-- Non-music sites using tile-manager have tiles polluted with music fields that mean nothing for them
-
-### The fix: catalog.json
-
-Split into two separate files with one optional connection between them:
-
-```
-catalog.json  ←  all audio/track data
-tiles.json    ←  all display/layout data (tiles stay simple)
-```
-
-**`catalog.json` schema:**
+**Data fields to add to the buy tile modal:**
 ```json
 {
-  "tracks": [
-    {
-      "id": "track-001",
-      "slug": "gustavus-adolphus-live",
-      "title": "Live at Gustavus Adolphus",
-      "artist": "DJ Typhoon",
-      "album": "Live Sets",
-      "genre": "Breaks",
-      "bpm": 132,
-      "audio": "audio/gustavus-live.mp3",
-      "image": "gustavus-live.webp",
-      "desc": "Live set recorded at Gustavus Adolphus College.",
-      "visible": true
-    }
-  ]
-}
-```
-
-**Tile with catalog reference:**
-```json
-{
-  "id": "123",
-  "section": "2",
-  "cat": "LIVE SET",
-  "name": "Live at Gustavus Adolphus",
-  "desc": "...",
-  "status": "active",
-  "showImage": true,
-  "image": "gustavus-live.webp",
-  "catalogRef": "track-001"
-}
-```
-
-A tile with `catalogRef` gets a play button. The audio data, schema, and track page all come from the catalog entry. A catalog entry with no tile still gets a track page and appears in the global playlist — it just has no tile on the front page.
-
-### What this fixes
-
-- **Global playlist** — built from `catalog.json` track order, completely independent of DOM and page navigation. Auto-advance, looping, and prev/next all work correctly across page changes.
-- **Track pages** — generated from catalog entries, not tiles. A 40-song mix tracklist gets 40 track pages with zero tiles.
-- **Tile modal** — loses every music field (`audio`, `track`, `artist`, `album`, `slug`). Gains one optional "Catalog item" dropdown. Non-music sites never see music fields.
-- **Schema** — `MusicRecording` JSON-LD generated from catalog entries directly, where the data actually lives.
-- **Non-music sites** — no `catalog.json` means zero music overhead, completely clean tiles.
-- **Player simplification** — tiles no longer need inline progress bars or timestamps. A tile play button just says "start this catalog entry." The bottom bar is the only real player. Per-tile scrubbers go away.
-
-### What the admin gains
-
-A **Catalog tab** — separate from Tiles. Add/edit/delete catalog entries: title, artist, album, genre, BPM, audio file, image, slug, description. The same drag-to-reorder interface as Tiles. This is also where track page generation is controlled.
-
-The tile modal's media section collapses to a single "Catalog item" dropdown populated from catalog entries.
-
-### Migration path for existing music sites
-
-Existing tiles with `audio`, `artist`, `album`, `slug` fields need their music data moved to `catalog.json` entries. The migration is a one-time export transform: for each tile with an `audio` field, create a catalog entry and replace the tile's audio fields with a `catalogRef`. The admin could offer a "Migrate to catalog" button that does this automatically.
-
-### Relationship to other ideas
-
-- **[[Tile types]]** — `type` field still makes sense on tiles for buy/link/story/info rendering. Music tiles become `type: "audio"` with a `catalogRef` rather than inline audio data.
-- **[[Albums]]** — albums belong in `catalog.json` alongside tracks, not in `tiles.json`.
-- **[[Track schema: genre and BPM fields]]** — these fields now live on catalog entries, not tiles. The admin modal for this is the Catalog tab, not the tile modal.
-- **[[Player bar goes dead]]** and **[[Track page player out of sync]]** bugs — both are fixed naturally by the data-driven playlist. The player reads catalog order, not DOM order.
-
----
-
-## Smart URL enrichment (admin auto-fill from links)
-
-Paste a URL into the admin tile modal and have it auto-populate the form. The domain determines which enrichment path runs. This eliminates manual copy-paste of titles, prices, images, and metadata when adding tiles for items you're selling or tracks you're referencing.
-
-**How it works in the admin:**
-A URL field sits at the top of the add tile modal. On paste (or a "Fetch" button), the admin detects the domain and calls the appropriate handler. Matched fields fill in below; unmatched fields stay blank for manual entry. The URL is saved to `tile.href` as usual.
-
-**Discogs** — clean API, no proxy needed:
-- Parse release ID from `discogs.com/release/12345-...` or `discogs.com/master/12345`
-- `GET api.discogs.com/releases/{id}` with a `User-Agent` header — works directly from the browser
-- Fills: name (title), artist, cat (label/genre), desc (tracklist or notes), image (cover)
-- Returns genre, style, year, tracklist, label — more than enough to populate a tile
-- Rate limit: 60/min unauthenticated, higher with a Discogs personal token stored in admin settings
-
-**eBay** — requires a proxy for auth:
-- Parse item ID from `ebay.com/itm/123456789`
-- eBay Browse API requires OAuth — client secret can't be in the browser
-- Solution: a Cloudflare Worker holds the eBay app credentials, receives `?itemId=...`, returns sanitized tile data
-- Fills: name (listing title), price, image (first listing photo), desc (item condition/specifics)
-- The same Worker pattern already planned for the GitHub push feature (see [[Export direct to GitHub repo]])
-
-**Other platforms worth adding:**
-- **Bandcamp** — no official API, but their page embeds JSON-LD (`MusicAlbum` / `MusicRecording`) that can be scraped client-side via a CORS proxy or Worker
-- **Spotify** — public API with client credentials flow; could fill artist/album/track metadata for reference tiles. Same proxy pattern as eBay.
-- **Generic oEmbed** — many platforms (YouTube, SoundCloud, Vimeo) support the oEmbed standard at a predictable endpoint. A single fallback handler covers all of them for title + thumbnail.
-
-**Fallback:** if no enrichment handler matches the domain, just pre-fill `href` and extract the domain for the `domain` field. User fills the rest manually as today.
-
-**Admin settings:** a small "Integrations" panel in the admin where you can save a Discogs personal token and any API keys. Stored in localStorage alongside the existing admin state.
-
----
-
-## Tile types
-
-### First-class tile `type` field + type-driven admin modal
-
-Right now a tile's behavior is inferred from which fields are present — audio field → player, href field → link, slug → track page. This works but breaks down as soon as a tile needs to combine behaviors (e.g. a track that's also for sale) or when a new behavior needs its own display mode. A `type` field makes the intent explicit and drives both rendering and the admin form.
-
-**Proposed types:**
-
-| Type | Behavior | Key fields |
-|---|---|---|
-| `link` | Whole tile is `<a>`, opens URL | `href` |
-| `audio` | Inline player, no track page | `audio`, `artist`, `album` |
-| `track` | Audio + slug → generates `/tracks/slug/` detail page | `audio`, `slug`, `artist`, `album` |
-| `buy` | Price display + PayPal buy/cart button | `price`, `currency`, `paypalId` or `paypalUrl` |
-| `info` | Display only, no interaction (default) | — |
-
-Types are not mutually exclusive at the data level — you could have `type: "buy"` on a tile that also has an `audio` field (a preview clip + buy button). The type controls the **primary rendering mode**, not which fields are stored.
-
-**Admin modal — type selector:**
-
-A dropdown or radio group at the top of the add/edit modal. Selecting a type shows/hides field groups below:
-
-- **All types:** section, cat, name, desc, status, image, showImage, expand
-- **`link`:** domain, href
-- **`audio` / `track`:** audio file, track title, artist, album; `track` also shows slug
-- **`buy`:** price, currency, PayPal fields (see below)
-
-Switching type collapses irrelevant groups but preserves the data — changing from `track` back to `audio` doesn't wipe the slug, it just stops rendering it. This avoids accidental data loss when experimenting.
-
-**Backwards compatibility:** tiles with no `type` field keep rendering exactly as today (inferred from fields present). The type field is additive — existing `tiles.json` files don't break.
-
----
-
-### Buy / for-sale tiles (PayPal integration)
-
-Needed for vibezisland.store and any tile-manager site selling physical or digital goods. The tile renders a price and a payment button instead of (or alongside) a play button.
-
-**Data fields on the tile:**
-```json
-{
-  "type": "buy",
-  "price": "24.99",
-  "currency": "USD",
   "paypalId": "ABCDEF123",
   "buyMode": "buynow"
 }
 ```
 
-- `price` / `currency` — display only; PayPal button handles the actual amount
-- `paypalId` — the hosted button ID from PayPal's button generator (simplest integration, no SDK)
-- `buyMode` — `"buynow"` (direct checkout) or `"cart"` (add to cart, keep browsing)
+- `paypalId` — hosted button ID from PayPal's button generator (simplest, no SDK)
+- `buyMode` — `"buynow"` or `"cart"`
 
 **Two integration approaches:**
 
-1. **Hosted buttons (simplest)** — generate buttons in PayPal's dashboard, copy the button ID. Build renders a standard PayPal form that POSTs to `paypal.com/cgi-bin/webscr`. No JS SDK, no client-side code, works everywhere. Drawback: old API, button style is whatever PayPal provides.
+1. **Hosted buttons (simplest)** — generate in PayPal's dashboard, copy the button ID. Build renders a standard PayPal form. No JS SDK, works everywhere.
+2. **PayPal JS SDK (modern)** — load `sdk.js?client-id=...`, render Smart Payment Buttons into a `<div>`. Better UX, customizable. Requires `client-id` in `site.json`.
 
-2. **PayPal JS SDK (modern)** — load `sdk.js?client-id=...` in the page, render Smart Payment Buttons into a `<div>`. Better UX (in-page checkout flow), customizable appearance. Requires a `client-id` in `site.json` and a small JS snippet per tile. More setup but more control.
-
-**Recommended path:** start with hosted buttons — zero config beyond a PayPal account and the button ID. If the UX needs improvement, layer in the SDK later. Both can coexist on the same page.
-
-**Admin fields for buy tiles:**
-- Price (text, display only — e.g. `"$24.99"`)
-- PayPal Button ID (text — from PayPal's My Saved Buttons)
-- Mode: Buy Now / Add to Cart (radio)
-
-**`site.json` additions:**
-- `paypalEmail` or `paypalClientId` — site-level PayPal identity so individual tiles don't each need to embed credentials
-
-**Build output:** a PayPal form rendered inside the tile instead of (or below) the audio player. CSS class `tile-buy` for styling the price display and button area.
+**`site.json` addition:** `paypalClientId` — site-level PayPal identity so individual tiles don't each embed credentials.
 
 ---
 
-### Track page back link always goes to index
+## Player bugs
 
-The `← Site Name` link in `track.html` is hardcoded to `href="/"`. If the user navigated from `/mixes.html` and clicked MORE, the back link should return them to `/mixes.html`, not the homepage.
+### Player bar goes dead after track ends (no next track)
 
-**Fix options:**
-1. **SPA-side patch** — in `navigate()`, after swapping `#main`, find `.track-back` in the new content and update its `href` to the URL that was current before the pushState. Works perfectly for SPA navigations. Store the pre-navigation URL in a variable before calling `pushState`.
-2. **Direct-load fallback** — for hard-loaded track pages, check `document.referrer`. If it's same-origin, use it; otherwise fall back to `/`. Combined with option 1, this covers both entry paths.
-3. **`history.back()`** — simplest for SPA case, but breaks on direct loads and doesn't let the browser show a meaningful destination in the status bar on hover.
+When a track ends with no next track in the catalog or DOM, `_aud`, `_audBtn`, `_audWrap`, and `_currentTrack` are all nulled out. The player bar stays visible but clicking play silently does nothing.
 
-Option 1 + 2 together is the right fix. `navigate()` already has access to the current URL before pushing state — it just needs to write it to the back link's `href` after the DOM swap.
+**Fix:** keep enough state to restart. When `onended` fires with no next track, preserve `_currentTrack` (don't null it) so the bar's play button can restart from the beginning rather than failing silently.
 
 ---
 
-### Player bar goes dead after track ends on a track page
+### Track page player out of sync with bar
 
-On the home page, when a track ends `_audioGetAdjacent(1)` finds the next `.tile-audio` in the DOM and auto-advances. On a track page there's typically only one `.tile-audio` — no next track exists, so `_aud`, `_audBtn`, and `_audWrap` are all nulled out. The player bar stays visible but clicking play does nothing because the player has forgotten what it was playing.
+Navigate to a track page while that track is playing — the track page `.tile-audio` shows ▶ while the bar shows ⏸. Clicking the track page player starts a second Audio object (two streams playing).
 
-**Fix:** when a track ends with no next track, don't fully null out state. Keep enough metadata to restart — either hold `_audWrap` and just set `_aud = null`, or store the last-played src/metadata separately. Clicking the bar's play button should restart the last track from the beginning, not silently fail.
-
----
-
-### Track page player out of sync with currently-playing bar
-
-Two related sub-issues that stem from the same root cause: `navigate()` nulls `_audWrap` and `_audBtn` on every page swap, losing the link between the playing audio and any tile element in the new DOM.
-
-**Sub-issue A — navigate to a track page while its track is already playing:**
-Start playing a track from a home page tile. SPA-navigate to that track's detail page (click MORE). The track page has its own `.tile-audio` for the same audio src, but `_audWrap` was cleared during the swap. The track page player shows ▶ (not playing) while the bar shows ⏸ (playing). Clicking the track page play button starts a second `Audio` object for the same src — two streams playing simultaneously.
-
-**Sub-issue B — start playing from the track page, then navigate back:**
-Start a track on the track page, navigate back to the home page. The home page tile for that track also shows ▶ while the bar shows ⏸. Same desync in reverse.
-
-**Root cause:** the DOM reference (`_audWrap`) is page-specific. When the DOM swaps, the reference is dead.
-
-**Fix approach:** after every `navigate()` DOM swap, scan the new `#main` for a `.tile-audio` whose `data-src` matches `_aud.src` (if audio is currently playing). If found, re-attach `_audWrap` and `_audBtn` to those elements and update their button text to `⏸`. This "rehydrates" the player state into the new page's DOM without restarting audio.
-
-This is achievable but requires that `_aud.src` is comparable to `data-src` values — relative paths vs absolute URLs may need normalization (e.g. `new URL(src, location.origin).href` on both sides).
-
-**The harder variant — cross-page adjacency:** once `_audWrap` is rehydrated, `_audioGetAdjacent` works again and auto-advance picks up from the new page's tile list. This means "what plays next" changes depending on which page you're on when a track ends. That may or may not be desirable — on a track detail page with one tile, you'd want it to stop rather than suddenly advance into a different page's queue.
+**Fix:** after every `navigate()` DOM swap, scan the new `#main` for a `.tile-audio` whose `data-src` matches `_currentTrack.src`. If found, re-attach `_audWrap`/`_audBtn` and set the button text to ⏸.
 
 ---
 
-### Section ID collision breaks tile assignments on new section
+## Smart URL enrichment
 
-Section IDs are sequential integers reassigned on every export based on array position. Adding a new section in the middle of the list shifts all IDs below it — any tiles already assigned to those sections silently move to the wrong section.
+Paste a URL into the admin tile modal and auto-populate fields. Domain determines the enrichment path.
 
-**Root cause:** ID encodes order. Array position in `tiles.json` already determines display order, so IDs shouldn't need to.
+**Discogs** (no proxy needed):
+- Parse release ID from URL → `GET api.discogs.com/releases/{id}` (works directly from browser with `User-Agent`)
+- Fills: name, artist, cat, desc, image
+- Rate limit: 60/min unauthenticated; token stored in admin settings unlocks more
 
-**Fix:**
-1. **Stable section IDs** — same fix needed for tiles (see [[Single tile tag + stable tile IDs]]). IDs should be assigned once at creation and never reassigned. New sections get a timestamp-based or user-defined ID. Display order comes from array position, not ID value.
-2. **`order` field** — explicit integer for controlling display order, independent of ID. Lets IDs be arbitrary stable strings.
-3. **Accept section name in tile `section` field** — tiles currently reference sections by ID string. Also accepting the section's `title` as a lookup value would let you write `"section": "TRACKS"` instead of `"section": "3"`, which survives any ID renumbering. Case-insensitive match, ID takes priority if both match.
+**eBay** (requires a proxy for auth):
+- Parse item ID → Cloudflare Worker holds OAuth credentials, returns sanitized tile data
+- Fills: name, price, image, desc
 
-The stable ID fix is the real solution — once IDs are stable, the name-lookup is a convenience rather than a workaround.
+**Other:** Bandcamp (JSON-LD in page via Worker), Spotify (client credentials via Worker), generic oEmbed for YouTube/SoundCloud/Vimeo.
 
----
+**Fallback:** pre-fill `href` + extract domain; user fills the rest manually.
 
-### Albums
-
-A first-class `albums` array in `tiles.json` and an **Albums** tab in the admin, modeled after the Sections tab.
-
-**Data model:**
-- `album` on a tile becomes a foreign key reference to an album `id` (same pattern as `section`). Tiles that reference an album ID appear on that album's generated page automatically.
-- The album object holds: `id`, `title`, `artist`, `description`, `cover` (image filename), `releaseDate`, and a `tracks` array.
-- `tracks` is an ordered list that can contain either a tile `id` reference OR a free-text entry `{ "name": "...", "artist": "..." }` — needed for DJ mixes where most tracks aren't your own productions and won't have tiles.
-
-**Admin — Albums tab:**
-- Create/edit/delete albums with a modal (title, artist, description, cover, release date)
-- Tracklist builder: pick from existing tiles via a searchable checkbox list, supplement with free-text input rows for non-tile tracks
-- Drag to reorder the tracklist
-- Export writes the `albums` array to `tiles.json`
-
-**Build — two album page types:**
-- **Original album** (all tracks have tiles) — renders full tile cards with player, artwork, description, share button. Essentially a section page scoped to that album. Same tile layout the homepage uses.
-- **Mix / compilation** — renders a simple ordered tracklist. Tile-referenced tracks get a player and link; free-text entries are listed plainly. Typically has one full-mix audio tile at the top.
-- Both types get `MusicAlbum` schema injected at build time. `MusicRecording` entries inside can carry `sameAs` pointing to Spotify/MusicBrainz for tracks that exist there.
-
-**Google rich results:**
-- `MusicAlbum` schema triggers the album card treatment in search (tracklist, artist, artwork).
-- `MusicPlaylist` is semantically correct for a DJ's front page catalogue but Google doesn't have a rich result template for it — use `MusicAlbum` for release pages to get the visual treatment.
-- Per-track pages (`/tracks/slug/`) are needed for individual tracks to rank — album pages alone won't surface individual track searches.
-- `sameAs` on `MusicRecording` entries links your schema to Google's Knowledge Graph entries for those tracks.
-
-**Note:** the `album` string field on tiles today is only used for the Media Session lock screen card. When this ships, it becomes a reference ID. Migration: match existing string values to album IDs on first export.
-
----
-
-### Track schema: genre and BPM fields
-
-The `MusicRecording` schema on track pages is currently missing `genre` and tempo properties. Google uses these for richer track cards in search.
-
-**What to add to tile JSON:**
-- `genre` — string (e.g. `"Breaks"`, `"Hip-Hop"`, `"Drum & Bass"`). Already used in tile display; needs to be a first-class field rather than just part of `cat`.
-- `bpm` — integer. Used in `MusicRecording` as the `tempo` property.
-
-**Touch points:**
-1. **`tiles.json`** — add `genre` and `bpm` to tile objects
-2. **Admin tile modal** — add Genre (text input) and BPM (number input) fields in the add/edit modal
-3. **`build.js` track schema** — emit `"genre": tile.genre` and `"tempo": tile.bpm` into the `MusicRecording` JSON-LD when present. Also pass `genre` into `byArtist` at the `MusicGroup` level if it's not already there.
-
-Note: `tile.cat` currently blends genre with format (e.g. "AUDIO / MP3"). Once `genre` is a dedicated field it can be cleaner — cat stays as the display label, genre is the pure schema value.
-
----
-
-### Portrait tile display
-
-Wide and square formats are shipped. This is the remaining layout work for portrait-oriented images.
-
-**Implementation idea:** an `imageFormat` field on the tile (`"wide"` default, `"portrait"`, `"square"`). The CSS aspect-ratio and grid behavior switch based on a `data-format` attribute. `object-position` could also be a tile field (`"top"`, `"center"`, `"bottom"`) for fine control over how the subject sits in the crop.
-
-On desktop, taller tiles break grid rhythm when mixed with wide neighbors — probably `object-fit: cover` + `object-position: top` with `align-self: start`. On mobile it's the natural format — image fills the viewport width, audio player overlay at the bottom if set.
+**Admin settings panel:** "Integrations" section for Discogs token and API keys, stored in localStorage.
 
 ---
 
 ## Export direct to GitHub repo
 
-Push `tiles.json` straight from the admin to the GitHub repo via the GitHub Contents API — no file download, no terminal, no manual copy. Cloudflare Pages picks up the push and rebuilds automatically.
+Push `tiles.json` (and other JSONs) straight from the admin to the GitHub repo via the GitHub Contents API — no file download, no terminal. Cloudflare Pages picks up the push and rebuilds automatically.
 
 **How it works:**
 1. Admin stores repo config in localStorage: GitHub PAT, owner, repo name, branch, file path
-2. On push: GET the current file SHA, then PUT the new base64-encoded content with a commit message
-3. Done — live site updates within seconds via Cloudflare's git webhook
+2. On push: GET the current file SHA → PUT new base64-encoded content with a commit message
 
-**UI:**
-- Gear icon in the admin toolbar opens a Repo Settings modal (one-time setup)
-- "Push to Repo" button lives next to the existing Export JSON button
-- Toast shows success or API error
-
-**Auth — Cloudflare Worker + GitHub OAuth:**
-
-localStorage PATs are per-device and a security risk on shared machines. The right solution is a tiny Cloudflare Worker that handles the OAuth flow:
-
-1. Admin redirects to GitHub login
-2. GitHub redirects back to the Worker with an auth code
-3. Worker exchanges the code for an access token using the OAuth client secret (stored as a Worker environment variable — never exposed to the browser)
-4. Worker sets a secure httpOnly session cookie
-5. All GitHub API calls go through the Worker, which forwards them with the token
-
-Result: any device — home PC, mobile, hotel lobby — just clicks "Login with GitHub", authorizes once, and is in. No keys to manage, session expires automatically, works everywhere.
-
-The Worker is trivially light — a handful of OAuth redirect/callback/proxy routes. Usage would never come close to Cloudflare's free tier limits.
+**Auth — Cloudflare Worker + GitHub OAuth:** Worker handles the OAuth flow (exchanges auth code for token using client secret stored as env var, never in browser), sets a secure httpOnly session cookie. Any device can log in with "Login with GitHub" without managing keys.
 
 ---
 
@@ -371,150 +107,75 @@ The Worker is trivially light — a handful of OAuth redirect/callback/proxy rou
 
 A named alias for a set of sections, placed in a page with a single comment tag.
 
-**Problem it solves:** Once you have many sections and multiple HTML pages, hand-placing `<!--SECTION:1--><!--SECTION:3--><!--SECTION:9-->` is tedious and the admin has no visibility into which sections live on which page.
+**Problem:** once you have many sections and multiple HTML pages, hand-placing `<!--SECTION:1--><!--SECTION:3--><!--SECTION:9-->` is tedious and the admin has no visibility into which sections appear on which page.
 
-**Idea:** Add a `groups` array to `tiles.json`:
+**Idea:** `groups` array in `tiles.json`:
 ```json
 "groups": [
-  { "id": "projects", "label": "Projects", "sections": [3, 4, 9] }
+  { "id": "projects", "sections": ["3", "4", "9"] }
 ]
 ```
-Then any page can use `<!--GROUP:projects-->` instead of listing sections individually. The admin gets a Groups tab where you assign sections to groups via drag-and-drop.
-
-**Key question:** Should a section be allowed in multiple groups? Probably yes — a "Latest Work" section could appear in both a homepage group and a portfolio group without duplicating data.
-
-**Backwards compatible:** `<!--SECTIONS-->`, `<!--SECTION:ID-->`, `<!--FEATURED-->` all still work. Groups are additive.
-
-**Where this gets powerful:** groups effectively allow multiple independent "favorites" or "highlights" collections — not just one featured section. A `<!--GROUP:live-favorites-->` on one page and `<!--GROUP:studio-picks-->` on another, each pulling a different hand-curated mix of sections. And because subpages do recursive tag scanning, you can drop a `<!--GROUP:id-->` directly inside a story or event MD template — the rendered page gets exactly those tiles and nothing else. Curated tile sets embedded in longform content, no CMS needed.
+Then `<!--GROUP:projects-->` replaces individual section tags. Admin gets a Groups tab for drag-assigning sections to groups. A section can belong to multiple groups. Backwards compatible — existing tags still work.
 
 ---
 
 ## Pages
 
-A `pages` array in `tiles.json` and a `site/pages/` folder. Each file in `site/pages/` is a named page — some have comment tags and tokens that get processed, some are finished pages that pass through untouched. The build doesn't care which is which; it just walks the tags and copies the result to `dist/`.
-
-```json
-"pages": [
-  { "id": "index",    "file": "index.html",    "sections": ["1", "2"] },
-  { "id": "projects", "file": "projects.html", "sections": ["3", "4"] },
-  { "id": "calendar", "file": "calendar.html" }
-]
-```
-
-`calendar.html` has no tags and no section assignments — it's just a finished page that needs to exist in the output. `projects.html` has `<!--SECTIONS-->` and gets tiles injected. Same mechanism, the file decides what processing happens.
-
-**Admin — Pages tab:** lists all pages, lets you add/remove files from the pool, and for pages with section assignments lets you manage which sections appear. Importing a page is just copying an HTML file into `site/pages/` and registering it. No template concept — they're just pages.
-
-**Note:** the current comment-tag walker in `build.js` and `app.js` is already the right primitive for this — not a detour, just an earlier layer of the same system.
+A `pages` array in `tiles.json` and `site/pages/` folder. Each file is registered. Build processes comment tags and copies to `dist/`. A Pages tab in the admin lists all pages and section assignments. Files without tags pass through untouched.
 
 ---
 
 ## Story / blog tiles
 
-**Partially shipped:** the slug + MD file system already handles event/show/blog-post tiles — add a slug, drop a `.md` file in `site/content/tracks/`, and a full page builds automatically. The whole tile is clickable, `MORE →` signals there's content.
+**Partially shipped:** slug + `.md` file in `site/content/tracks/` already builds a full detail page. What's still missing:
 
-**What's still missing:**
-
-- **Style differentiation.** Right now a blog-post tile looks identical to an audio tile. A `type: "story"` field (or just the absence of `audio`) could render the tile without a border — closer to a card or article preview. Or a softer border, a different background tint. The point is the viewer should sense "this is content to read" vs "this is a link or a track."
-
-- **Admin workflow.** Currently you add a story tile the same way as any tile — through the tile modal. A dedicated **Stories tab** (or **Posts tab**) in the admin would be cleaner: title, date, image, slug, description, and a text area for the intro. The MD file would be auto-generated from the form rather than hand-written. For now the current workflow is acceptable.
-
-- **File-based discovery.** An alternative to JSON-driven stories: `build.js` scans `site/content/posts/*.md`, reads frontmatter (title, date, image, slug), and auto-generates both the tile and the detail page without any `tiles.json` entry. Lower overhead for frequent publishing. Tradeoff: no admin UI, no section assignment, no status.
-
-**Recursive depth:** a detail page can contain `<!--SECTIONS-->` tags, rendering its own tile grid. Tiles all the way down. The build primitive already supports this — detail pages are just pages.
+- **Style differentiation** — an info tile looks identical to an audio tile. A `type: "info"` specific style (softer border, different background tint) would signal "content to read" vs "track or link."
+- **Admin workflow** — a dedicated Posts/Stories tab with title/date/slug/desc form that auto-generates the `.md` file, rather than using the generic tile modal.
+- **File-based discovery** — `build.js` scans `site/content/posts/*.md` for frontmatter and auto-generates tiles + pages. No `tiles.json` entry needed; tradeoff is no section assignment or status control.
 
 ---
 
 ## Icon tiles / navigation buttons
 
-Small square tiles for mobile-first section navigation — think iPhone homescreen icons. The idea is a row of 4 (max) at the top of a page, each representing a section or page, with an image and optional one-line label. They stack to multiple rows if there are more than 4.
+Small square tiles for mobile-first section navigation — row of up to 4, each with an image and one-line label.
 
-**Why this instead of a hamburger menu:** menus are hidden and require a tap to reveal. Icon tiles are always visible, glanceable, and immediately actionable. On a site split across multiple pages (picks, tracks, mixes, shows, links), these become the primary nav.
-
-**Implementation options:**
-
-1. **CSS-only, driven by `tiles.json`** — a new tile `type: "icon"` or `size: "icon"` renders with a square aspect ratio, image fills the cell, label is one short line below. No new data structure. Section/page link goes in `href`. This is the lowest-friction path.
-
-2. **`site.json` nav array** — a `nav` array in `site.json` with `{ label, href, image }` entries. A `<!--NAV-->` tag renders the icon row. Cleanly separated from tile data since nav is site-level, not content-level.
-
-3. **Sections as nav** — automatically generate an icon row from the section list, linking each to a per-section page. Only works once the Pages system exists.
-
-**Option 1 is the right starting point** — reuses the existing tile pipeline, no new admin needed, just a CSS class and a new grid layout. Build the nav array idea later if the separation matters.
+**Best option:** `type: "icon"` renders with a square aspect ratio, image fills, label below, `href` is the destination. Reuses tile pipeline, no new data structure.
 
 ---
 
 ## Section layout types (horizontal scrolling)
 
-Sections carry their own layout type. Instead of template-level hacks, the section object in `tiles.json` declares how it renders — and `build.js` / `app.js` both honor it automatically everywhere the section appears.
+Sections declare their own layout in `tiles.json`:
 
-**Data model addition:**
 ```json
 { "id": "3", "title": "TRACKS", "layout": "horizontal", "rows": 2 }
 ```
-- `layout`: `"vertical"` (default, current behavior) or `"horizontal"` (left-right scroll with snap)
-- `rows`: number of tile rows in a horizontal strip. Default `1`. Only meaningful when `layout: "horizontal"`.
 
-**Admin — sections editor:** when creating or editing a section, a **Layout** dropdown appears: `VERTICAL` / `HORIZONTAL`. Choosing horizontal shows a **Rows** number input (default 1). This lives in the section modal alongside the existing title field. No new tab needed.
+Admin section modal gets a Layout dropdown. Build emits `data-layout="horizontal" data-rows="N"` on `.tile-grid`. CSS handles scroll snap. Tile stacking suppressed for horizontal sections.
 
-**Build/render behavior:**
-- Vertical sections: exactly as today, no change to existing output
-- Horizontal sections: `.tile-grid` gets `data-layout="horizontal" data-rows="N"` attributes. CSS handles the rest — `display: grid; grid-template-rows: repeat(N, auto); grid-auto-flow: column; overflow-x: auto; scroll-snap-type: x mandatory`. Tiles get `scroll-snap-align: start`. Tile stacking (`.tile-stack`) is suppressed for horizontal sections since stacks break column flow.
-
-**Why this is the right primitive for a single-page app:**
-
-A single `index.html` with just `<!--SECTIONS-->` becomes fully controllable. Five sections — picks (vertical featured), tracks (horizontal 2-row), mixes (horizontal 1-row), shows (vertical), links (vertical) — renders as a complete one-page app with distinct navigation zones. No separate pages needed for the browsing experience. Separate pages still exist for SEO and deep-linking, but the homepage tells the whole story.
-
-The section type lives in the data, not the template. Changing a section from vertical to horizontal in the admin and re-exporting updates every page it appears on simultaneously.
-
-**Relationship to separate pages:** not mutually exclusive. Horizontal sections are for browsing and discovery on the front page. Separate pages are for SEO, shareable URLs, and deeper content. Both can coexist — the front page uses horizontal sections, and each section also has a dedicated page for search indexing.
+A single `index.html` with `<!--SECTIONS-->` becomes a full one-page app — picks (vertical), tracks (horizontal 2-row), mixes (horizontal 1-row), shows (vertical) — with distinct browsing zones and no separate pages needed for the primary experience.
 
 ---
 
 ## Random picks widget
 
-A `<!--RANDOM:section-id:count-->` comment tag that `app.js` replaces at runtime with N randomly selected tiles from the given section. Since `app.js` already runs in the browser and has `tiles.json`, this needs no build step — just a new tag handler. Useful for a front page "picks" block that changes every visit without manual curation.
+`<!--RANDOM:section-id:count-->` replaced at runtime by `app.js` with N random tiles from the section. No build step. Respects `visible` flags.
 
-**Practical version:** `<!--RANDOM:tracks:3-->` drops in 3 random track tiles from the tracks section. Count defaults to 1 if omitted. Respects `visible` flags.
-
-**Slot machine variant:** the flashier version of the same primitive — 3 columns that spin and lock. Same data, different animation. Could ship as `<!--SLOT_MACHINE-->` separately or as a flag on the same tag. Aesthetic: slot machine columns with favicons instead of cherries. Spin to re-roll.
+**Slot machine variant:** 3 columns that spin and lock. Same data, different animation.
 
 ---
 
-## Single tile tag + stable tile IDs
+## Single tile tag
 
-A `<!--TILE:identifier-->` tag that renders one specific tile anywhere — inside a story page, a section template, or the homepage. Useful for featuring a single track or event inline with other content.
-
-**The ID stability problem:** tile `id` values are currently reassigned sequentially on every export (`1`, `2`, `3`...). This means `id` encodes order, not identity — if tiles are reordered, all IDs shift and any hardcoded `<!--TILE:5-->` tag silently renders the wrong tile. This needs to be fixed before `<!--TILE:id-->` is useful.
-
-**Two-part fix:**
-
-1. **Stable IDs** — stop reassigning IDs on export. A tile's ID should be the value it was born with and never change. Array position in `tiles.json` already encodes display order, so IDs don't need to. This is a breaking change for existing exports but straightforward: on first export after the update, existing IDs are preserved rather than renumbered. Going forward, new tiles get a timestamp-based ID (already how the admin creates them) and it sticks.
-
-2. **Slug-based lookup** — `<!--TILE:my-slug-->` as an alternative to ID-based lookup. Slugs are user-defined, stable, and meaningful. Works immediately for any tile that has one without touching the ID system. Good enough for most use cases, implement this first.
-
-**Combined:** `<!--TILE:my-slug-->` for slug tiles now; `<!--TILE:stable-id-->` once IDs are fixed for non-slug tiles.
+`<!--TILE:slug-->` renders one specific tile anywhere — inside a story page, section template, or homepage. Useful for featuring a single track inline with other content. (Stable IDs are already shipped — the underlying requirement is met.)
 
 ---
 
 ## Admin improvements
 
-### Inline tile preview / card grid view
-
-A toggle in the admin between the current drag-to-reorder list view and a card grid that renders tiles the way they appear on the site. Makes it easy to check layout, image cropping, and text without building and opening a browser tab. Also useful as a simpler "list row enhancement" — just image thumbnail + name + status dot in each row as a lighter version of the same idea.
-
-**Note on app.js:** the local preview hydration approach (`app.js` + Live Server on `site/`) is deliberately not being extended. The build is fast enough (seconds) that `npm run build` + previewing `dist/` is the better local workflow. New features only need to be implemented once in `build.js`. The admin card view below is the replacement for "see what your tiles look like" without a full preview.
-
----
-
-### Bulk actions
-
-Select multiple tiles via checkboxes and apply an action to all of them at once — hide, show, change section, change status, delete.
-
----
-
-### Search / filter
-
-A text input in the admin toolbar that filters the tile list by name, description, or domain in real time. Useful once tile count gets large.
+- **Inline tile preview / card grid view** — toggle between the current list view and a card grid showing tiles as they appear on the site
+- **Bulk actions** — checkboxes to hide/show/move/delete multiple tiles at once
+- **Search / filter** — text input filtering the tile list by name, description, or domain in real time
 
 ---
 
@@ -522,55 +183,22 @@ A text input in the admin toolbar that filters the tile list by name, descriptio
 
 ### Service Worker + offline cache
 
-A generated `sw.js` registered on page load. Caches the HTML, CSS, JS, and all tile images on first visit so the site works offline — or on a flaky connection on the way to the gig.
-
-**Two cache strategies:**
-- **Shell (cache-first):** `index.html`, `style.css`, `player.js`, `tiles.json` — always serve from cache, refresh in background
-- **Audio (network-first with fallback):** audio files are large; try network first, fall back to cached version if offline. Cache on first play.
-
-**What build generates:** `dist/sw.js` with a cache version string derived from the build date. A new build invalidates the old cache automatically.
-
-**Registration:** one `<script>` tag in `index.html` — `navigator.serviceWorker.register('sw.js')`. Stripped in local preview like `app.js`.
-
----
+Generated `sw.js`. Shell (`index.html`, CSS, JS, JSON) cache-first; audio files network-first with cache fallback. Cache version derived from build date invalidates automatically on rebuild.
 
 ### Screen Wake Lock
 
-One call: `navigator.wakeLock.request('screen')` when audio starts, release when it pauses or ends. Prevents the screen from dimming mid-set while the lock screen controls are active. Already have the hooks in `audioPlay()`.
-
-**Implementation:** 3–4 lines in `audioPlay()` and `_aud.onended`. Acquire on play, release on pause/end/tab-hidden. Re-acquire on `visibilitychange` (required by the spec — wake lock is released automatically when tab goes to background).
-
-Note: this is a full-screen video player feature in practice. Audio keeps playing after screen lock via Media Session anyway. Most useful for a future now-playing modal that fills the screen.
-
----
+`navigator.wakeLock.request('screen')` on play, release on pause/end. Prevents screen dimming mid-set. 3–4 lines in `audioPlay()` and `_aud.onended`. Re-acquire on `visibilitychange` (required by spec — lock releases when tab goes to background).
 
 ### Persistent nav bar
 
-CSS `position: fixed` with `backdrop-filter: blur` — same frosted glass as the track page back bar. On mobile, bottom-fixed tab bar is more thumb-friendly than top nav (iPhone pattern). On desktop, top bar.
-
-**Content options:**
-1. **Logo + filters** — move the existing filter buttons into a sticky bar so they're always accessible while scrolling
-2. **Logo + section jumps** — link to each section by anchor; sections get `id` attributes at build time from their slugs
-3. **Bottom tab bar** — icons for Home / Tracks / Mixes / Shows, each a link to a page or anchor. Driven by the `nav` array idea in [[Icon tiles / navigation buttons]].
-
-**Lowest-friction start:** just make `#filters` sticky. One CSS change, no data model needed.
+`position: fixed` with `backdrop-filter: blur`. Options: sticky filters bar (one CSS change, lowest friction), section jump anchors, or bottom tab bar for mobile driven by a `nav` array in `site.json`.
 
 ---
 
 ## Derivative projects
 
-Ideas that use tile-manager as a foundation but may become their own repos. Preserved here until scope becomes clear — could end up as built-in tags, a separate package, or a standalone product.
-
 ### Webring
 
-A modern federated webring protocol built on the tile-manager JSON schema. Each site publishes a `card.json` — logo, tagline, audio clip, blurb, status, link — and member sites fetch and render each other's cards as native tiles in their grid.
+A federated webring protocol built on the tile-manager JSON schema. Each site publishes a `card.json` — logo, tagline, audio clip, blurb, status, link — and member sites render each other's cards as native tiles.
 
-**Key concepts:**
-- Each site is a node. Member sites list each other in their config.
-- Mutual verification: your API checks if the other site lists you before rendering their card. No freeloading — both sides have to publish each other or neither shows.
-- Ringmasters curate their ring manually. The protocol handles verification, not trust — trust is human.
-- The prestige economy is built in: a selective ring is worth being on.
-- A `<!--WEBRING:url-->` tag could render a horizontal scroller of member tiles natively in any tile-manager page.
-- Rich cards replace the old "previous / next / random" banner — logo + audio + blurb + link, rendered as a first-class tile.
-
-**Stack:** each node needs a small API (a Cloudflare Worker would do). The tile-manager JSON schema is already the card format. This might ship as a `<!--WEBRING-->` tag in tile-manager core, or as its own repo that depends on tile-manager.
+Key concepts: mutual verification (both sides must list each other, or neither shows), ringmaster curation, `<!--WEBRING:url-->` tag for native rendering, rich cards (logo + audio + blurb) replace old previous/next banners. Each node needs a small Cloudflare Worker API.

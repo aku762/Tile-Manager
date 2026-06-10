@@ -445,6 +445,31 @@ body {
 
 .track-player-wrap .audio-btn { font-size: 0.85rem; width: 20px; }
 .track-player-wrap .audio-time { font-size: 0.6rem; }
+.track-player-wrap .track-play-btn { font-size: 1.4rem; width: 56px; }
+
+/* Catalog track page — single play/pause button, full controls in player bar */
+.tile-audio.track-play {
+    display: block;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.tile-audio.track-play .track-play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--blue);
+    background: rgba(12,157,222,0.08);
+    color: var(--blue);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+.tile-audio.track-play .track-play-btn:hover { background: rgba(12,157,222,0.18); transform: scale(1.05); }
 
 .track-details { margin-bottom: 2rem; }
 
@@ -506,6 +531,45 @@ body {
 .track-content a:hover { text-decoration: underline; }
 .track-content strong { font-weight: 700; }
 .track-content em { color: var(--muted); font-style: italic; }
+
+/* ── CATALOG TILE PLAY BUTTON ── */
+.tile-play-btn {
+    background: none;
+    border: 1px solid var(--blue-dim);
+    color: var(--blue);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.55rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.tile-play-btn:hover { background: var(--blue-faint); border-color: var(--blue); }
+
+/* ── BUY PAGE ── */
+.buy-price {
+    font-family: var(--sans);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: rgba(57,255,132,0.9);
+    letter-spacing: 0.02em;
+    margin: 0.5rem 0 1rem;
+}
+
+/* ── BUY TILE PRICE ── */
+.tile-price {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgba(57,255,132,0.85);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
 
 /* hidden tiles when filtered */
 .tile[data-hidden="true"] {
@@ -579,6 +643,24 @@ body.has-player { padding-bottom: 64px; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#player-img.player-img-linked {
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+#player-img.player-img-linked:hover { opacity: 0.75; }
+
+#player-info.player-info-linked {
+    cursor: pointer;
+}
+#player-info.player-info-linked:hover #player-track { color: var(--blue); }
+#player-info.player-info-linked #player-track::after {
+    content: ' ↗';
+    font-size: 0.65em;
+    color: var(--blue);
+    opacity: 0.55;
+    vertical-align: super;
 }
 
 #player-btn {

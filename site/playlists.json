@@ -1,0 +1,27 @@
+{
+  "default": "main",
+  "playlists": [
+    {
+      "id": "main",
+      "title": "Main",
+      "tracks": [
+        "jingle:intro",
+        "medusas-escape"
+      ]
+    },
+    {
+      "id": "demo",
+      "title": "Demo",
+      "tracks": [
+        "medusas-escape"
+      ]
+    }
+  ],
+  "jingles": [
+    {
+      "id": "intro",
+      "title": "DJ Intro",
+      "audio": "jingles/intro.mp3"
+    }
+  ]
+}

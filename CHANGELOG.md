@@ -1,5 +1,171 @@
 # Changelog
 
+## 2026-06-10
+
+### Tile type system
+
+Tiles now have a `type` field (`link | catalog | buy | info`) that controls what kind of page is generated and what fields appear in the admin modal.
+
+- **`link`** (default) — external URL, no subpage. Optional slug still builds a `tracks/<slug>/` page for audio tiles (backward compatible).
+- **`catalog`** — picks a catalog entry via a dropdown; href auto-sets to the entry's page. No audio fields.
+- **`buy`** — local sale page at `buy/<slug>/`; shows a `price` field. Page rendered from `site/content/buy/<slug>.md`. Schema.org `Product` markup with `Offer`.
+- **`info`** — blog/event page at `<slug>/` (directory-based slug, e.g. `events/rave-2026`). Page rendered from `site/content/<slug>.md`. Schema.org `Article` markup. `{{ROOT}}` token in `info.html` adjusts asset paths for any slug depth.
+
+Admin modal field groups show/hide based on type: `f-group-catalogref`, `f-group-slug`, `f-group-price`, `f-group-link-extras`. `syncSlugHref()` updated to prefix `buy/` or empty (info) vs `tracks/` (link). `syncCatalogRef()` fills href from the catalog entry select.
+
+`build.js` changes:
+- `tileHref(tile)` — computes correct URL from slug + type
+- `buildTile()` updated to use `tileHref()`, handle catalog tiles (internal link, no `target=_blank`), show price badge for buy tiles
+- `buildBuyPages()` — new, builds `dist/buy/<slug>/index.html` from `buy.html` template
+- `buildInfoPages()` — new, builds `dist/<slug>/index.html` from `info.html` template; `rootPrefix` computed from slug depth
+- `buildTrackPages()` now skips tiles with `type` set to non-link values
+- Sitemap updated to include `buy/` and info slugs with correct paths
+
+New templates: `site/templates/buy.html`, `site/templates/info.html`.
+
+---
+
+### Playlist editor + player bar click-to-navigate
+
+**Admin PLAYLISTS sub-panel** (Catalog → Playlists):
+- Two-panel layout: playlist list on the left, track detail on the right
+- Create/rename/delete playlists; set a default playlist (shown with a green DEFAULT badge)
+- Track list with drag-to-reorder; add tracks via a picker dropdown; remove individual tracks
+- IMPORT / EXPORT / COPY buttons for `playlists.json` (`tile_manager_playlists` localStorage key)
+- `savePlaylists()`, `renderPlaylists()`, `renderPlaylistDetail()`, and drag handlers follow the same pattern as the catalog track list
+
+**Player bar click-to-navigate:**
+- When a catalog track has a `slug`, clicking the track name/info area or album art navigates to its `tracks/<slug>/` page via the SPA `navigate()` function
+- A small `↗` superscript indicator appears after the track name when the link is active; hovered state highlights the track name in blue
+- `_playerBarShow()` now attaches/removes `.player-info-linked` and `.player-img-linked` classes and `onclick` handlers based on `track.slug`
+- New CSS in `style.css`: `.player-info-linked`, `.player-img-linked` with pointer cursor and hover opacity on the image
+
+---
+
+### Admin Catalog tab
+
+New **CATALOG** tab in the admin UI for managing `catalog.json` entries without hand-editing JSON.
+
+- **TRACKS sub-panel**: table showing all catalog tracks with title, artist, album, cat, and audio status; drag-to-reorder rows; HIDE/SHOW and DEL per row
+- **Add/Edit track modal**: slug, title, artist (select), BPM, key, duration, album (select from releases), cat, desc, audio URL/path, image file, visible checkbox
+- **IMPORT CATALOG** — loads `catalog.json` into admin localStorage; **EXPORT CATALOG** — downloads `catalog.json`; **COPY CATALOG** — copies to clipboard
+- Catalog state stored separately in `localStorage` key `tile_manager_catalog` (independent of tiles state)
+- `showTab()` updated to include `'catalog'`; `onCatalogTrackDragStart / Drop / DropEnd` follow the same drag-drop pattern as tiles
+
+---
+
+
+### Stable section and tile IDs
+
+Section and tile IDs were reassigned as sequential integers on every export, meaning inserting or reordering items would silently shift IDs and break any `<!--SECTION:id-->` tags in HTML templates, as well as any future `catalogRef` or `<!--TILE:id-->` references.
+
+- `buildExportJSON` in `admin.js` now preserves existing IDs exactly as stored — no renaming, no `sectionIdMap` remapping
+- New tiles already used `Date.now()` for ID generation; new sections used a slug derived from the title. Both are preserved as-is on export going forward
+- Added a collision guard to section creation: if a slug-based ID already exists (e.g. two sections both named "Tracks"), a timestamp suffix is appended
+
+Existing `tiles.json` files with sequential IDs (`"1"`, `"2"`, `"3"`) are unaffected — those IDs are just preserved rather than regenerated.
+
+---
+
+### Track page back link follows navigation context
+
+The `← Site Name` back link on track pages was hardcoded to `href="/"`, always returning to the homepage even if you arrived from `/mixes.html` or another page.
+
+- **SPA navigate:** `navigate()` captures `location.href` before `pushState` and writes it to the back link's `href` after the DOM swap. Back takes you to the actual page you came from.
+- **Direct load:** on initial page load, a same-origin `document.referrer` (if present) overwrites the default `/`. Falls back to `/` when there's no referrer or it's cross-origin (bookmarked URL, shared link).
+- **Popstate (back button):** uses the stored pre-navigation URL from the history entry, same as SPA navigate.
+
+---
+
+### catalog.json schema expanded to three arrays
+
+`site/catalog.json` skeleton updated to the full label-scale model: `artists`, `releases`, `tracks`.
+
+**`artists`** (optional): `{ id, name, slug?, aliases?, desc?, image? }` — `slug` triggers artist page generation; omitting it keeps the entry as a name-resolution reference only. Tracks/releases reference artists by `id`; at build time the `id` resolves to the display `name`. Unmatched artist strings (friend remixes, one-off credits) display as-is with no link.
+
+**`releases`**: `{ id, type, title, artist, label?, year?, image?, desc?, slug?, tracks[] }` — `type` is `album | single | ep | mix | compilation`. `tracks` is an ordered slug list. `slug` triggers release page generation.
+
+**`tracks`**: unchanged from previous entry; `artist` now resolves against `artists[].id` at build time. Added `release` (ID ref), `trackNumber`, `label` (per-track override).
+
+Single-artist sites skip the `artists` array entirely — `artist` on a track is just a name string.
+
+---
+
+### catalog.json — data-driven music catalog and playlist system
+
+Introduces `site/catalog.json` and optional `site/playlists.json` as the authoritative source for music/track data, decoupling it from tile display data.
+
+**Schema (`catalog.json`):**
+- `tracks` array — each entry: `slug` (required, primary key), `title`, `artist`, `label`, `album`, `cat`, `desc`, `audio`, `image`, `genre[]`, `bpm`, `releaseDate`, `duration` (seconds), `links[]` (`{label, url}`), `visible`
+- `audio` absent = catalog-only entry (shows in catalog, skipped by player)
+- `visible: false` = hidden from catalog and player entirely
+
+**Schema (`playlists.json`):**
+- `default` — ID of the active playlist on load
+- `playlists[]` — each entry: `id`, `title`, `tracks[]` (ordered slug list)
+- If absent, a default playlist is auto-synthesized from all catalog entries that have `audio`
+
+**`build.js` changes:**
+- Reads `site/catalog.json` and `site/playlists.json` (both optional)
+- Injects `window._catalog` (object keyed by slug) and `window._playlists` into every built page just before the `window._siteRoot` script — available to `player.js` on load
+- `buildCatalogTrackPages()` generates `dist/tracks/<slug>/` pages from catalog entries with richer Schema.org (`recordLabel`, `duration`, `datePublished`, `genre`)
+- Tile-based track page generation (`buildTrackPages`) continues as a fallback for any slug not already built from catalog — no pages are lost during migration
+- Sitemap updated to include catalog slugs (deduplicated against tile slugs, catalog takes precedence)
+
+**`player.js` changes:**
+- New `_currentTrack` state (plain data object) replaces direct `_audWrap` DOM dependency for tracking what's playing — persists across SPA navigation
+- `_playerBarShow()` now accepts a plain data object instead of a DOM element
+- `_getPlaylistTracks()` — reads the active playlist from `window._playlists` + `window._catalog`
+- `_audioGetAdjacent()` — uses catalog playlist when available (finds current track by slug/src); falls back to DOM scanning when catalog is absent or current track isn't in the playlist
+- `_setupAudioHandlers()` — extracted shared setup for `ontimeupdate`, `onended`, and Media Session; called by both play paths
+- `playCatalogTrack(entry)` — plays a catalog entry directly without any DOM tile; used by auto-advance, OS media buttons, and hash routing
+- `audioPlay(btn)` — unchanged call signature; now also sets `_currentTrack` and delegates handlers to `_setupAudioHandlers()`
+- `initHashRouting()` — falls back to `playCatalogTrack` when no DOM tile matches the slug (e.g., deep-linking to a catalog-only track)
+- Media Session next/prev handlers now call `playCatalogTrack` for catalog entries and `audioPlay` for DOM tiles
+
+**Migration:** existing tiles with `slug`/`audio` fields continue to work unchanged. Populate `catalog.json` entries and they take over — tile track pages are skipped for any slug that exists in the catalog.
+
+---
+
+### Catalog admin: Artists, Labels, Releases
+
+Full CRUD panels added to the CATALOG tab for all reference entities. Sub-nav order: PLAYLISTS → JINGLES → TRACKS → RELEASES → LABELS → ARTISTS.
+
+**ARTISTS sub-panel:** table with NAME/ID/ACTIONS. Add/edit modal — name only; ID auto-derived from name. Rename propagates to all tracks and releases that reference the artist.
+
+**LABELS sub-panel:** same table layout as Artists. Labels are a reference table for releases — tracks no longer carry a `label` field (moved to releases). Rename propagates to all releases.
+
+**RELEASES sub-panel:** two-panel layout (same grid as Playlists) — release list on left, track detail on right. Release modal fields: TITLE, ARTIST (dropdown), LABEL (dropdown), TYPE (`LP/EP/Single/Mix/Compilation`), CAT, RELEASE DATE, CATALOG NO., IMAGE, DESCRIPTION. Track detail panel: add/remove/reorder catalog tracks by drag; adding a track auto-sets `track.album` to the release title if the track has no album yet.
+
+**Track modal changes:** LABEL field removed (belongs on releases). BPM (number input), KEY (text, e.g. `8A / Am`), and DURATION (text, e.g. `6:42`) added in a 3-column row. ALBUM field changed from free text to a select populated from releases.
+
+**`catalog.json` export** now includes: `labels` array; `bpm`, `key`, `duration` on tracks; `label`, `type`, `release_date`, `catalog_number`, `desc` on releases.
+
+---
+
+### Jingles and player autoShow
+
+**`site/playlists.json`** now embeds jingles directly under a `jingles` key — no separate `jingles.json` file. Build reads `playlistsData.jingles` instead of a separate file. Admin migrates old `tile_manager_jingles` localStorage key automatically on first load.
+
+**Admin JINGLES sub-panel:** table of jingle entries (id, title, audio path). `+ ADD JINGLE` opens a modal. Deleting a jingle removes all `jingle:id` references from every playlist. Import/export handled via the Playlists IMPORT/EXPORT buttons — no separate jingles I/O.
+
+**Playlist tracks** can reference jingles as `jingle:id` entries. `player.js` resolves them from `window._jingles` (injected by build alongside `window._catalog` and `window._playlists`).
+
+**`site.json player.autoShow`:** when `true`, the player bar appears on load and starts the first track of the default playlist after a 600ms delay. Default `false`. `initAutoPlay()` added to `player.js`.
+
+---
+
+### Build: inAlbum and recordLabel from releases
+
+`build.js` now derives Schema.org `inAlbum` and `recordLabel` from the releases array rather than flat `entry.album`/`entry.label` fields on tracks.
+
+- **`pickPrimaryRelease(slug, releases)`** — finds all releases containing the slug, selects by type priority: LP/Album (5) › Compilation (4) › EP (3) › Single (2) › Mix (1)
+- `schema.inAlbum` uses the primary release title; falls back to `entry.album` if the track isn't in any release
+- `schema.recordLabel` uses the primary release's label; omitted if no release has a label
+- Duration stored as `"6:42"` string; converted to ISO 8601 `PT6M42S` for the schema
+
+---
+
 ## 2026-05-23
 
 ### Site schema: artistName, alternateName, logo

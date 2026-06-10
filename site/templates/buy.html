@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{BUY_TITLE}} — {{SITE_TITLE}}</title>
+    <meta name="description" content="{{BUY_DESC}}">
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{BUY_TITLE}}">
+    <meta property="og:description" content="{{BUY_DESC}}">
+    {{BUY_SCHEMA}}
+    <link rel="icon" href="../../{{SITE_ICON}}">
+    <link rel="apple-touch-icon" href="../../{{SITE_ICON}}">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<div id="page">
+
+    <div id="main">
+
+        <div class="track-back-bar">
+            <a href="/" class="track-back">← {{SITE_TITLE}}</a>
+        </div>
+
+        <!--BUY_HERO-->
+
+        <div class="track-main">
+
+            <div class="track-details">
+                <div class="track-cat">{{BUY_CAT}}</div>
+                <div class="track-title">{{BUY_TITLE}}</div>
+                <div class="buy-price">{{BUY_PRICE}}</div>
+                <div class="track-desc">{{BUY_DESC}}</div>
+            </div>
+
+            {{BUY_CONTENT}}
+
+        </div>
+
+    </div><!-- /main -->
+
+    <div id="footer">{{SITE_FOOTER}}</div>
+
+</div>
+
+<script>window._siteRoot = '../../';</script>
+<script src="../../player.js"></script>
+
+</body>
+</html>

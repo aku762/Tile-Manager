@@ -193,14 +193,11 @@
       "name": "DJ TYPHOON - MEDUSA'S ESCAPE (2006 MIX)",
       "desc": "The 2006 remix of DJ Typhoon's classic trance mashup banger.",
       "status": "new",
+      "type": "catalog",
+      "catalogRef": "medusas-escape",
       "domain": "",
       "href": "tracks/medusas-escape/",
       "image": "medusasescape.webp",
-      "audio": "https://media.djtyphoon.com/DJ_Typhoon_Medusa's_Escape_2006_Mix.mp3",
-      "track": "Medusa's Escape (2006 Mix)",
-      "slug": "medusas-escape",
-      "artist": "DJ Typhoon",
-      "album": "Original Archive",
       "showImage": true,
       "featured": 3
     }
